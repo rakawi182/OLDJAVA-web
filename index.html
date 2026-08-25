@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ΩLDJAVA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .navbar-custom {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            padding: 15px 0;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 50px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        .navbar-custom h1 {
+            color: #ffd700;
+            font-weight: bold;
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+        }
+        .navbar-custom h1 .omega {
+            font-family: 'Times New Roman', serif;
+            font-weight: bold;
+        }
+        .navbar-custom small {
+            color: rgba(255,255,255,0.8);
+            display: block;
+            font-weight: 300;
+            font-size: 0.9rem;
+        }
+        .card-app {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            background: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .card-app:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.15);
+        }
+        .card-app .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .card-app .icon-wuku { color: #fdbb2d; }
+        .card-app .icon-sthapati { color: #764ba2; }
+        .card-app h3 {
+            font-weight: 700;
+            color: #1a2a6c;
+        }
+        .card-app p {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+        .btn-app {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-app:hover {
+            transform: scale(1.05);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-wuku {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            color: #1a2a6c;
+        }
+        .btn-wuku:hover {
+            color: #1a2a6c;
+            box-shadow: 0 5px 15px rgba(247, 151, 30, 0.4);
+        }
+        footer {
+            margin-top: 50px;
+            color: #6c757d;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .container-custom {
+            max-width: 900px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-custom">
+    <!-- Header -->
+    <div class="navbar-custom">
+        <h1><span class="omega">Ω</span>LDJAVA</h1>
+        <small>Jolotundo Research Consortium</small>
+    </div>
+
+    <!-- Grid Aplikasi -->
+    <div class="row g-4">
+        <!-- WUKU -->
+        <div class="col-md-6">
+            <div class="card-app">
+                <div class="icon icon-wuku"><i class="fas fa-calendar-day"></i></div>
+                <h3>Ω-WUKU ENGINE</h3>
+                <p>Sistem Wuku 210 hari. Hitung Wuku, Wara, TU-PA-A, dan konversi waktu.</p>
+                <a href="wuku.html" class="btn-app btn-wuku"><i class="fas fa-arrow-right"></i> Buka Wuku</a>
+            </div>
+        </div>
+
+        <!-- STHAPATI -->
+        <div class="col-md-6">
+            <div class="card-app">
+                <div class="icon icon-sthapati"><i class="fas fa-scroll"></i></div>
+                <h3>Ω-STHAPATI</h3>
+                <p>Konversi Prasasti Saka Jawa Kuno ke Kalender Masehi dengan smart parsing.</p>
+                <a href="sthapati.html" class="btn-app"><i class="fas fa-arrow-right"></i> Buka Prasasti</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <hr>
+        <span>© 2026 · Jolotundo Obsv · <i class="fas fa-infinity"></i> OLDJAVA-web</span>
+    </footer>
+</div>
+
+</body>
+</html>

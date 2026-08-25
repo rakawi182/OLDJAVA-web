@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ω-WUKU ENGINE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; padding-bottom: 30px; }
+        .navbar { background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); }
+        .navbar-brand { font-weight: bold; color: #ffd700 !important; }
+        .navbar-text { color: rgba(255,255,255,0.7) !important; }
+        .card { border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); border: none; margin-bottom: 25px; }
+        .card-header { background: linear-gradient(135deg, #2c3e50, #4ca1af); color: white; font-weight: 600; }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); border: none; }
+        .btn-primary:hover { background: linear-gradient(135deg, #5a67d8, #6b3f8a); }
+        .output-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        .output-box.error { border-left: 5px solid #dc3545; }
+        .nav-tabs .nav-link.active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; }
+        .nav-tabs .nav-link { color: #333; border: none; }
+        .nav-tabs .nav-link:hover { background: #e9ecef; }
+        .loader { display: none; text-align: center; margin: 15px 0; }
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); z-index: 9999;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            transition: opacity 0.5s;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-overlay .spinner { font-size: 3rem; }
+        .petunjuk {
+            background: transparent;
+            padding: 8px 0;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            color: #555;
+            border-bottom: 1px solid #dee2e6;
+        }
+        footer { background: #1a2a6c; color: white; padding: 12px 0; margin-top: 30px; text-align: center; font-size: 0.9rem; }
+        .btn-outline-secondary { border-color: #ced4da; }
+        .btn-outline-secondary:hover { background: #e9ecef; }
+
+        /* ===== KARTU HASIL ELEGAN ===== */
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 6px solid #28a745;
+            transition: all 0.2s;
+        }
+        .result-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .result-card.rank-1 { border-left-color: #ffc107; }
+
+        .result-card .label { color: #6c757d; font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .result-card .value { font-size: 1.1rem; font-weight: 600; color: #1a2a6c; }
+        .result-card .value-lg { font-size: 1.4rem; font-weight: 700; color: #1a2a6c; }
+        .result-card .badge-wuku { background: #e9ecef; padding: 4px 14px; border-radius: 20px; display: inline-block; font-weight: 500; }
+        .result-card .badge-wara { background: #dbeafe; padding: 4px 14px; border-radius: 20px; display: inline-block; font-weight: 500; color: #1e40af; }
+        .result-card .badge-tpa { background: #fef3c7; color: #92400e; padding: 4px 14px; border-radius: 20px; display: inline-block; font-weight: 500; }
+        .result-card .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+        .result-card .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+        .result-card .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px; }
+        .result-card .item { background: #f8f9fa; padding: 8px 12px; border-radius: 8px; text-align: center; }
+        .result-card .item .label { font-size: 0.75rem; text-transform: uppercase; }
+        .result-card .item .value { font-size: 1rem; }
+
+        .result-card .status-icon { font-size: 1.2rem; margin-right: 6px; }
+        .result-card .divider { border-top: 1px solid #e9ecef; margin: 12px 0; }
+
+        @media (max-width: 576px) {
+            .result-card .grid-2, .result-card .grid-3, .result-card .grid-4 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"><i class="fas fa-spinner fa-spin"></i></div>
+    <h5 class="mt-3">Memuat Ω-WUKU ENGINE</h5>
+    <p class="text-muted small">Inisialisasi Pyodide, mohon tunggu sebentar</p>
+</div>
+
+<nav class="navbar navbar-dark mb-3">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="fas fa-sun"></i> Ω-WUKU ENGINE</span>
+        <span class="navbar-text"><i class="fas fa-infinity"></i> Lengkap</span>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- Petunjuk ringkas -->
+    <div class="petunjuk">
+        <i class="fas fa-info-circle text-primary"></i>
+        Masukkan tanggal (YYYY-MM-DD, gunakan tanda minus untuk tahun SM, misal <code>-100-01-01</code>). Pilih tab di atas untuk fitur lainnya.
+    </div>
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs nav-fill" id="mainTabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" id="tab-wuku" data-bs-toggle="tab" data-bs-target="#pane-wuku" type="button"><i class="fas fa-calendar-day"></i> Wuku</button></li>
+        <li class="nav-item"><button class="nav-link" id="tab-convert" data-bs-toggle="tab" data-bs-target="#pane-convert" type="button"><i class="fas fa-exchange-alt"></i> Konversi</button></li>
+        <li class="nav-item"><button class="nav-link" id="tab-offset" data-bs-toggle="tab" data-bs-target="#pane-offset" type="button"><i class="fas fa-clock"></i> Offset</button></li>
+        <li class="nav-item"><button class="nav-link" id="tab-tupa" data-bs-toggle="tab" data-bs-target="#pane-tupa" type="button"><i class="fas fa-star"></i> TU-PA-A</button></li>
+        <li class="nav-item"><button class="nav-link" id="tab-realtime" data-bs-toggle="tab" data-bs-target="#pane-realtime" type="button"><i class="fas fa-clock"></i> Realtime</button></li>
+    </ul>
+
+    <div class="tab-content" id="mainTabsContent">
+
+        <!-- PANE WUKU -->
+        <div class="tab-pane fade show active" id="pane-wuku" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-info-circle"></i> Informasi Wuku</div>
+                <div class="card-body">
+                    <form id="formWuku">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label">Tanggal (YYYY-MM-DD)</label>
+                                <input type="text" class="form-control" id="wukuDate" placeholder="2024-01-01" value="2024-01-01">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Kalender</label>
+                                <select class="form-select" id="wukuCalendar">
+                                    <option value="gregorian">Gregorian</option>
+                                    <option value="julian">Julian</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i> Cari</button>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-outline-secondary w-100" onclick="setTodayWuku()"><i class="fas fa-calendar-alt"></i> Hari Ini</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="wukuResult" class="output-box"></div>
+                    <div id="wukuLoader" class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i> Memproses…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANE KONVERSI -->
+        <div class="tab-pane fade" id="pane-convert" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-exchange-alt"></i> Konversi JD ↔ KA ↔ Tanggal</div>
+                <div class="card-body">
+                    <form id="formConvert">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-5">
+                                <label class="form-label">Jenis Konversi</label>
+                                <select class="form-select" id="convertType">
+                                    <option value="date_to_ka">Tanggal → KA</option>
+                                    <option value="ka_to_date">KA → Tanggal</option>
+                                    <option value="date_to_jd">Tanggal → JD</option>
+                                    <option value="jd_to_date">JD → Tanggal</option>
+                                    <option value="jd_to_ka">JD → KA</option>
+                                    <option value="ka_to_jd">KA → JD</option>
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Nilai Input</label>
+                                <input type="text" class="form-control" id="convertInput" placeholder="2024-01-01 atau 12345">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-sync"></i> Konversi</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="convertResult" class="output-box"></div>
+                    <div id="convertLoader" class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i> Memproses…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANE OFFSET -->
+        <div class="tab-pane fade" id="pane-offset" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-clock"></i> Offset Waktu</div>
+                <div class="card-body">
+                    <form id="formOffset">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label">Tanggal Awal</label>
+                                <input type="text" class="form-control" id="offsetDate" placeholder="2024-01-01" value="2024-01-01">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Jenis Offset</label>
+                                <select class="form-select" id="offsetType">
+                                    <option value="solar_days">Hari Solar</option>
+                                    <option value="solar_months">Bulan Solar</option>
+                                    <option value="solar_years">Tahun Solar</option>
+                                    <option value="lunar_months">Bulan Lunar</option>
+                                    <option value="lunar_years">Tahun Lunar</option>
+                                    <option value="tithi">Tithi</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Jumlah (bisa negatif)</label>
+                                <input type="number" class="form-control" id="offsetAmount" value="1" step="1">
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-forward"></i> Hitung</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="offsetResult" class="output-box"></div>
+                    <div id="offsetLoader" class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i> Memproses…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANE TU-PA-A -->
+        <div class="tab-pane fade" id="pane-tupa" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-star"></i> Cari TU-PA-A</div>
+                <div class="card-body">
+                    <form id="formTupa">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label">Tahun</label>
+                                <input type="number" class="form-control" id="tupaYear" placeholder="2024" value="2024">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Kalender</label>
+                                <select class="form-select" id="tupaCalendar">
+                                    <option value="gregorian">Gregorian</option>
+                                    <option value="julian">Julian</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i> Cari di Tahun Ini</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="mt-3">
+                        <button class="btn btn-outline-secondary" onclick="findNextTupa()"><i class="fas fa-arrow-right"></i> TU-PA-A Berikutnya</button>
+                    </div>
+                    <div id="tupaResult" class="output-box"></div>
+                    <div id="tupaLoader" class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i> Memproses…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANE REALTIME -->
+        <div class="tab-pane fade" id="pane-realtime" role="tabpanel">
+            <div class="card">
+                <div class="card-header"><i class="fas fa-clock"></i> Wuku Sekarang (Realtime)</div>
+                <div class="card-body text-center">
+                    <button id="realtimeBtn" class="btn btn-primary btn-lg" style="display:none;"><i class="fas fa-sync"></i> Refresh</button>
+                    <div id="realtimeResult" class="output-box text-start"></div>
+                    <div id="realtimeLoader" class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i> Memproses…</div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end tab-content -->
+
+</div><!-- end container -->
+
+<footer>
+    <div class="container">
+        <span>Ω-WUKU ENGINE · RAKAWI · 2026</span>
+    </div>
+</footer>
+
+<!-- ============================================================ -->
+<!-- Script Pyodide + Kode Python + UI -->
+<!-- ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+
+<script>
+    // ============================================================
+    // INISIALISASI PYODIDE DAN KODE PYTHON (tanpa numpy)
+    // ============================================================
+    let pyodide = null;
+    let engineReady = false;
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    async function initPyodide() {
+        loadingOverlay.style.display = 'flex';
+        try {
+            pyodide = await loadPyodide({
+                indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/"
+            });
+
+            // Kode Python lengkap tanpa numpy (sama seperti sebelumnya)
+            const pythonCode = `
+import math
+from datetime import datetime, timezone, timedelta
+import json
+
+class WukuEngine:
+    def __init__(self):
+        self.KALI_EPOCH_JD_NOON = 588465.5
+        self.KA_1_JAN_1_BC = 1132592
+        self.KA_8_FEB_1_BC = 1132630
+        self.WUKU_NAMES = [
+            "Sinta","Landep","Wukir","Kurantil","Tolu","Gumbreg",
+            "Warigalit","Warigagung","Julungwangi","Sungsang",
+            "Galungan","Kuningan","Langkir","Mandasiya","Julungpujut",
+            "Pahang","Kuruwelut","Marakeh","Tambir","Medangkungan",
+            "Maktal","Wuye","Manahil","Prangbakat","Bala","Wugu",
+            "Wayang","Kulawu","Dukut","Watugunung"
+        ]
+        self.SADWARA_MAP = ["TU","HA","WU","PA","WA","MA"]
+        self.PANCAWARA_MAP = ["PA","PO","WA","KA","U"]
+        self.SAPTAWARA_MAP = ["A","SO","ANG","BU","WR","SU","SA"]
+        self.SADWARA_FULL = {"TU":"Tungleh","HA":"Haryang","WU":"Wurukung","PA":"Paniron","WA":"Was","MA":"Maulu"}
+        self.PANCAWARA_FULL = {"PA":"Pahing","PO":"Pon","WA":"Wage","KA":"Kaliwon","U":"Umanis"}
+        self.SAPTAWARA_FULL = {"A":"Aditya","SO":"Soma","ANG":"Anggara","BU":"Budha","WR":"Wrhaspati","SU":"Sukra","SA":"Saniscara"}
+        self.SOLAR_MONTH_MEAN = 365.242190 / 12
+        self.SOLAR_YEAR_MEAN = 365.242190
+        self.LUNAR_SYNODIC_MONTH = 29.530589
+        self.LUNAR_YEAR_SYNODIC = 12 * 29.530589
+        self.TITHI_MEAN_DAY = 29.530589 / 30
+
+    def _gregorian_to_jd(self, y, m, d):
+        if m <= 2:
+            y -= 1; m += 12
+        A = y // 100
+        B = 2 - A + (A // 4)
+        if y < 1582 or (y == 1582 and m < 10) or (y == 1582 and m == 10 and d < 15):
+            B = 0
+        return int(365.25*(y+4716)) + int(30.6001*(m+1)) + d + B - 1524.5
+
+    def _julian_to_jd(self, y, m, d):
+        if m <= 2:
+            y -= 1; m += 12
+        return int(365.25*(y+4716)) + int(30.6001*(m+1)) + d - 1524.5
+
+    def _jd_to_gregorian(self, jd):
+        jd += 0.5
+        Z = int(jd); F = jd - Z
+        if Z < 2299161:
+            A = Z
+        else:
+            alpha = int((Z - 1867216.25) / 36524.25)
+            A = Z + 1 + alpha - (alpha // 4)
+        B = A + 1524
+        C = int((B - 122.1) / 365.25)
+        D = int(365.25 * C)
+        E = int((B - D) / 30.6001)
+        day = B - D - int(30.6001 * E) + F
+        month = E - 1 if E < 14 else E - 13
+        year = C - 4716 if month > 2 else C - 4715
+        return year, month, int(day)
+
+    def _jd_to_julian(self, jd):
+        jd += 0.5
+        Z = int(jd); F = jd - Z
+        A = Z
+        B = A + 1524
+        C = int((B - 122.1) / 365.25)
+        D = int(365.25 * C)
+        E = int((B - D) / 30.6001)
+        day = B - D - int(30.6001 * E) + F
+        month = E - 1 if E < 14 else E - 13
+        year = C - 4716 if month > 2 else C - 4715
+        return year, month, int(day)
+
+    def date_to_jd(self, year, month, day, calendar="gregorian"):
+        if calendar == "julian":
+            return self._julian_to_jd(year, month, day)
+        else:
+            return self._gregorian_to_jd(year, month, day)
+
+    def jd_to_date(self, jd, calendar="gregorian"):
+        if calendar == "julian":
+            return self._jd_to_julian(jd)
+        else:
+            return self._jd_to_gregorian(jd)
+
+    def ka_to_julian_day(self, ka):
+        return self.KALI_EPOCH_JD_NOON + float(ka)
+
+    def julian_day_to_ka(self, jd):
+        return int(round(jd - self.KALI_EPOCH_JD_NOON))
+
+    def date_to_ka(self, year, month, day, calendar="gregorian"):
+        jd = self.date_to_jd(year, month, day, calendar)
+        return self.julian_day_to_ka(jd)
+
+    def ka_to_date(self, ka, calendar="gregorian"):
+        jd = self.ka_to_julian_day(ka)
+        return self.jd_to_date(jd, calendar)
+
+    def safe_mod(self, a, n):
+        r = a % n
+        return r if r >= 0 else r + n
+
+    def ka_to_wuku_index(self, ka):
+        delta = ka - self.KA_8_FEB_1_BC
+        return self.safe_mod(delta, 210)
+
+    def get_wuku_by_ka(self, ka):
+        i = self.ka_to_wuku_index(ka)
+        wuku_num = (i // 7) + 1
+        day_in_wuku = (i % 7) + 1
+        sad_idx = i % 6
+        panc_idx = i % 5
+        sapt_idx = i % 7
+        sad = self.SADWARA_MAP[sad_idx]
+        panc = self.PANCAWARA_MAP[panc_idx]
+        sapt = self.SAPTAWARA_MAP[sapt_idx]
+        is_tpa = (sad_idx == 0 and panc_idx == 0 and sapt_idx == 0)
+        return {
+            'ka': ka,
+            'julian_day': self.ka_to_julian_day(ka),
+            'wuku_index': i,
+            'wuku_number': wuku_num,
+            'wuku_name': self.WUKU_NAMES[wuku_num-1],
+            'sadwara': sad,
+            'pancawara': panc,
+            'saptawara': sapt,
+            'sadwara_full': self.SADWARA_FULL[sad],
+            'pancawara_full': self.PANCAWARA_FULL[panc],
+            'saptawara_full': self.SAPTAWARA_FULL[sapt],
+            'day_in_wuku': day_in_wuku,
+            'is_tu_pa_a': is_tpa,
+            'wara_triple': f"{sad} {panc} {sapt}",
+            'wara_triple_full': f"{self.SADWARA_FULL[sad]} {self.PANCAWARA_FULL[panc]} {self.SAPTAWARA_FULL[sapt]}"
+        }
+
+    def get_wuku_by_date(self, year, month, day, calendar="gregorian"):
+        ka = self.date_to_ka(year, month, day, calendar)
+        return self.get_wuku_by_ka(ka)
+
+    def is_tu_pa_a(self, ka):
+        return self.safe_mod(ka, 210) == 100
+
+    def get_days_to_next_tu_pa_a(self, ka):
+        pos = self.safe_mod(ka, 210)
+        return (100 - pos) if pos <= 100 else (210 - pos + 100)
+
+    def find_tu_pa_a_in_year(self, year, calendar="gregorian"):
+        ka_jan1 = self.date_to_ka(year, 1, 1, calendar)
+        current_mod = self.safe_mod(ka_jan1, 210)
+        if current_mod <= 100:
+            first_ka = ka_jan1 + (100 - current_mod)
+        else:
+            first_ka = ka_jan1 + (210 - current_mod + 100)
+        try:
+            ka_dec31 = self.date_to_ka(year, 12, 31, calendar)
+        except:
+            ka_dec31 = self.date_to_ka(year, 12, 30, calendar)
+        results = []
+        current_ka = first_ka
+        while current_ka <= ka_dec31:
+            info = self.get_wuku_by_ka(current_ka)
+            y,m,d = self.ka_to_date(current_ka, calendar)
+            info['date'] = (y,m,d)
+            results.append(info)
+            current_ka += 210
+        return results
+
+    def find_next_tu_pa_a(self, from_ka=None, from_date=None, calendar="gregorian"):
+        if from_ka is None and from_date is not None:
+            from_ka = self.date_to_ka(*from_date, calendar)
+        if from_ka is None:
+            raise ValueError("Butuh from_ka atau from_date")
+        days = self.get_days_to_next_tu_pa_a(from_ka)
+        next_ka = from_ka + days
+        info = self.get_wuku_by_ka(next_ka)
+        y,m,d = self.ka_to_date(next_ka, calendar)
+        info['date'] = (y,m,d)
+        info['days_until'] = days
+        return info
+
+    def add_solar_days(self, ka, days):
+        ka2 = ka + days
+        info = self.get_wuku_by_ka(ka2)
+        info['date'] = self.ka_to_date(ka2)
+        info['method'] = 'solar_day'
+        info['amount'] = days
+        info['ka_awal'] = ka
+        return info
+
+    def add_solar_months(self, ka, months):
+        days = months * self.SOLAR_MONTH_MEAN
+        ka2 = ka + int(round(days))
+        info = self.get_wuku_by_ka(ka2)
+        info['date'] = self.ka_to_date(ka2)
+        info['method'] = 'solar_month'
+        info['amount'] = months
+        info['ka_awal'] = ka
+        return info
+
+    def add_solar_years(self, ka, years):
+        days = years * self.SOLAR_YEAR_MEAN
+        ka2 = ka + int(round(days))
+        info = self.get_wuku_by_ka(ka2)
+        info['date'] = self.ka_to_date(ka2)
+        info['method'] = 'solar_year'
+        info['amount'] = years
+        info['ka_awal'] = ka
+        return info
+
+    def add_lunar_months(self, ka, months):
+        days = months * self.LUNAR_SYNODIC_MONTH
+        ka2 = ka + int(round(days))
+        info = self.get_wuku_by_ka(ka2)
+        info['date'] = self.ka_to_date(ka2)
+        info['method'] = 'lunar_month'
+        info['amount'] = months
+        info['ka_awal'] = ka
+        return info
+
+    def add_lunar_years(self, ka, years):
+        days = years * self.LUNAR_YEAR_SYNODIC
+        ka2 = ka + int(round(days))
+        info = self.get_wuku_by_ka(ka2)
+        info['date'] = self.ka_to_date(ka2)
+        info['method'] = 'lunar_year'
+        info['amount'] = years
+        info['ka_awal'] = ka
+        return info
+
+    def add_tithi(self, ka, tithi):
+        days = tithi * self.TITHI_MEAN_DAY
+        ka2 = ka + int(round(days))
+        info = self.get_wuku_by_ka(ka2)
+        info['date'] = self.ka_to_date(ka2)
+        info['method'] = 'tithi'
+        info['amount'] = tithi
+        info['ka_awal'] = ka
+        return info
+
+# ===== Wrapper functions for JavaScript =====
+engine = WukuEngine()
+
+def parse_date(date_str):
+    if date_str.startswith('-'):
+        parts = date_str[1:].split('-')
+        return -int(parts[0]), int(parts[1]), int(parts[2])
+    else:
+        y,m,d = map(int, date_str.split('-'))
+        return y,m,d
+
+def wuku_info(date_str, calendar):
+    try:
+        y,m,d = parse_date(date_str)
+        info = engine.get_wuku_by_date(y,m,d,calendar)
+        info['date'] = date_str
+        info['days_to_next_tu_pa_a'] = engine.get_days_to_next_tu_pa_a(info['ka'])
+        next_tpa = engine.find_next_tu_pa_a(from_ka=info['ka'], calendar=calendar)
+        y2,m2,d2 = next_tpa['date']
+        info['next_tu_pa_a_date'] = f"{y2:04d}-{m2:02d}-{d2:02d}"
+        return info
+    except Exception as e:
+        return {'error': str(e)}
+
+def convert(type_, input_val):
+    try:
+        if type_ == 'date_to_ka':
+            y,m,d = parse_date(input_val)
+            ka = engine.date_to_ka(y,m,d)
+            return {'result': ka}
+        elif type_ == 'ka_to_date':
+            ka = int(input_val)
+            y,m,d = engine.ka_to_date(ka)
+            return {'result': f"{y:04d}-{m:02d}-{d:02d}"}
+        elif type_ == 'date_to_jd':
+            y,m,d = parse_date(input_val)
+            jd = engine.date_to_jd(y,m,d)
+            return {'result': jd}
+        elif type_ == 'jd_to_date':
+            jd = float(input_val)
+            y,m,d = engine.jd_to_date(jd)
+            return {'result': f"{y:04d}-{m:02d}-{d:02d}"}
+        elif type_ == 'jd_to_ka':
+            jd = float(input_val)
+            ka = engine.julian_day_to_ka(jd)
+            return {'result': ka}
+        elif type_ == 'ka_to_jd':
+            ka = int(input_val)
+            jd = engine.ka_to_julian_day(ka)
+            return {'result': jd}
+        else:
+            return {'error': 'Tipe konversi tidak dikenal'}
+    except Exception as e:
+        return {'error': str(e)}
+
+def offset(date_str, type_, amount):
+    try:
+        y,m,d = parse_date(date_str)
+        ka = engine.date_to_ka(y,m,d)
+        amount = int(amount)
+        if type_ == 'solar_days':
+            result = engine.add_solar_days(ka, amount)
+        elif type_ == 'solar_months':
+            result = engine.add_solar_months(ka, amount)
+        elif type_ == 'solar_years':
+            result = engine.add_solar_years(ka, amount)
+        elif type_ == 'lunar_months':
+            result = engine.add_lunar_months(ka, amount)
+        elif type_ == 'lunar_years':
+            result = engine.add_lunar_years(ka, amount)
+        elif type_ == 'tithi':
+            result = engine.add_tithi(ka, amount)
+        else:
+            return {'error': 'Tipe offset tidak dikenal'}
+        y2,m2,d2 = result['date']
+        result['date'] = f"{y2:04d}-{m2:02d}-{d2:02d}"
+        result['ka_awal'] = ka
+        return result
+    except Exception as e:
+        return {'error': str(e)}
+
+def tupa_year(year, calendar):
+    try:
+        year = int(year)
+        results = engine.find_tu_pa_a_in_year(year, calendar)
+        out = []
+        for item in results:
+            y,m,d = item['date']
+            out.append({
+                'date': f"{y:04d}-{m:02d}-{d:02d}",
+                'ka': item['ka'],
+                'wuku_name': item['wuku_name'],
+                'wara_triple': item['wara_triple']
+            })
+        return out
+    except Exception as e:
+        return {'error': str(e)}
+
+def tupa_next():
+    try:
+        now = datetime.now()
+        ka = engine.date_to_ka(now.year, now.month, now.day)
+        result = engine.find_next_tu_pa_a(from_ka=ka)
+        y,m,d = result['date']
+        result['date'] = f"{y:04d}-{m:02d}-{d:02d}"
+        return result
+    except Exception as e:
+        return {'error': str(e)}
+
+def realtime_info():
+    try:
+        now = datetime.now()
+        ka = engine.date_to_ka(now.year, now.month, now.day)
+        info = engine.get_wuku_by_ka(ka)
+        info['datetime_local'] = now.strftime("%Y-%m-%d %H:%M:%S")
+        info['datetime_utc'] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+        info['jd'] = engine.ka_to_julian_day(ka)
+        info['days_to_next_tu_pa_a'] = engine.get_days_to_next_tu_pa_a(ka)
+        return info
+    except Exception as e:
+        return {'error': str(e)}
+`;
+            await pyodide.runPythonAsync(pythonCode);
+            engineReady = true;
+            console.log("Ω-WUKU ENGINE siap.");
+
+            // Sembunyikan loading overlay
+            loadingOverlay.classList.add('hidden');
+            setTimeout(() => { loadingOverlay.style.display = 'none'; }, 500);
+
+            // Tampilkan realtime otomatis
+            document.getElementById('realtimeBtn').click();
+
+        } catch (err) {
+            console.error("Gagal inisialisasi:", err);
+            loadingOverlay.innerHTML = `
+                <div class="spinner"><i class="fas fa-exclamation-triangle" style="color:#dc3545;"></i></div>
+                <h5 class="mt-3 text-danger">Gagal memuat engine</h5>
+                <p class="text-muted small">Periksa koneksi internet dan konsol browser.</p>
+                <button class="btn btn-primary mt-3" onclick="location.reload()">Muat Ulang</button>
+            `;
+        }
+    }
+
+    // Jalankan inisialisasi saat halaman dimuat
+    initPyodide();
+
+    // ============================================================
+    // FUNGSI UI (JavaScript) – Versi Elegan
+    // ============================================================
+
+    function setTodayWuku() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth()+1).padStart(2,'0');
+        const d = String(now.getDate()).padStart(2,'0');
+        document.getElementById('wukuDate').value = `${y}-${m}-${d}`;
+        document.getElementById('formWuku').dispatchEvent(new Event('submit'));
+    }
+
+    // ========== SHOW RESULT ELEGAN ==========
+    function showResult(elementId, data, type = 'wuku') {
+        const el = document.getElementById(elementId);
+        el.style.display = 'block';
+        el.classList.remove('error');
+        el.innerHTML = ''; // clear
+
+        if (!data || (Array.isArray(data) && data.length === 0)) {
+            el.innerHTML = '<div class="alert alert-warning">Tidak ditemukan data.</div>';
+            return;
+        }
+
+        let html = '';
+
+        // ========== WUKU ==========
+        if (type === 'wuku') {
+            const d = data;
+            const isTpa = d.is_tu_pa_a;
+            const tpaBadge = isTpa ? '<span class="badge-tpa"><i class="fas fa-star"></i> TU-PA-A</span>' : '<span class="badge bg-secondary">Bukan TU-PA-A</span>';
+
+            html = `
+                <div class="result-card">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap">
+                        <div>
+                            <span class="label">Tanggal</span>
+                            <div class="value-lg">${d.date}</div>
+                        </div>
+                        <div>
+                            <span class="badge-wuku"><i class="fas fa-calendar-alt"></i> ${d.wuku_name} (#${d.wuku_number})</span>
+                            <span class="badge-wara ms-2"><i class="fas fa-star"></i> ${d.wara_triple_full}</span>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="item"><span class="label">KA</span><div class="value">${d.ka.toLocaleString()}</div></div>
+                        <div class="item"><span class="label">Julian Day</span><div class="value">${d.julian_day}</div></div>
+                        <div class="item"><span class="label">Hari dalam Wuku</span><div class="value">${d.day_in_wuku}/7</div></div>
+                        <div class="item"><span class="label">Status</span><div>${tpaBadge}</div></div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="d-flex justify-content-between flex-wrap">
+                        <span><i class="fas fa-arrow-right"></i> TU-PA-A berikutnya: <strong>${d.days_to_next_tu_pa_a}</strong> hari lagi</span>
+                        <span><i class="fas fa-calendar-check"></i> ${d.next_tu_pa_a_date || '—'}</span>
+                    </div>
+                </div>
+            `;
+
+        // ========== KONVERSI ==========
+        } else if (type === 'convert') {
+            const entries = Object.entries(data);
+            html = `<div class="result-card"><div class="grid-2">`;
+            entries.forEach(([key, val]) => {
+                html += `<div class="item"><span class="label">${key}</span><div class="value">${val}</div></div>`;
+            });
+            html += `</div></div>`;
+
+        // ========== OFFSET ==========
+        } else if (type === 'offset') {
+            const d = data;
+            const isTpa = d.is_tu_pa_a;
+            const tpaBadge = isTpa ? '<span class="badge-tpa"><i class="fas fa-star"></i> TU-PA-A</span>' : '<span class="badge bg-secondary">Bukan TU-PA-A</span>';
+
+            html = `
+                <div class="result-card">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap">
+                        <div>
+                            <span class="label">Tanggal Baru</span>
+                            <div class="value-lg">${d.date}</div>
+                        </div>
+                        <div>
+                            <span class="badge-wuku"><i class="fas fa-calendar-alt"></i> ${d.wuku_name} (#${d.wuku_number})</span>
+                            <span class="badge-wara ms-2"><i class="fas fa-star"></i> ${d.wara_triple_full}</span>
+                        </div>
+                    </div>
+                    <div class="grid-3">
+                        <div class="item"><span class="label">KA Baru</span><div class="value">${d.ka.toLocaleString()}</div></div>
+                        <div class="item"><span class="label">Metode</span><div class="value">${d.method}</div></div>
+                        <div class="item"><span class="label">Jumlah</span><div class="value">${d.amount}</div></div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="d-flex justify-content-between flex-wrap">
+                        <span><i class="fas fa-calendar-alt"></i> Hari dalam Wuku: <strong>${d.day_in_wuku}/7</strong></span>
+                        <span>${tpaBadge}</span>
+                    </div>
+                </div>
+            `;
+
+        // ========== TU-PA-A (daftar) ==========
+        } else if (type === 'tupa_list') {
+            if (!Array.isArray(data) || data.length === 0) {
+                html = '<div class="alert alert-info">Tidak ditemukan TU-PA-A pada tahun ini.</div>';
+            } else {
+                html = `<div class="result-card"><span class="label">Ditemukan ${data.length} TU-PA-A</span><div class="divider"></div>`;
+                data.forEach((item, idx) => {
+                    html += `
+                        <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-light">
+                            <span><strong>${idx+1}.</strong> ${item.date}</span>
+                            <span class="text-muted">KA ${item.ka.toLocaleString()}</span>
+                            <span class="badge-wara">${item.wara_triple}</span>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+        // ========== TU-PA-A berikutnya ==========
+        } else if (type === 'tupa_next') {
+            const d = data;
+            html = `
+                <div class="result-card">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap">
+                        <div>
+                            <span class="label">TU-PA-A Berikutnya</span>
+                            <div class="value-lg">${d.date}</div>
+                        </div>
+                        <div>
+                            <span class="badge-wuku"><i class="fas fa-calendar-alt"></i> ${d.wuku_name}</span>
+                            <span class="badge-wara ms-2"><i class="fas fa-star"></i> ${d.wara_triple}</span>
+                        </div>
+                    </div>
+                    <div class="grid-2">
+                        <div class="item"><span class="label">KA</span><div class="value">${d.ka.toLocaleString()}</div></div>
+                        <div class="item"><span class="label">Hari dari sekarang</span><div class="value">${d.days_until}</div></div>
+                    </div>
+                </div>
+            `;
+
+        // ========== REALTIME ==========
+        } else if (type === 'realtime') {
+            const d = data;
+            const isTpa = d.is_tu_pa_a;
+            const tpaBadge = isTpa ? '<span class="badge-tpa"><i class="fas fa-star"></i> TU-PA-A</span>' : '<span class="badge bg-secondary">Bukan TU-PA-A</span>';
+
+            html = `
+                <div class="result-card">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap">
+                        <div>
+                            <span class="label">Sekarang</span>
+                            <div class="value-lg">${d.datetime_local}</div>
+                        </div>
+                        <div>
+                            <span class="badge-wuku"><i class="fas fa-calendar-alt"></i> ${d.wuku_name} (#${d.wuku_number})</span>
+                            <span class="badge-wara ms-2"><i class="fas fa-star"></i> ${d.wara_triple_full}</span>
+                        </div>
+                    </div>
+                    <div class="grid-3">
+                        <div class="item"><span class="label">KA</span><div class="value">${d.ka.toLocaleString()}</div></div>
+                        <div class="item"><span class="label">JD</span><div class="value">${d.jd}</div></div>
+                        <div class="item"><span class="label">Hari dalam Wuku</span><div class="value">${d.day_in_wuku}/7</div></div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="d-flex justify-content-between flex-wrap">
+                        <span><i class="fas fa-globe"></i> UTC: ${d.datetime_utc}</span>
+                        <span>${tpaBadge}</span>
+                        <span><i class="fas fa-arrow-right"></i> TU-PA-A berikutnya: <strong>${d.days_to_next_tu_pa_a}</strong> hari</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        el.innerHTML = html;
+    }
+
+    function showError(elementId, msg) {
+        const el = document.getElementById(elementId);
+        el.style.display = 'block';
+        el.classList.add('error');
+        el.innerHTML = `<div class="alert alert-danger">❌ ${msg}</div>`;
+    }
+
+    function hideResult(elementId) {
+        document.getElementById(elementId).style.display = 'none';
+    }
+
+    async function callPythonFunction(funcName, ...args) {
+        if (!engineReady) {
+            throw new Error("Engine belum siap, tunggu sebentar.");
+        }
+        const argsStr = args.map(a => JSON.stringify(a)).join(', ');
+        const code = `json.dumps(${funcName}(${argsStr}))`;
+        const resultJson = await pyodide.runPythonAsync(code);
+        return JSON.parse(resultJson);
+    }
+
+    // ===== WUKU =====
+    document.getElementById('formWuku').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const date = document.getElementById('wukuDate').value.trim();
+        const calendar = document.getElementById('wukuCalendar').value;
+        if (!date) return;
+        const loader = document.getElementById('wukuLoader');
+        loader.style.display = 'block';
+        hideResult('wukuResult');
+        try {
+            const data = await callPythonFunction('wuku_info', date, calendar);
+            if (data.error) {
+                showError('wukuResult', data.error);
+            } else {
+                showResult('wukuResult', data, 'wuku');
+            }
+        } catch (err) {
+            showError('wukuResult', err.message);
+        } finally {
+            loader.style.display = 'none';
+        }
+    });
+
+    // ===== KONVERSI =====
+    document.getElementById('formConvert').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const type = document.getElementById('convertType').value;
+        const input = document.getElementById('convertInput').value.trim();
+        if (!input) return;
+        const loader = document.getElementById('convertLoader');
+        loader.style.display = 'block';
+        hideResult('convertResult');
+        try {
+            const data = await callPythonFunction('convert', type, input);
+            if (data.error) {
+                showError('convertResult', data.error);
+            } else {
+                showResult('convertResult', data, 'convert');
+            }
+        } catch (err) {
+            showError('convertResult', err.message);
+        } finally {
+            loader.style.display = 'none';
+        }
+    });
+
+    // ===== OFFSET =====
+    document.getElementById('formOffset').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const date = document.getElementById('offsetDate').value.trim();
+        const type = document.getElementById('offsetType').value;
+        const amount = document.getElementById('offsetAmount').value;
+        if (!date || amount === '') return;
+        const loader = document.getElementById('offsetLoader');
+        loader.style.display = 'block';
+        hideResult('offsetResult');
+        try {
+            const data = await callPythonFunction('offset', date, type, amount);
+            if (data.error) {
+                showError('offsetResult', data.error);
+            } else {
+                showResult('offsetResult', data, 'offset');
+            }
+        } catch (err) {
+            showError('offsetResult', err.message);
+        } finally {
+            loader.style.display = 'none';
+        }
+    });
+
+    // ===== TU-PA-A =====
+    document.getElementById('formTupa').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const year = document.getElementById('tupaYear').value;
+        const calendar = document.getElementById('tupaCalendar').value;
+        if (!year) return;
+        const loader = document.getElementById('tupaLoader');
+        loader.style.display = 'block';
+        hideResult('tupaResult');
+        try {
+            const data = await callPythonFunction('tupa_year', year, calendar);
+            if (data.error) {
+                showError('tupaResult', data.error);
+            } else {
+                showResult('tupaResult', data, 'tupa_list');
+            }
+        } catch (err) {
+            showError('tupaResult', err.message);
+        } finally {
+            loader.style.display = 'none';
+        }
+    });
+
+    async function findNextTupa() {
+        const loader = document.getElementById('tupaLoader');
+        loader.style.display = 'block';
+        hideResult('tupaResult');
+        try {
+            const data = await callPythonFunction('tupa_next');
+            if (data.error) {
+                showError('tupaResult', data.error);
+            } else {
+                showResult('tupaResult', data, 'tupa_next');
+            }
+        } catch (err) {
+            showError('tupaResult', err.message);
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    // ===== REALTIME =====
+    document.getElementById('realtimeBtn').addEventListener('click', async function() {
+        const loader = document.getElementById('realtimeLoader');
+        loader.style.display = 'block';
+        hideResult('realtimeResult');
+        try {
+            const data = await callPythonFunction('realtime_info');
+            if (data.error) {
+                showError('realtimeResult', data.error);
+            } else {
+                showResult('realtimeResult', data, 'realtime');
+            }
+        } catch (err) {
+            showError('realtimeResult', err.message);
+        } finally {
+            loader.style.display = 'none';
+        }
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ω-STHAPATI v301.4 – Konversi Prasasti</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; padding-bottom: 30px; }
+        .navbar { background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); }
+        .navbar-brand { font-weight: bold; color: #ffd700 !important; }
+        .card { border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); border: none; margin-bottom: 25px; }
+        .card-header { background: linear-gradient(135deg, #2c3e50, #4ca1af); color: white; font-weight: 600; }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); border: none; }
+        .btn-primary:hover { background: linear-gradient(135deg, #5a67d8, #6b3f8a); }
+        .btn-success { background: linear-gradient(135deg, #28a745, #20c997); border: none; }
+        .btn-success:hover { background: linear-gradient(135deg, #218838, #1aa179); }
+        .btn-outline-secondary:hover { background: #e9ecef; }
+        .output-box { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; display: none; }
+        .loader { display: none; text-align: center; margin: 15px 0; }
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.92); z-index: 9999;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            transition: opacity 0.5s;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-overlay .spinner { font-size: 3rem; }
+        .petunjuk { background: #e9f7fe; border-left: 6px solid #0d6efd; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        footer { background: #1a2a6c; color: white; padding: 12px 0; margin-top: 30px; text-align: center; }
+        .result-card {
+            background: white; border-radius: 12px; padding: 18px 22px; margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 6px solid #28a745;
+        }
+        .result-card.rank-1 { border-left-color: #ffc107; }
+        .result-card .rank-badge { font-weight: bold; color: #6c757d; font-size: 0.85rem; }
+        .result-card .date-display { font-size: 1.4rem; font-weight: 600; color: #1a2a6c; }
+        .result-card .ka-display { font-size: 1.1rem; color: #495057; }
+        .result-card .wuku-badge { background: #e9ecef; padding: 4px 14px; border-radius: 20px; display: inline-block; font-weight: 500; }
+        .result-card .wara-badge { background: #dbeafe; padding: 4px 14px; border-radius: 20px; display: inline-block; font-weight: 500; color: #1e40af; }
+        .result-card .score-bar { height: 6px; background: #e9ecef; border-radius: 4px; margin-top: 6px; }
+        .result-card .score-fill { height: 6px; border-radius: 4px; background: linear-gradient(90deg, #28a745, #ffc107); }
+        .result-card .status-icon { font-size: 1.2rem; margin-right: 6px; }
+        .component-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+        .component-item { background: #f8f9fa; padding: 6px 12px; border-radius: 6px; text-align: center; font-size: 0.85rem; }
+        .component-item .label { color: #6c757d; }
+        .component-item .value { font-weight: 600; }
+        .component-item .value.high { color: #28a745; }
+        .component-item .value.medium { color: #ffc107; }
+        .component-item .value.low { color: #dc3545; }
+        .intercalation-badge { background: #f8d7da; color: #721c24; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; display: inline-block; }
+        .shift-badge { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; display: inline-block; }
+        @media (max-width: 576px) { .component-grid { grid-template-columns: repeat(2, 1fr); } }
+        .progress-step { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin: 0 4px; background: #dee2e6; }
+        .progress-step.active { background: #0d6efd; }
+        .progress-step.done { background: #28a745; }
+    </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"><i class="fas fa-spinner fa-spin"></i></div>
+    <h5 id="loadStatus" class="mt-3">⏳ Memuat Ω-STHAPATI…</h5>
+    <p id="loadSub" class="text-muted small">Inisialisasi Pyodide, mohon tunggu.</p>
+    <div class="mt-2">
+        <span class="progress-step" id="step1"></span>
+        <span class="progress-step" id="step2"></span>
+        <span class="progress-step" id="step3"></span>
+    </div>
+</div>
+
+<nav class="navbar navbar-dark mb-4">
+    <div class="container-fluid">
+        <span class="navbar-brand"><i class="fas fa-scroll"></i> Ω-STHAPATI</span>
+        <span class="navbar-text text-white-50">Konversi Prasasti Saka</span>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="petunjuk">
+        <i class="fas fa-info-circle text-primary"></i>
+        Masukkan data prasasti Saka. Klik <strong>"Konversi"</strong> untuk hasil standar, atau <strong>"Smart Parsing"</strong> untuk wara tidak lengkap.
+    </div>
+
+    <div class="card">
+        <div class="card-header"><i class="fas fa-edit"></i> Input Prasasti</div>
+        <div class="card-body">
+            <form id="formPrasasti">
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <label class="form-label">Tahun Saka</label>
+                        <input type="number" class="form-control" id="sakaYear" value="822">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Masa (Bulan)</label>
+                        <input type="text" class="form-control" id="masa" value="Pusya">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Tithi (1-30)</label>
+                        <input type="number" class="form-control" id="tithi" value="8">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Paksa</label>
+                        <select class="form-select" id="paksa">
+                            <option value="Sukla">Sukla</option>
+                            <option value="Krsna">Krsna</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Wuku (ops)</label>
+                        <input type="text" class="form-control" id="wuku" placeholder="Sinta">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Wara String</label>
+                        <input type="text" class="form-control" id="waraString" value="Haryang-Kaliwon-Wrhaspati">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Nakshatra (ops)</label>
+                        <input type="text" class="form-control" id="nakshatra" placeholder="Aswini">
+                    </div>
+                    <div class="col-md-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-cogs"></i> Konversi</button>
+                        <button type="button" class="btn btn-success" id="btnSmartConvert"><i class="fas fa-brain"></i> Smart Parsing</button>
+                        <button type="button" class="btn btn-outline-secondary" id="btnLoadSample"><i class="fas fa-list"></i> Muat Sampel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="resultContainer" class="card" style="display:none;">
+        <div class="card-header"><i class="fas fa-chart-bar"></i> Hasil Konversi</div>
+        <div class="card-body">
+            <div id="resultOutput" class="output-box"></div>
+            <div id="resultLoader" class="loader"><i class="fas fa-spinner fa-spin fa-2x"></i> Memproses…</div>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <div class="container">
+        <span>Ω-STHAPATI · Rakawi · 2026</span>
+    </div>
+</footer>
+
+<!-- ============================================================ -->
+<!-- Scripts -->
+<!-- ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+
+<script>
+    // ============================================================
+    // KODE PYTHON LENGKAP (sama seperti sebelumnya, disisipkan di sini)
+    // ============================================================
+    const pythonCode = `
+import math
+from typing import Dict, List, Tuple, Optional, Any, Union
+from datetime import datetime
+import json
+
+# ============================================================================
+# KONSTANTA SISTEM DASAR
+# ============================================================================
+
+class ΩConstants:
+    SYSTEM_NAME = "Ω-STHAPATI v301.4 FINAL IMPROVED"
+    VERSION = "301.4.Ω-FINAL-IMPROVED-TEMPORAL"
+    
+    KALI_EPOCH_JD_NOON = 588465.5
+    KA_1_JAN_1_BC = 1132592
+    KA_8_FEB_1_BC = 1132630
+    WUKU_CYCLE = 210
+    NAKSHATRA_COUNT = 27
+    TITHI_COUNT = 30
+    LOC_LAT = -7.616
+    LOC_LON = 112.616
+    LOC_NAME = "Patirtan Jolotundo, Penanggungan"
+    AYANAMSA_RATE = 0.013969712777777778
+    PRECESSION_RATE = 50.290966
+    
+    SAKA_MONTHS_ORDER = [
+        "Caitra", "Vaisakha", "Jyestha", "Asadha",
+        "Sravana", "Bhadrapada", "Asvini", "Kartika",
+        "Margasira", "Pausa", "Magha", "Phalguna"
+    ]
+    WUKU_NAMES_STANDARD = [
+        "Sinta","Landep","Wukir","Kurantil","Tolu","Gumbreg",
+        "Warigalit","Warigagung","Julungwangi","Sungsang",
+        "Galungan","Kuningan","Langkir","Mandasiya","Julungpujut",
+        "Pahang","Kuruwelut","Marakeh","Tambir","Medangkungan",
+        "Maktal","Wuye","Manahil","Prangbakat","Bala","Wugu",
+        "Wayang","Kulawu","Dukut","Watugunung"
+    ]
+    SADWARA_STANDARD = ["Tungleh","Haryang","Wurukung","Paniron","Was","Maulu"]
+    PANCAWARA_STANDARD = ["Pahing","Pon","Wage","Kaliwon","Umanis"]
+    SAPTAWARA_STANDARD = ["Aditya","Soma","Anggara","Budha","Wrhaspati","Sukra","Saniscara"]
+    
+    DAMAIS_ANCHORS = [
+        {"id":"A.18_TULANG_AIR_II","saka":772,"masa":"Asadha","tithi":2,
+         "paksa":"Sukla","ka":1443220,"wara":"Tungleh-Pahing-Aditya","wuku":"Sinta"},
+        {"id":"A.113_CUNGGRANG_II","saka":851,"masa":"Asuji","tithi":12,
+         "paksa":"Sukla","ka":1472170,"wara":"Tungleh-Pahing-Sukra","wuku":"Wugu"},
+        {"id":"A.141_PUCANGAN_CORRECTED","saka":963,"masa":"Kartika",
+         "tithi":10,"paksa":"Sukla","ka":1513127,"wara":"Haryang-Wage-Sukra","wuku":"Wayang"},
+        {"id":"A.151_HANTANG","saka":1057,"masa":"Bhadrapada","tithi":13,
+         "paksa":"Krsna","ka":1547400,"wara":"Wurukung-Pahing-Saniscara","wuku":"Wukir"},
+        {"id":"A.187_GAJAH_MADA","saka":1273,"masa":"Wesaka","tithi":1,
+         "paksa":"Sukla","ka":1626161,"wara":"Haryang-Pon-Budha","wuku":"Tolu"}
+    ]
+    
+    TPDP_COMPONENTS = {
+        "TAHUN_MATCH": 0.25,
+        "BULAN_MATCH": 0.25,
+        "WARA_MATCH": 0.20,
+        "WUKU_MATCH": 0.15,
+        "PANCANGA_PLAUSIBILITY": 0.05,
+        "TEMPORAL_PROXIMITY": 0.05,
+        "HISTORICAL_PRIOR": 0.03,
+        "BRUTE_FORCE_SUPPORT": 0.02
+    }
+    TPDP_THRESHOLDS = {"HIGH_CONFIDENCE":0.85,"MEDIUM_CONFIDENCE":0.70,"LOW_CONFIDENCE":0.50}
+    FREQUENTLY_INTERCALATED = ["Pausa","Sravana","Caitra"]
+    
+    SAKA_MONTH_TO_JULIAN_RANGE = {
+        "Pausa":{"julian_months":[12,1],"range_desc":"Desember-Januari","ambiguous":True,"add_years":[78,79]},
+        "Magha":{"julian_months":[1,2],"range_desc":"Januari-Februari","ambiguous":False,"add_years":[79]},
+        "Phalguna":{"julian_months":[2,3],"range_desc":"Februari-Maret","ambiguous":False,"add_years":[79]},
+        "Caitra":{"julian_months":[3,4],"range_desc":"Maret-April","ambiguous":False,"add_years":[78]},
+        "Vaisakha":{"julian_months":[4,5],"range_desc":"April-Mei","ambiguous":False,"add_years":[78]},
+        "Jyestha":{"julian_months":[5,6],"range_desc":"Mei-Juni","ambiguous":False,"add_years":[78]},
+        "Asadha":{"julian_months":[6,7],"range_desc":"Juni-Juli","ambiguous":False,"add_years":[78]},
+        "Sravana":{"julian_months":[7,8],"range_desc":"Juli-Agustus","ambiguous":False,"add_years":[78]},
+        "Bhadrapada":{"julian_months":[8,9],"range_desc":"Agustus-September","ambiguous":False,"add_years":[78]},
+        "Asvini":{"julian_months":[9,10],"range_desc":"September-Oktober","ambiguous":False,"add_years":[78]},
+        "Kartika":{"julian_months":[10,11],"range_desc":"Oktober-November","ambiguous":False,"add_years":[78]},
+        "Margasira":{"julian_months":[11,12],"range_desc":"November-Desember","ambiguous":False,"add_years":[78]}
+    }
+    JULIAN_TO_SAKA_MONTH = {
+        1:"Pausa",2:"Magha",3:"Phalguna",4:"Caitra",
+        5:"Vaisakha",6:"Jyestha",7:"Asadha",8:"Sravana",
+        9:"Bhadrapada",10:"Asvini",11:"Kartika",12:"Margasira"
+    }
+    
+    MONTHS_SAKA_VARIANTS = {
+        "Caitra":["Cetra","Chaitra","Caitra"],
+        "Vaisakha":["Wesakha","Waisakha","Wesaka","Vaisaka","Vaisakha","Besakha"],
+        "Jyestha":["Jyeshtha","Jestha","Jyeshta","Yestha","Iestha"],
+        "Asadha":["Asada","Asadha","Asala","Asarha"],
+        "Sravana":["Srawana","Sravana","Srawana","Sarana"],
+        "Bhadrapada":["Badrapada","Bhadrapada","Bhadra","Badra"],
+        "Asvini":["Asuji","Asvini","Aswini","Asui","Asvij","Asvin"],
+        "Kartika":["Kartika","Karthika","Karttika","Katika"],
+        "Margasira":["Margasira","Margashira","Markasira","Margasira"],
+        "Pausa":["Pausa","Pusa","Pausha","Pusya","Poṣya","Posya"],
+        "Magha":["Maga","Magha","Makha"],
+        "Phalguna":["Palguna","Phalguna","Falguna","Palguna"]
+    }
+    SADWARA_VARIANTS = {
+        "Tungleh":["Tungle","Tungleh","Tunglek","Tunglet","TU"],
+        "Haryang":["Haryang","Aryang","Haryan","Aryan","Harjang","HA"],
+        "Wurukung":["Wurukung","Urukung","Wuruku","Uruku","Wuruk","Uruk","WU"],
+        "Paniron":["Paniron","Paniran","Paniren","PA"],
+        "Was":["Was","Vas","Wasi","WA"],
+        "Maulu":["Maulu","Maul","Mauluh","MA"]
+    }
+    PANCAWARA_VARIANTS = {
+        "Pahing":["Pahing","Paing","Pahin","PA"],
+        "Pon":["Pon","Pohan","PO"],
+        "Wage":["Wage","Wageh","WA"],
+        "Kaliwon":["Kaliwon","Kliwon","Kilwon","KA"],
+        "Umanis":["Umanis","Legi","Manis","U"]
+    }
+    SAPTAWARA_VARIANTS = {
+        "Aditya":["Raditya","Aditya","Ditya","Minggu","Radite","Redite","A"],
+        "Soma":["Soma","Senin","Senen","SO"],
+        "Anggara":["Anggara","Selasa","ANG"],
+        "Budha":["Budha","Buda","Buddha","Rabu","BU"],
+        "Wrhaspati":["Wrhaspati","Wrespati","Respati","Brespati","Kamis","WR"],
+        "Sukra":["Sukra","Jumat","Sukra","SU"],
+        "Saniscara":["Saniscara","Sabtu","Tumpak","SA"]
+    }
+    WUKU_NAMES_VARIANTS = {
+        "Sinta":["Sinta","Sintha"],"Landep":["Landep","Landhep"],"Wukir":["Wukir","Wukih"],
+        "Kurantil":["Kurantil","Kurantil","Kurantel"],"Tolu":["Tolu","Tolo"],
+        "Gumbreg":["Gumbreg","Gumbrek"],"Warigalit":["Warigalit","Warigalit"],
+        "Warigagung":["Warigagung","Warigagung"],"Julungwangi":["Julungwangi","Jolungwangi"],
+        "Sungsang":["Sungsang","Sungsang"],"Galungan":["Galungan","Dungulan","Dungulan"],
+        "Kuningan":["Kuningan","Kuningan"],"Langkir":["Langkir","Langkir"],
+        "Mandasiya":["Mandasiya","Madasiya","Mandasiya"],"Julungpujut":["Julungpujut","Jolungpujut"],
+        "Pahang":["Pahang","Pahang"],"Kuruwelut":["Kuruwelut","Kuruwelut"],
+        "Marakeh":["Marakeh","Marakeh"],"Tambir":["Tambir","Tambir"],
+        "Medangkungan":["Medangkungan","Medangkungan"],"Maktal":["Maktal","Maktal"],
+        "Wuye":["Wuye","Wuye"],"Manahil":["Manahil","Manahil"],
+        "Prangbakat":["Prangbakat","Prangbakat"],"Bala":["Bala","Bala"],
+        "Wugu":["Wugu","Wugu"],"Wayang":["Wayang","Wayang"],
+        "Kulawu":["Kulawu","Kulawu"],"Dukut":["Dukut","Dhukut"],
+        "Watugunung":["Watugunung","Watugunung"]
+    }
+    
+    WARA_WUKU_MATRIX_210 = {
+        "NOTE":"Index 0 = TU-PA-Ā",
+        "DATA":[
+          [0,1,"Sinta","Tungleh","Pahing","Aditya"], [1,1,"Sinta","Aryang","Pon","Soma"], [2,1,"Sinta","Urukung","Wage","Anggara"], [3,1,"Sinta","Paniron","Kaliwon","Buda"], [4,1,"Sinta","Was","Umanis","Wrespati"], [5,1,"Sinta","Maulu","Pahing","Sukra"], [6,1,"Sinta","Tungleh","Pon","Saniscara"],
+          [7,2,"Landep","Aryang","Wage","Aditya"], [8,2,"Landep","Urukung","Kaliwon","Soma"], [9,2,"Landep","Paniron","Umanis","Anggara"], [10,2,"Landep","Was","Pahing","Buda"], [11,2,"Landep","Maulu","Pon","Wrespati"], [12,2,"Landep","Tungleh","Wage","Sukra"], [13,2,"Landep","Aryang","Kaliwon","Saniscara"],
+          [14,3,"Wukir","Urukung","Umanis","Aditya"], [15,3,"Wukir","Paniron","Pahing","Soma"], [16,3,"Wukir","Was","Pon","Anggara"], [17,3,"Wukir","Maulu","Wage","Buda"], [18,3,"Wukir","Tungleh","Kaliwon","Wrespati"], [19,3,"Wukir","Aryang","Umanis","Sukra"], [20,3,"Wukir","Urukung","Pahing","Saniscara"],
+          [21,4,"Kurantil","Paniron","Pon","Aditya"], [22,4,"Kurantil","Was","Wage","Soma"], [23,4,"Kurantil","Maulu","Kaliwon","Anggara"], [24,4,"Kurantil","Tungleh","Umanis","Buda"], [25,4,"Kurantil","Aryang","Pahing","Wrespati"], [26,4,"Kurantil","Urukung","Pon","Sukra"], [27,4,"Kurantil","Paniron","Wage","Saniscara"],
+          [28,5,"Tolu","Was","Kaliwon","Aditya"], [29,5,"Tolu","Maulu","Umanis","Soma"], [30,5,"Tolu","Tungleh","Pahing","Anggara"], [31,5,"Tolu","Aryang","Pon","Buda"], [32,5,"Tolu","Urukung","Wage","Wrespati"], [33,5,"Tolu","Paniron","Kaliwon","Sukra"], [34,5,"Tolu","Was","Umanis","Saniscara"],
+          [35,6,"Gumbreg","Maulu","Pahing","Aditya"], [36,6,"Gumbreg","Tungleh","Pon","Soma"], [37,6,"Gumbreg","Aryang","Wage","Anggara"], [38,6,"Gumbreg","Urukung","Kaliwon","Buda"], [39,6,"Gumbreg","Paniron","Umanis","Wrespati"], [40,6,"Gumbreg","Was","Pahing","Sukra"], [41,6,"Gumbreg","Maulu","Pon","Saniscara"],
+          [42,7,"Warigalit","Tungleh","Wage","Aditya"], [43,7,"Warigalit","Aryang","Kaliwon","Soma"], [44,7,"Warigalit","Urukung","Umanis","Anggara"], [45,7,"Warigalit","Paniron","Pahing","Buda"], [46,7,"Warigalit","Was","Pon","Wrespati"], [47,7,"Warigalit","Maulu","Wage","Sukra"], [48,7,"Warigalit","Tungleh","Kaliwon","Saniscara"],
+          [49,8,"Warigagung","Aryang","Umanis","Aditya"], [50,8,"Warigagung","Urukung","Pahing","Soma"], [51,8,"Warigagung","Paniron","Pon","Anggara"], [52,8,"Warigagung","Was","Wage","Buda"], [53,8,"Warigagung","Maulu","Kaliwon","Wrespati"], [54,8,"Warigagung","Tungleh","Umanis","Sukra"], [55,8,"Warigagung","Aryang","Pahing","Saniscara"],
+          [56,9,"Julungwangi","Urukung","Pon","Aditya"], [57,9,"Julungwangi","Paniron","Wage","Soma"], [58,9,"Julungwangi","Was","Kaliwon","Anggara"], [59,9,"Julungwangi","Maulu","Umanis","Buda"], [60,9,"Julungwangi","Tungleh","Pahing","Wrespati"], [61,9,"Julungwangi","Aryang","Pon","Sukra"], [62,9,"Julungwangi","Urukung","Wage","Saniscara"],
+          [63,10,"Sungsang","Paniron","Kaliwon","Aditya"], [64,10,"Sungsang","Was","Umanis","Soma"], [65,10,"Sungsang","Maulu","Pahing","Anggara"], [66,10,"Sungsang","Tungleh","Pon","Buda"], [67,10,"Sungsang","Aryang","Wage","Wrespati"], [68,10,"Sungsang","Urukung","Kaliwon","Sukra"], [69,10,"Sungsang","Paniron","Umanis","Saniscara"],
+          [70,11,"Galungan","Was","Pahing","Aditya"], [71,11,"Galungan","Maulu","Pon","Soma"], [72,11,"Galungan","Tungleh","Wage","Anggara"], [73,11,"Galungan","Aryang","Kaliwon","Buda"], [74,11,"Galungan","Urukung","Umanis","Wrespati"], [75,11,"Galungan","Paniron","Pahing","Sukra"], [76,11,"Galungan","Was","Pon","Saniscara"],
+          [77,12,"Kuningan","Maulu","Wage","Aditya"], [78,12,"Kuningan","Tungleh","Kaliwon","Soma"], [79,12,"Kuningan","Aryang","Umanis","Anggara"], [80,12,"Kuningan","Urukung","Pahing","Buda"], [81,12,"Kuningan","Paniron","Pon","Wrespati"], [82,12,"Kuningan","Was","Wage","Sukra"], [83,12,"Kuningan","Maulu","Kaliwon","Saniscara"],
+          [84,13,"Langkir","Tungleh","Umanis","Aditya"], [85,13,"Langkir","Aryang","Pahing","Soma"], [86,13,"Langkir","Urukung","Pon","Anggara"], [87,13,"Langkir","Paniron","Wage","Buda"], [88,13,"Langkir","Was","Kaliwon","Wrespati"], [89,13,"Langkir","Maulu","Umanis","Sukra"], [90,13,"Langkir","Tungleh","Pahing","Saniscara"],
+          [91,14,"Mandasiya","Aryang","Pon","Aditya"], [92,14,"Mandasiya","Urukung","Wage","Soma"], [93,14,"Mandasiya","Paniron","Kaliwon","Anggara"], [94,14,"Mandasiya","Was","Umanis","Buda"], [95,14,"Mandasiya","Maulu","Pahing","Wrespati"], [96,14,"Mandasiya","Tungleh","Pon","Sukra"], [97,14,"Mandasiya","Aryang","Wage","Saniscara"],
+          [98,15,"Julungpujut","Urukung","Kaliwon","Aditya"], [99,15,"Julungpujut","Paniron","Umanis","Soma"], [100,15,"Julungpujut","Was","Pahing","Anggara"], [101,15,"Julungpujut","Maulu","Pon","Buda"], [102,15,"Julungpujut","Tungleh","Wage","Wrespati"], [103,15,"Julungpujut","Aryang","Kaliwon","Sukra"], [104,15,"Julungpujut","Urukung","Umanis","Saniscara"],
+          [105,16,"Pahang","Paniron","Pahing","Aditya"], [106,16,"Pahang","Was","Pon","Soma"], [107,16,"Pahang","Maulu","Wage","Anggara"], [108,16,"Pahang","Tungleh","Kaliwon","Buda"], [109,16,"Pahang","Aryang","Umanis","Wrespati"], [110,16,"Pahang","Urukung","Pahing","Sukra"], [111,16,"Pahang","Paniron","Pon","Saniscara"],
+          [112,17,"Kuruwelut","Was","Wage","Aditya"], [113,17,"Kuruwelut","Maulu","Kaliwon","Soma"], [114,17,"Kuruwelut","Tungleh","Umanis","Anggara"], [115,17,"Kuruwelut","Aryang","Pahing","Buda"], [116,17,"Kuruwelut","Urukung","Pon","Wrespati"], [117,17,"Kuruwelut","Paniron","Wage","Sukra"], [118,17,"Kuruwelut","Was","Kaliwon","Saniscara"],
+          [119,18,"Marakeh","Maulu","Umanis","Aditya"], [120,18,"Marakeh","Tungleh","Pahing","Soma"], [121,18,"Marakeh","Aryang","Pon","Anggara"], [122,18,"Marakeh","Urukung","Wage","Buda"], [123,18,"Marakeh","Paniron","Kaliwon","Wrespati"], [124,18,"Marakeh","Was","Umanis","Sukra"], [125,18,"Marakeh","Maulu","Pahing","Saniscara"],
+          [126,19,"Tambir","Tungleh","Pon","Aditya"], [127,19,"Tambir","Aryang","Wage","Soma"], [128,19,"Tambir","Urukung","Kaliwon","Anggara"], [129,19,"Tambir","Paniron","Umanis","Buda"], [130,19,"Tambir","Was","Pahing","Wrespati"], [131,19,"Tambir","Maulu","Pon","Sukra"], [132,19,"Tambir","Tungleh","Wage","Saniscara"],
+          [133,20,"Medangkungan","Aryang","Kaliwon","Aditya"], [134,20,"Medangkungan","Urukung","Umanis","Soma"], [135,20,"Medangkungan","Paniron","Pahing","Anggara"], [136,20,"Medangkungan","Was","Pon","Buda"], [137,20,"Medangkungan","Maulu","Wage","Wrespati"], [138,20,"Medangkungan","Tungleh","Kaliwon","Sukra"], [139,20,"Medangkungan","Aryang","Umanis","Saniscara"],
+          [140,21,"Maktal","Urukung","Pahing","Aditya"], [141,21,"Maktal","Paniron","Pon","Soma"], [142,21,"Maktal","Was","Wage","Anggara"], [143,21,"Maktal","Maulu","Kaliwon","Buda"], [144,21,"Maktal","Tungleh","Umanis","Wrespati"], [145,21,"Maktal","Aryang","Pahing","Sukra"], [146,21,"Maktal","Urukung","Pon","Saniscara"],
+          [147,22,"Wuye","Paniron","Wage","Aditya"], [148,22,"Wuye","Was","Kaliwon","Soma"], [149,22,"Wuye","Maulu","Umanis","Anggara"], [150,22,"Wuye","Tungleh","Pahing","Buda"], [151,22,"Wuye","Aryang","Pon","Wrespati"], [152,22,"Wuye","Urukung","Wage","Sukra"], [153,22,"Wuye","Paniron","Kaliwon","Saniscara"],
+          [154,23,"Manahil","Was","Umanis","Aditya"], [155,23,"Manahil","Maulu","Pahing","Soma"], [156,23,"Manahil","Tungleh","Pon","Anggara"], [157,23,"Manahil","Aryang","Wage","Buda"], [158,23,"Manahil","Urukung","Kaliwon","Wrespati"], [159,23,"Manahil","Paniron","Umanis","Sukra"], [160,23,"Manahil","Was","Pahing","Saniscara"],
+          [161,24,"Prangbakat","Maulu","Pon","Aditya"], [162,24,"Prangbakat","Tungleh","Wage","Soma"], [163,24,"Prangbakat","Aryang","Kaliwon","Anggara"], [164,24,"Prangbakat","Urukung","Umanis","Buda"], [165,24,"Prangbakat","Paniron","Pahing","Wrespati"], [166,24,"Prangbakat","Was","Pon","Sukra"], [167,24,"Prangbakat","Maulu","Wage","Saniscara"],
+          [168,25,"Bala","Tungleh","Kaliwon","Aditya"], [169,25,"Bala","Aryang","Umanis","Soma"], [170,25,"Bala","Urukung","Pahing","Anggara"], [171,25,"Bala","Paniron","Pon","Buda"], [172,25,"Bala","Was","Wage","Wrespati"], [173,25,"Bala","Maulu","Kaliwon","Sukra"], [174,25,"Bala","Tungleh","Umanis","Saniscara"],
+          [175,26,"Wugu","Aryang","Pahing","Aditya"], [176,26,"Wugu","Urukung","Pon","Soma"], [177,26,"Wugu","Paniron","Wage","Anggara"], [178,26,"Wugu","Was","Kaliwon","Buda"], [179,26,"Wugu","Maulu","Umanis","Wrespati"], [180,26,"Wugu","Tungleh","Pahing","Sukra"], [181,26,"Wugu","Aryang","Pon","Saniscara"],
+          [182,27,"Wayang","Urukung","Wage","Aditya"], [183,27,"Wayang","Paniron","Kaliwon","Soma"], [184,27,"Wayang","Was","Umanis","Anggara"], [185,27,"Wayang","Maulu","Pahing","Buda"], [186,27,"Wayang","Tungleh","Pon","Wrespati"], [187,27,"Wayang","Aryang","Wage","Sukra"], [188,27,"Wayang","Urukung","Kaliwon","Saniscara"],
+          [189,28,"Kulawu","Paniron","Umanis","Aditya"], [190,28,"Kulawu","Was","Pahing","Soma"], [191,28,"Kulawu","Maulu","Pon","Anggara"], [192,28,"Kulawu","Tungleh","Wage","Buda"], [193,28,"Kulawu","Aryang","Kaliwon","Wrespati"], [194,28,"Kulawu","Urukung","Umanis","Sukra"], [195,28,"Kulawu","Paniron","Pahing","Saniscara"],
+          [196,29,"Dukut","Was","Pon","Aditya"], [197,29,"Dukut","Maulu","Wage","Soma"], [198,29,"Dukut","Tungleh","Kaliwon","Anggara"], [199,29,"Dukut","Aryang","Umanis","Buda"], [200,29,"Dukut","Urukung","Pahing","Wrespati"], [201,29,"Dukut","Paniron","Pon","Sukra"], [202,29,"Dukut","Was","Wage","Saniscara"],
+          [203,30,"Watugunung","Maulu","Kaliwon","Aditya"], [204,30,"Watugunung","Tungleh","Umanis","Soma"], [205,30,"Watugunung","Aryang","Pahing","Anggara"], [206,30,"Watugunung","Urukung","Pon","Buda"], [207,30,"Watugunung","Paniron","Wage","Wrespati"], [208,30,"Watugunung","Was","Kaliwon","Sukra"], [209,30,"Watugunung","Maulu","Umanis","Saniscara"]
+        ]
+    }
+
+# ============================================================================
+# MATH CORE
+# ============================================================================
+class MathCore:
+    @staticmethod
+    def jd_to_julian_date(jd):
+        jd += 0.5; Z=int(jd); F=jd-Z
+        if Z<2299161: A=Z
+        else: alpha=int((Z-1867216.25)/36524.25); A=Z+1+alpha-int(alpha/4)
+        B=A+1524; C=int((B-122.1)/365.25); D=int(365.25*C); E=int((B-D)/30.6001)
+        day=B-D-int(30.6001*E)+F; month=E-1 if E<14 else E-13; year=C-4716 if month>2 else C-4715
+        if year<=0: year-=1
+        return year, month, day
+    @staticmethod
+    def julian_date_to_jd(year, month, day):
+        if month<=2: year-=1; month+=12
+        A=int(year/100); B=2-A+int(A/4)
+        return int(365.25*(year+4716))+int(30.6001*(month+1))+day+B-1524.5
+    @staticmethod
+    def ka_to_jd(ka): return ka+ΩConstants.KALI_EPOCH_JD_NOON
+    @staticmethod
+    def jd_to_ka(jd): return int(round(jd-ΩConstants.KALI_EPOCH_JD_NOON))
+    @staticmethod
+    def ka_to_julian_date(ka):
+        jd=MathCore.ka_to_jd(ka); return MathCore.jd_to_julian_date(jd)
+    @staticmethod
+    def julian_date_to_ka(year, month, day):
+        jd=MathCore.julian_date_to_jd(year, month, day); return MathCore.jd_to_ka(jd)
+    @staticmethod
+    def ka_for_jan1(year_ce):
+        if year_ce>=0:
+            return int(ΩConstants.KA_1_JAN_1_BC + (365*year_ce) + ((year_ce+3)//4))
+        else:
+            y=abs(year_ce); return int(ΩConstants.KA_1_JAN_1_BC - (365*y) - ((y+2)//4))
+    @staticmethod
+    def calculate_i_from_ka(ka):
+        return (ka-ΩConstants.KA_8_FEB_1_BC)%ΩConstants.WUKU_CYCLE
+    @staticmethod
+    def calculate_s_from_ka(ka):
+        return ka%ΩConstants.WUKU_CYCLE
+    @staticmethod
+    def day_of_year(year, month, day):
+        month_days=[31,28,31,30,31,30,31,31,30,31,30,31]
+        if (year%4==0 and year%100!=0) or (year%400==0): month_days[1]=29
+        return sum(month_days[:month-1])+day
+
+# ============================================================================
+# NORMALIZATION ENGINE
+# ============================================================================
+class NormalizationEngine:
+    def __init__(self):
+        self.const=ΩConstants; self._build_mappings()
+    def _build_mappings(self):
+        self.mapping={}
+        self._add_variant_mappings(self.const.MONTHS_SAKA_VARIANTS)
+        self._add_variant_mappings(self.const.SADWARA_VARIANTS)
+        self._add_variant_mappings(self.const.PANCAWARA_VARIANTS)
+        self._add_variant_mappings(self.const.SAPTAWARA_VARIANTS)
+        self._add_variant_mappings(self.const.WUKU_NAMES_VARIANTS)
+        extra={"asuji":"Asvini","wesaka":"Vaisakha","besakha":"Vaisakha","jestha":"Jyestha",
+               "srawana":"Sravana","badrapada":"Bhadrapada","magha":"Magha","palguna":"Phalguna",
+               "pausa":"Pausa","kartika":"Kartika","margasira":"Margasira",
+               "wukir":"Wukir","wugu":"Wugu","wayang":"Wayang","kulawu":"Kulawu","dukut":"Dukut",
+               "watugunung":"Watugunung","jumat":"Sukra","sukra":"Sukra","sukro":"Sukra",
+               "redite":"Aditya","minggu":"Aditya","senen":"Soma","senin":"Soma","selasa":"Anggara",
+               "rabu":"Budha","kamis":"Wrhaspati","sabtu":"Saniscara","tumpak":"Saniscara",
+               "legi":"Umanis","umanis":"Umanis","pahing":"Pahing","pon":"Pon","wage":"Wage",
+               "kliwon":"Kaliwon","kaliwon":"Kaliwon","urukung":"Wurukung","aryang":"Haryang",
+               "buda":"Budha","wrespati":"Wrhaspati"}
+        for k,v in extra.items(): self.mapping[k]=v
+    def _add_variant_mappings(self, var_dict):
+        for standard, variants in var_dict.items():
+            for variant in variants:
+                self.mapping[variant.lower()]=standard
+    def normalize(self, text):
+        if not text: return ""
+        txt=text.lower().strip()
+        return self.mapping.get(txt, text.title())
+    def normalize_inscription_data(self, data):
+        nd=data.copy()
+        for f in ['masa','wuku','paksa','nakshatra']:
+            if f in nd and nd[f]:
+                nd[f]=self.normalize(nd[f])
+        if 'wara_string' in nd and nd['wara_string']:
+            parts=nd['wara_string'].split('-')
+            np=[self.normalize(p) for p in parts]
+            if len(np)>=3:
+                nd['wara_string']=f"{np[0]}-{np[1]}-{np[2]}"
+            elif len(np)==2 and np[0] in ["Sukra","Jumat"]:
+                nd['wara_string']=f"Haryang-{np[1]}-Sukra"
+        return nd
+
+# ============================================================================
+# MECHANICAL ENGINE
+# ============================================================================
+class MechanicalEngine:
+    def __init__(self):
+        self.const=ΩConstants; self.math=MathCore(); self.norm=NormalizationEngine()
+        self.SAKA_MONTH_TO_JULIAN_RANGE=self.const.SAKA_MONTH_TO_JULIAN_RANGE
+        self._build_wara_wuku_lookup()
+    def _build_wara_wuku_lookup(self):
+        self.wara_triple_to_index={}
+        self.wara_triple_to_wuku={}
+        self.wuku_sapta_to_triple={}
+        self.wuku_all_triples={}
+        for entry in self.const.WARA_WUKU_MATRIX_210["DATA"]:
+            idx,wuku_num,wuku_name,sad,panca,sapta=entry
+            sad_n=self.norm.normalize(sad); panca_n=self.norm.normalize(panca); sapta_n=self.norm.normalize(sapta); wuku_n=self.norm.normalize(wuku_name)
+            triple=(sad_n,panca_n,sapta_n)
+            self.wara_triple_to_index[triple]=idx
+            self.wara_triple_to_wuku[triple]=wuku_n
+            ws=(wuku_n,sapta_n)
+            if ws not in self.wuku_sapta_to_triple:
+                self.wuku_sapta_to_triple[ws]=triple
+            if wuku_n not in self.wuku_all_triples:
+                self.wuku_all_triples[wuku_n]=[]
+            self.wuku_all_triples[wuku_n].append(triple)
+    def parse_wara_string_smart(self, wara_string, wuku_name=None):
+        if not wara_string: return None
+        parts=wara_string.split('-')
+        if len(parts)==3:
+            sad=self.norm.normalize(parts[0]); panca=self.norm.normalize(parts[1]); sapta=self.norm.normalize(parts[2])
+            triple=(sad,panca,sapta)
+            if triple in self.wara_triple_to_index:
+                return {"sadwara":sad,"pancawara":panca,"saptawara":sapta,"format":"full","verified":True}
+            else: return None
+        elif len(parts)==2:
+            p1=self.norm.normalize(parts[0]); p2=self.norm.normalize(parts[1])
+            for triple in self.wara_triple_to_index.keys():
+                if triple[1]==p2 and triple[2]==p1:
+                    if wuku_name and self.wara_triple_to_wuku[triple]!=self.norm.normalize(wuku_name):
+                        continue
+                    return {"sadwara":triple[0],"pancawara":triple[1],"saptawara":triple[2],"format":"sapta_panca"}
+            for triple in self.wara_triple_to_index.keys():
+                if triple[0]==p1 and triple[1]==p2:
+                    if wuku_name and self.wara_triple_to_wuku[triple]!=self.norm.normalize(wuku_name):
+                        continue
+                    return {"sadwara":triple[0],"pancawara":triple[1],"saptawara":triple[2],"format":"sad_panca"}
+            return None
+        elif len(parts)==1:
+            p=self.norm.normalize(parts[0])
+            for triple in self.wara_triple_to_index.keys():
+                if triple[2]==p:
+                    if wuku_name and self.wara_triple_to_wuku[triple]!=self.norm.normalize(wuku_name):
+                        continue
+                    return {"sadwara":triple[0],"pancawara":triple[1],"saptawara":triple[2],"format":"single_sapta"}
+            for triple in self.wara_triple_to_index.keys():
+                if triple[1]==p:
+                    if wuku_name and self.wara_triple_to_wuku[triple]!=self.norm.normalize(wuku_name):
+                        continue
+                    return {"sadwara":triple[0],"pancawara":triple[1],"saptawara":triple[2],"format":"single_panca"}
+            for triple in self.wara_triple_to_index.keys():
+                if triple[0]==p:
+                    if wuku_name and self.wara_triple_to_wuku[triple]!=self.norm.normalize(wuku_name):
+                        continue
+                    return {"sadwara":triple[0],"pancawara":triple[1],"saptawara":triple[2],"format":"single_sad"}
+            return None
+        return None
+    def get_index_from_wara_triple(self, sad, panca, sapta):
+        return self.wara_triple_to_index.get((sad,panca,sapta))
+    def calculate_wuku_wara_from_ka(self, ka):
+        i=(ka-self.const.KA_8_FEB_1_BC)%self.const.WUKU_CYCLE
+        s=ka%self.const.WUKU_CYCLE
+        wuku_num=(i//7)+1
+        day_in_wuku=(i%7)+1
+        wuku_name=self.const.WUKU_NAMES_STANDARD[wuku_num-1] if 1<=wuku_num<=30 else "Unknown"
+        sad_idx=i%6; panca_idx=i%5; sapta_idx=i%7
+        sad=self.const.SADWARA_STANDARD[sad_idx]
+        panca=self.const.PANCAWARA_STANDARD[panca_idx]
+        sapta=self.const.SAPTAWARA_STANDARD[sapta_idx]
+        return {
+            "ka":ka,"s":s,"i":i,"wuku_num":wuku_num,"wuku_name":wuku_name,
+            "day_in_wuku":day_in_wuku,"sadwara":sad,"pancawara":panca,"saptawara":sapta,
+            "wara_string":f"{sad}-{panca}-{sapta}"
+        }
+    def find_tu_pa_a_in_year(self, ce_year):
+        ka_jan1=self.math.ka_for_jan1(ce_year)
+        i_jan1=(ka_jan1-self.const.KA_8_FEB_1_BC)%self.const.WUKU_CYCLE
+        offset=(self.const.WUKU_CYCLE-i_jan1)%self.const.WUKU_CYCLE
+        ka_tu_pa_a=ka_jan1+offset
+        i_verify=(ka_tu_pa_a-self.const.KA_8_FEB_1_BC)%self.const.WUKU_CYCLE
+        if i_verify!=0: return []
+        year,month,day=self.math.ka_to_julian_date(ka_tu_pa_a)
+        if year!=ce_year:
+            ka_tu_pa_a-=self.const.WUKU_CYCLE
+            year,month,day=self.math.ka_to_julian_date(ka_tu_pa_a)
+        candidates=[{
+            "ka":ka_tu_pa_a,"s":ka_tu_pa_a%self.const.WUKU_CYCLE,"i":0,
+            "date":(year,month,day),
+            "wuku_info":self.calculate_wuku_wara_from_ka(ka_tu_pa_a),
+            "is_tu_pa_a":True,
+            "day_of_year":self.math.day_of_year(year,month,int(day))
+        }]
+        ka_next=ka_tu_pa_a+self.const.WUKU_CYCLE
+        y2,m2,d2=self.math.ka_to_julian_date(ka_next)
+        if y2==ce_year:
+            i2=(ka_next-self.const.KA_8_FEB_1_BC)%self.const.WUKU_CYCLE
+            if i2==0:
+                candidates.append({
+                    "ka":ka_next,"s":ka_next%self.const.WUKU_CYCLE,"i":0,
+                    "date":(y2,m2,d2),
+                    "wuku_info":self.calculate_wuku_wara_from_ka(ka_next),
+                    "is_tu_pa_a":True,
+                    "day_of_year":self.math.day_of_year(y2,m2,int(d2))
+                })
+        return candidates
+    def validate_ce_year_by_basic_rule(self, saka_year, masa, candidate_ce_year):
+        masa_n=self.norm.normalize(masa)
+        if masa_n in self.SAKA_MONTH_TO_JULIAN_RANGE:
+            info=self.SAKA_MONTH_TO_JULIAN_RANGE[masa_n]
+            valid_years=info["add_years"]
+            valid_ce=[saka_year+dy for dy in valid_years]
+            return candidate_ce_year in valid_ce
+        return False
+    def get_valid_ce_years_by_rule(self, saka_year, masa):
+        masa_n=self.norm.normalize(masa)
+        if masa_n in self.SAKA_MONTH_TO_JULIAN_RANGE:
+            info=self.SAKA_MONTH_TO_JULIAN_RANGE[masa_n]
+            return [saka_year+dy for dy in info["add_years"]]
+        return [saka_year+78]
+    def julian_month_to_saka_month(self, julian_month):
+        return self.const.JULIAN_TO_SAKA_MONTH.get(julian_month)
+
+# ============================================================================
+# INTERCALATION DETECTION
+# ============================================================================
+class IntercalationDetectionEngine:
+    def __init__(self):
+        self.const=ΩConstants; self.norm=NormalizationEngine()
+        self.EXPLICIT_INTERCALATIONS={
+            822:{"month":"Pausa","julian_date":(901,1,1),"inscription":"Ayam Těas I","certainty":1.0},
+            828:{"month":"Sravana","julian_date":(906,8,15),"inscription":"Palěpangan","certainty":1.0},
+            977:{"month":"Caitra","julian_date":(1055,4,14),"inscription":"Batwan B","certainty":1.0}
+        }
+    def get_explicit_intercalation(self, saka_year):
+        return self.EXPLICIT_INTERCALATIONS.get(saka_year)
+    def detect_intercalation_damais(self, inscribed_masa, calculated_masa, saka_year=None):
+        norm_ins=self.norm.normalize(inscribed_masa)
+        norm_calc=self.norm.normalize(calculated_masa)
+        if saka_year and saka_year in self.EXPLICIT_INTERCALATIONS:
+            exp=self.EXPLICIT_INTERCALATIONS[saka_year]
+            if norm_ins==self.norm.normalize(exp["month"]):
+                return {
+                    "detected":True,"type":"explicit_inscription","diff":1,
+                    "intercalated_month":norm_calc,"displayed_month":norm_ins,
+                    "confidence":"absolute","source":"explicit_inscription",
+                    "explicit_data":exp
+                }
+        try:
+            idx_ins=self.const.SAKA_MONTHS_ORDER.index(norm_ins)
+            idx_calc=self.const.SAKA_MONTHS_ORDER.index(norm_calc)
+            diff=(idx_ins-idx_calc)%12
+            if diff==1:
+                return {"detected":True,"type":"punaḥ","diff":1,"confidence":"medium","source":"damais_detection"}
+            elif diff==0:
+                return {"detected":False,"type":"exact_match","diff":0,"confidence":"high"}
+            elif diff==11:
+                return {"detected":True,"type":"ambiguous","diff":11,"confidence":"low"}
+            else:
+                return {"detected":False,"type":"mismatch","diff":diff,"confidence":"low"}
+        except:
+            return {"detected":False,"error":"bulan tidak valid"}
+
+# ============================================================================
+# TPDP ENGINE
+# ============================================================================
+class TPDPEngine:
+    def __init__(self):
+        self.const=ΩConstants; self.math=MathCore(); self.norm=NormalizationEngine()
+        self.mech=MechanicalEngine(); self.intercalation=IntercalationDetectionEngine()
+        self.TPDP_COMPONENTS=self.const.TPDP_COMPONENTS
+        self.THRESHOLDS=self.const.TPDP_THRESHOLDS
+    def evaluate_candidates(self, candidates, inscription_data):
+        scored=[]
+        for cand in candidates:
+            breakdown={}
+            tahun_score, tahun_info = self._tahun_match_score(cand['date'], inscription_data)
+            breakdown['tahun_match']={'score':tahun_score,'weight':self.TPDP_COMPONENTS["TAHUN_MATCH"],'weighted_score':tahun_score*self.TPDP_COMPONENTS["TAHUN_MATCH"],'details':tahun_info}
+            bulan_score, bulan_info = self._bulan_match_score(cand['date'], inscription_data.get('masa',''), inscription_data.get('saka_year'))
+            breakdown['bulan_match']={'score':bulan_score,'weight':self.TPDP_COMPONENTS["BULAN_MATCH"],'weighted_score':bulan_score*self.TPDP_COMPONENTS["BULAN_MATCH"],'details':bulan_info}
+            wara_score, wara_details = self._wara_match_score(cand['wuku_info'], inscription_data)
+            breakdown['wara_match']={'score':wara_score,'weight':self.TPDP_COMPONENTS["WARA_MATCH"],'weighted_score':wara_score*self.TPDP_COMPONENTS["WARA_MATCH"],'details':wara_details}
+            wuku_score, wuku_details = self._wuku_match_score(cand['wuku_info'], inscription_data)
+            breakdown['wuku_match']={'score':wuku_score,'weight':self.TPDP_COMPONENTS["WUKU_MATCH"],'weighted_score':wuku_score*self.TPDP_COMPONENTS["WUKU_MATCH"],'details':wuku_details}
+            breakdown['pancanga_plausibility']={'score':0.5,'weight':self.TPDP_COMPONENTS["PANCANGA_PLAUSIBILITY"],'weighted_score':0.5*self.TPDP_COMPONENTS["PANCANGA_PLAUSIBILITY"],'details':{}}
+            temporal_score = 1.0 - abs(cand['date'][2]-15)/15.0
+            breakdown['temporal_proximity']={'score':temporal_score,'weight':self.TPDP_COMPONENTS["TEMPORAL_PROXIMITY"],'weighted_score':temporal_score*self.TPDP_COMPONENTS["TEMPORAL_PROXIMITY"],'details':{}}
+            hist_score=0.0
+            if inscription_data.get('saka_year'):
+                for anchor in self.const.DAMAIS_ANCHORS:
+                    if abs(inscription_data['saka_year']-anchor['saka'])<=5:
+                        hist_score=1.0; break
+            breakdown['historical_prior']={'score':hist_score,'weight':self.TPDP_COMPONENTS["HISTORICAL_PRIOR"],'weighted_score':hist_score*self.TPDP_COMPONENTS["HISTORICAL_PRIOR"],'details':{}}
+            brute_score=1.0 if cand['ka']>0 else 0.0
+            breakdown['brute_force_support']={'score':brute_score,'weight':self.TPDP_COMPONENTS["BRUTE_FORCE_SUPPORT"],'weighted_score':brute_score*self.TPDP_COMPONENTS["BRUTE_FORCE_SUPPORT"],'details':{}}
+            final_score=sum(info['weighted_score'] for info in breakdown.values())
+            confidence = self._get_confidence_level(final_score)
+            scored.append({
+                'candidate':cand,
+                'score':final_score,
+                'breakdown':breakdown,
+                'intercalation_info':bulan_info if bulan_info.get('detected') else None,
+                'confidence':confidence,
+                'month_shifted': bulan_info.get('detected', False) if bulan_info else False,
+                'has_explicit_intercalation': bulan_info.get('explicit_data') is not None if bulan_info else False,
+                'rank':0
+            })
+        scored.sort(key=lambda x:x['score'], reverse=True)
+        for i,c in enumerate(scored): c['rank']=i+1
+        return scored
+    def _tahun_match_score(self, date, ins):
+        y=date[0]; saka=ins.get('saka_year'); masa=ins.get('masa','')
+        if not saka or not masa: return 0.0, {}
+        valid=self.mech.validate_ce_year_by_basic_rule(saka,masa,y)
+        return (1.0 if valid else 0.0), {'valid':valid}
+    def _bulan_match_score(self, date, masa, saka):
+        month=date[1]; calc_masa=self.mech.julian_month_to_saka_month(month)
+        if not calc_masa: return 0.0, {}
+        inter=self.intercalation.detect_intercalation_damais(masa, calc_masa, saka)
+        if inter.get('detected'):
+            return 0.9 if inter.get('type') in ['explicit_inscription','punaḥ'] else 0.5, inter
+        if self.norm.normalize(masa)==self.norm.normalize(calc_masa):
+            return 1.0, inter
+        return 0.1, inter
+    def _wara_match_score(self, wuku_info, ins):
+        if 'wara_string' not in ins or not ins['wara_string']:
+            return 0.5, {'note':'tidak ada data wara'}
+        wara=self.mech.parse_wara_string_smart(ins['wara_string'], ins.get('wuku'))
+        if not wara:
+            return 0.0, {'error':'parse gagal'}
+        sad_match = wuku_info.get('sadwara')==wara.get('sadwara')
+        panca_match = wuku_info.get('pancawara')==wara.get('pancawara')
+        sapta_match = wuku_info.get('saptawara')==wara.get('saptawara')
+        match_count=sum([sad_match,panca_match,sapta_match])
+        score=1.0 if match_count==3 else (0.4 if match_count==2 else (0.1 if match_count==1 else 0.0))
+        return score, {'sad_match':sad_match,'panca_match':panca_match,'sapta_match':sapta_match,'total':match_count}
+    def _wuku_match_score(self, wuku_info, ins):
+        if 'wuku' not in ins or not ins['wuku']:
+            return 0.5, {'note':'tidak ada data wuku'}
+        ins_w=self.norm.normalize(ins['wuku'])
+        calc_w=self.norm.normalize(wuku_info.get('wuku_name',''))
+        return (1.0 if ins_w==calc_w else 0.0), {'match':ins_w==calc_w}
+    def _get_confidence_level(self, score):
+        if score>=self.THRESHOLDS["HIGH_CONFIDENCE"]: return "TINGGI"
+        elif score>=self.THRESHOLDS["MEDIUM_CONFIDENCE"]: return "SEDANG"
+        elif score>=self.THRESHOLDS["LOW_CONFIDENCE"]: return "RENDAH"
+        else: return "DIREKOMENDASIKAN UNTUK DITOLAK"
+
+# ============================================================================
+# SMART WARA PARSER
+# ============================================================================
+class SmartWaraParser:
+    def __init__(self, mech):
+        self.mech=mech; self.norm=NormalizationEngine(); self.const=ΩConstants
+        self.triple_to_index=mech.wara_triple_to_index
+        self.triple_to_wuku=mech.wara_triple_to_wuku
+        self.wuku_all_triples=mech.wuku_all_triples
+        self._build_component_sets()
+    def _build_component_sets(self):
+        self.sadwara_set=set(self.norm.normalize(s) for s in self.const.SADWARA_STANDARD)
+        self.pancawara_set=set(self.norm.normalize(p) for p in self.const.PANCAWARA_STANDARD)
+        self.saptawara_set=set(self.norm.normalize(s) for s in self.const.SAPTAWARA_STANDARD)
+        self.wuku_set=set(self.norm.normalize(w) for w in self.const.WUKU_NAMES_STANDARD)
+    def identify_component_type(self, comp):
+        n=self.norm.normalize(comp)
+        if n in self.sadwara_set: return "sadwara"
+        if n in self.pancawara_set: return "pancawara"
+        if n in self.saptawara_set: return "saptawara"
+        return "unknown"
+    def parse_wara_intelligent(self, wara_string, wuku=None):
+        if not wara_string: return {"error":"kosong"}
+        parts=[p.strip() for p in wara_string.split('-') if p.strip()]
+        if len(parts)==3:
+            sad=self.norm.normalize(parts[0]); panca=self.norm.normalize(parts[1]); sapta=self.norm.normalize(parts[2])
+            triple=(sad,panca,sapta)
+            if triple in self.triple_to_index:
+                wc=self.triple_to_wuku.get(triple)
+                if wuku and self.norm.normalize(wuku)!=wc:
+                    return {"error":"wuku tidak cocok","expected":wc}
+                return {
+                    "type":"full","sadwara":sad,"pancawara":panca,"saptawara":sapta,
+                    "wuku":wc,"confidence":1.0,
+                    "all_possibilities":[{"sadwara":sad,"pancawara":panca,"saptawara":sapta,"wuku":wc}]
+                }
+            return {"error":"triple tidak valid"}
+        elif len(parts)==2:
+            p1=self.norm.normalize(parts[0]); p2=self.norm.normalize(parts[1])
+            wuku_n=self.norm.normalize(wuku) if wuku else None
+            poss=[]
+            for triple in self.triple_to_index.keys():
+                sad,panca,sapta=triple
+                if (p1==sad and p2==panca) or (p1==panca and p2==sad) or (p1==sapta and p2==panca) or (p1==panca and p2==sapta):
+                    if wuku_n and self.triple_to_wuku[triple]!=wuku_n:
+                        continue
+                    poss.append({"sadwara":sad,"pancawara":panca,"saptawara":sapta,"wuku":self.triple_to_wuku[triple]})
+            if poss:
+                return {
+                    "type":"partial_two","input_format":wara_string,
+                    "confidence":0.9 if len(poss)==1 else 0.7,
+                    "num_possibilities":len(poss),
+                    "all_possibilities":poss[:10]
+                }
+            return {"error":"tidak ditemukan kombinasi"}
+        elif len(parts)==1:
+            p=self.norm.normalize(parts[0]); wuku_n=self.norm.normalize(wuku) if wuku else None
+            poss=[]
+            for triple in self.triple_to_index.keys():
+                if p in triple:
+                    if wuku_n and self.triple_to_wuku[triple]!=wuku_n:
+                        continue
+                    poss.append({"sadwara":triple[0],"pancawara":triple[1],"saptawara":triple[2],"wuku":self.triple_to_wuku[triple]})
+            if poss:
+                return {
+                    "type":"single","input_component":wara_string,
+                    "confidence":0.8 if len(poss)==1 else 0.6,
+                    "num_possibilities":len(poss),
+                    "all_possibilities":poss[:15]
+                }
+            return {"error":"komponen tidak ditemukan"}
+        return {"error":"format tidak dikenali"}
+
+# ============================================================================
+# Ω-STHAPATI SYSTEM
+# ============================================================================
+class ΩSthapatiSystem:
+    def __init__(self, verbose_startup=False):
+        self.const=ΩConstants; self.math=MathCore(); self.norm=NormalizationEngine()
+        self.mech=MechanicalEngine(); self.intercalation=IntercalationDetectionEngine()
+        self.tpdp=TPDPEngine()
+        self.smart_parser=SmartWaraParser(self.mech)
+    def convert_prasasti(self, prasasti_data, verbose=False):
+        nd=self.norm.normalize_inscription_data(prasasti_data)
+        saka_year=nd.get('saka_year'); masa=nd.get('masa','')
+        if not saka_year: return []
+        valid_ce_years=self.mech.get_valid_ce_years_by_rule(saka_year, masa)
+        all_candidates=[]
+        for ce_year in valid_ce_years:
+            for off in [-1,0,1]:
+                search_year=ce_year+off
+                tupa_list=self.mech.find_tu_pa_a_in_year(search_year)
+                for tupa in tupa_list:
+                    cands=self._candidates_from_tupa(tupa, nd, ce_year)
+                    all_candidates.extend(cands)
+        if not all_candidates: return []
+        all_candidates=self._filter_candidates(all_candidates, nd)
+        scored=self.tpdp.evaluate_candidates(all_candidates, nd)
+        final=[]
+        for cand in scored:
+            br=cand['breakdown']
+            ts=br['tahun_match']['score'] if 'tahun_match' in br else 0
+            bs=br['bulan_match']['score'] if 'bulan_match' in br else 0
+            ws=br['wara_match']['score'] if 'wara_match' in br else 0
+            avg=(ts+bs+ws)/3.0 if (ts+bs+ws)>0 else 0
+            if cand['score']>=0.5 and avg>=0.6 and ts>=0.9:
+                final.append(cand)
+        return final
+    def _candidates_from_tupa(self, tupa, nd, expected_year):
+        wara_string=nd.get('wara_string')
+        if not wara_string: return []
+        wara=self.mech.parse_wara_string_smart(wara_string, nd.get('wuku'))
+        if not wara: return []
+        triple=(wara['sadwara'], wara['pancawara'], wara['saptawara'])
+        i_target=self.mech.get_index_from_wara_triple(*triple)
+        if i_target is None: return []
+        ka_candidate=tupa['ka']+i_target
+        year,month,day=self.math.ka_to_julian_date(ka_candidate)
+        wuku_info=self.mech.calculate_wuku_wara_from_ka(ka_candidate)
+        return [{
+            'ka':ka_candidate, 'date':(year,month,day),
+            'wuku_info':wuku_info, 'tu_pa_a_anchor':tupa,
+            'i':wuku_info['i'], 's':wuku_info['s'],
+            'year_match':year==expected_year
+        }]
+    def _filter_candidates(self, candidates, nd):
+        masa=nd.get('masa',''); saka=nd.get('saka_year')
+        masa_n=self.norm.normalize(masa)
+        info=self.mech.SAKA_MONTH_TO_JULIAN_RANGE.get(masa_n, {})
+        valid_months=info.get("julian_months", [])
+        explicit=None
+        if saka: explicit=self.intercalation.get_explicit_intercalation(saka)
+        filtered=[]
+        for cand in candidates:
+            y,cand_month,d=cand['date']
+            if not self.mech.validate_ce_year_by_basic_rule(saka,masa,y):
+                continue
+            month_valid=True
+            if explicit and masa_n==self.norm.normalize(explicit["month"]):
+                exp_ka=self.math.julian_date_to_ka(explicit["julian_date"][0],
+                                                   explicit["julian_date"][1],
+                                                   explicit["julian_date"][2])
+                if abs(cand['ka']-exp_ka)<=30:
+                    cand['priority']="EXPLICIT_INTERCALATION"
+                else:
+                    month_valid=False
+            else:
+                if valid_months:
+                    dist=min(abs(cand_month-m)%12 for m in valid_months)
+                    if dist<=1:
+                        cand['priority']="NORMAL"
+                        cand['month_distance']=dist
+                    else:
+                        month_valid=False
+            if month_valid:
+                filtered.append(cand)
+        return filtered
+    def convert_prasasti_with_smart_parsing(self, prasasti_data, verbose=False):
+        wara_string=prasasti_data.get('wara_string','')
+        wuku=prasasti_data.get('wuku','')
+        parse_result=self.smart_parser.parse_wara_intelligent(wara_string, wuku)
+        if "error" in parse_result:
+            return []
+        all_results=[]
+        if "all_possibilities" in parse_result:
+            poss=parse_result["all_possibilities"]
+            for poss_item in poss:
+                nd=prasasti_data.copy()
+                nd['wara_string']=f"{poss_item['sadwara']}-{poss_item['pancawara']}-{poss_item['saptawara']}"
+                res=self.convert_prasasti(nd, False)
+                for r in res:
+                    r['wara_parsing_info']={
+                        'original':wara_string,
+                        'parsed_triple':poss_item,
+                        'parsing_confidence':parse_result.get('confidence',0)
+                    }
+                    all_results.append(r)
+            unique={}
+            for r in all_results:
+                ka=r['candidate']['ka']
+                if ka not in unique:
+                    unique[ka]=r
+            return sorted(unique.values(), key=lambda x:x['score'], reverse=True)
+        else:
+            return self.convert_prasasti(prasasti_data, False)
+
+# ============================================================================
+# WRAPPER FUNCTIONS FOR JAVASCRIPT
+# ============================================================================
+system = ΩSthapatiSystem()
+
+def convert_standard(data):
+    try:
+        results = system.convert_prasasti(data, verbose=False)
+        if not results: return {"error": "Tidak ditemukan kandidat valid"}
+        output = []
+        for r in results:
+            cand = r['candidate']
+            y,m,d = cand['date']
+            br = r['breakdown']
+            out_item = {
+                'date': f"{int(y)}-{int(m):02d}-{int(d):02d}",
+                'ka': cand['ka'],
+                'wuku': cand['wuku_info']['wuku_name'],
+                'wara': cand['wuku_info']['wara_string'],
+                'score': r['score'],
+                'confidence': r['confidence'],
+                'month_shifted': r.get('month_shifted', False),
+                'has_explicit_intercalation': r.get('has_explicit_intercalation', False),
+                'breakdown': {
+                    'tahun': br.get('tahun_match', {}).get('score', 0),
+                    'bulan': br.get('bulan_match', {}).get('score', 0),
+                    'wara': br.get('wara_match', {}).get('score', 0),
+                    'wuku': br.get('wuku_match', {}).get('score', 0)
+                }
+            }
+            if r.get('intercalation_info'):
+                out_item['intercalation_info'] = r['intercalation_info']
+            output.append(out_item)
+        return output
+    except Exception as e:
+        return {"error": str(e)}
+
+def convert_smart(data):
+    try:
+        results = system.convert_prasasti_with_smart_parsing(data, verbose=False)
+        if not results: return {"error": "Tidak ditemukan kandidat valid"}
+        output = []
+        for r in results:
+            cand = r['candidate']
+            y,m,d = cand['date']
+            br = r['breakdown']
+            out_item = {
+                'date': f"{int(y)}-{int(m):02d}-{int(d):02d}",
+                'ka': cand['ka'],
+                'wuku': cand['wuku_info']['wuku_name'],
+                'wara': cand['wuku_info']['wara_string'],
+                'score': r['score'],
+                'confidence': r['confidence'],
+                'month_shifted': r.get('month_shifted', False),
+                'has_explicit_intercalation': r.get('has_explicit_intercalation', False),
+                'breakdown': {
+                    'tahun': br.get('tahun_match', {}).get('score', 0),
+                    'bulan': br.get('bulan_match', {}).get('score', 0),
+                    'wara': br.get('wara_match', {}).get('score', 0),
+                    'wuku': br.get('wuku_match', {}).get('score', 0)
+                }
+            }
+            if r.get('wara_parsing_info'):
+                out_item['parsing_info'] = r['wara_parsing_info']
+            if r.get('intercalation_info'):
+                out_item['intercalation_info'] = r['intercalation_info']
+            output.append(out_item)
+        return output
+    except Exception as e:
+        return {"error": str(e)}
+
+SAMPLE_INSCRIPTIONS = [
+    {"id":"Ayam_Těas_I","saka_year":822,"masa":"Pusya","tithi":8,"paksa":"Sukla","wara_string":"Haryang-Kaliwon-Wrhaspati"},
+    {"id":"Cunggrang_II","saka_year":851,"masa":"Asuji","tithi":12,"paksa":"Sukla","wuku":"Wugu","wara_string":"Tungleh-Pahing-Sukra"},
+    {"id":"Pucangan","saka_year":963,"masa":"Kartika","tithi":10,"paksa":"Sukla","wuku":"Wayang","wara_string":"Haryang-Wage-Jumat"},
+    {"id":"Hantang","saka_year":1057,"masa":"Bhadrapada","tithi":13,"paksa":"Krsna","wuku":"Wukir","wara_string":"Wurukung-Pahing-Saniscara"},
+    {"id":"Test_Parsial","saka_year":851,"masa":"Asuji","tithi":12,"paksa":"Sukla","wuku":"Wugu","wara_string":"Jumat-Pahing"}
+]
+`;
+
+    // ============================================================
+    // INISIALISASI
+    // ============================================================
+    let pyodide = null;
+    let engineReady = false;
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadStatus = document.getElementById('loadStatus');
+    const loadSub = document.getElementById('loadSub');
+    const steps = {
+        s1: document.getElementById('step1'),
+        s2: document.getElementById('step2'),
+        s3: document.getElementById('step3')
+    };
+
+    function setStep(step, done = false) {
+        const all = [steps.s1, steps.s2, steps.s3];
+        all.forEach((el, idx) => {
+            el.className = 'progress-step';
+            if (idx < step) el.classList.add('done');
+            else if (idx === step) el.classList.add('active');
+        });
+        if (done) all.forEach(el => { el.classList.remove('active'); el.classList.add('done'); });
+    }
+
+    async function initPyodide() {
+        loadingOverlay.style.display = 'flex';
+        loadStatus.textContent = '⏳ Mengunduh Pyodide…';
+        loadSub.textContent = 'Mengambil runtime Python (≈6 MB), mohon tunggu.';
+        setStep(0);
+
+        try {
+            pyodide = await loadPyodide({
+                indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/"
+            });
+
+            loadStatus.textContent = '⏳ Mengkompilasi modul…';
+            loadSub.textContent = 'Memproses kode Python, sebentar lagi siap.';
+            setStep(1);
+
+            await pyodide.runPythonAsync(pythonCode);
+
+            engineReady = true;
+            loadStatus.textContent = '✅ Siap!';
+            loadSub.textContent = 'Anda dapat mulai menggunakan aplikasi.';
+            setStep(2, true);
+
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                setTimeout(() => { loadingOverlay.style.display = 'none'; }, 500);
+            }, 500);
+
+            // Auto-load sample
+            document.getElementById('btnLoadSample').click();
+
+        } catch (err) {
+            console.error(err);
+            loadStatus.textContent = '❌ Gagal memuat';
+            loadSub.textContent = 'Periksa koneksi internet dan reload halaman.';
+            loadingOverlay.innerHTML = `
+                <div class="spinner"><i class="fas fa-exclamation-triangle" style="color:#dc3545;"></i></div>
+                <h5 class="mt-3 text-danger">Gagal memuat engine</h5>
+                <p class="text-muted small">${err.message}</p>
+                <button class="btn btn-primary mt-3" onclick="location.reload()">Muat Ulang</button>
+            `;
+        }
+    }
+
+    // Mulai inisialisasi
+    initPyodide();
+
+    // ============================================================
+    // UI FUNCTIONS
+    // ============================================================
+    async function callPython(funcName, data) {
+        if (!engineReady) throw new Error("Engine belum siap.");
+        const code = `json.dumps(${funcName}(${JSON.stringify(data)}))`;
+        const result = await pyodide.runPythonAsync(code);
+        return JSON.parse(result);
+    }
+
+    function getFormData() {
+        return {
+            saka_year: parseInt(document.getElementById('sakaYear').value),
+            masa: document.getElementById('masa').value,
+            tithi: parseInt(document.getElementById('tithi').value),
+            paksa: document.getElementById('paksa').value,
+            wuku: document.getElementById('wuku').value,
+            wara_string: document.getElementById('waraString').value,
+            nakshatra: document.getElementById('nakshatra').value
+        };
+    }
+
+    function setFormData(data) {
+        document.getElementById('sakaYear').value = data.saka_year || '';
+        document.getElementById('masa').value = data.masa || '';
+        document.getElementById('tithi').value = data.tithi || '';
+        document.getElementById('paksa').value = data.paksa || 'Sukla';
+        document.getElementById('wuku').value = data.wuku || '';
+        document.getElementById('waraString').value = data.wara_string || '';
+        document.getElementById('nakshatra').value = data.nakshatra || '';
+    }
+
+    function showResult(dataArray) {
+        const container = document.getElementById('resultContainer');
+        const box = document.getElementById('resultOutput');
+        box.style.display = 'block';
+        box.classList.remove('error');
+        box.innerHTML = '';
+
+        if (!Array.isArray(dataArray) || dataArray.length === 0) {
+            box.innerHTML = '<div class="alert alert-warning">Tidak ditemukan kandidat yang valid.</div>';
+            container.style.display = 'block';
+            return;
+        }
+
+        dataArray.forEach((item, index) => {
+            const rank = index + 1;
+            const isBest = rank === 1;
+            const cardClass = isBest ? 'result-card rank-1' : 'result-card';
+
+            const dateStr = item.date || '—';
+            const ka = item.ka ? item.ka.toLocaleString() : '—';
+            const wuku = item.wuku || '—';
+            const wara = item.wara || '—';
+            const score = item.score || 0;
+            const confidence = item.confidence || '—';
+            const monthShifted = item.month_shifted || false;
+            const explicitInter = item.has_explicit_intercalation || false;
+            const breakdown = item.breakdown || {};
+
+            let statusIcon = '<i class="fas fa-check-circle text-success"></i>';
+            let statusText = 'Valid';
+            if (explicitInter) {
+                statusIcon = '<i class="fas fa-exclamation-circle text-danger"></i>';
+                statusText = 'Interkalasi Eksplisit';
+            } else if (monthShifted) {
+                statusIcon = '<i class="fas fa-clock text-warning"></i>';
+                statusText = 'Pergeseran Bulan';
+            }
+
+            let confColor = 'secondary';
+            if (confidence === 'TINGGI') confColor = 'success';
+            else if (confidence === 'SEDANG') confColor = 'warning';
+            else if (confidence === 'RENDAH') confColor = 'danger';
+
+            const comps = [
+                { label: 'Tahun', value: breakdown.tahun || 0 },
+                { label: 'Bulan', value: breakdown.bulan || 0 },
+                { label: 'Wara', value: breakdown.wara || 0 },
+                { label: 'Wuku', value: breakdown.wuku || 0 }
+            ];
+
+            let html = `
+                <div class="${cardClass}">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap">
+                        <div>
+                            <span class="rank-badge">#${rank}</span>
+                            <span class="date-display">${dateStr}</span>
+                            <span class="ms-2 ka-display">KA ${ka}</span>
+                        </div>
+                        <div>
+                            <span class="status-icon">${statusIcon}</span>
+                            <span class="badge bg-${confColor}">${confidence}</span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="wuku-badge"><i class="fas fa-calendar-alt"></i> ${wuku}</span>
+                        <span class="wara-badge ms-2"><i class="fas fa-star"></i> ${wara}</span>
+                        ${explicitInter ? '<span class="intercalation-badge ms-2"><i class="fas fa-skull-crosswalk"></i> Interkalasi Eksplisit</span>' : ''}
+                        ${(!explicitInter && monthShifted) ? '<span class="shift-badge ms-2"><i class="fas fa-clock"></i> Pergeseran Bulan</span>' : ''}
+                    </div>
+                    <div class="mt-2">
+                        <div class="d-flex justify-content-between">
+                            <span>Skor TPDP: <strong>${(score * 100).toFixed(1)}%</strong></span>
+                            <span class="text-muted small">${statusText}</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${score * 100}%;"></div>
+                        </div>
+                    </div>
+                    <div class="component-grid">
+                        ${comps.map(c => `
+                            <div class="component-item">
+                                <div class="label">${c.label}</div>
+                                <div class="value ${c.value >= 0.9 ? 'high' : c.value >= 0.5 ? 'medium' : 'low'}">${(c.value * 100).toFixed(0)}%</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${item.parsing_info ? `<div class="mt-2 small text-muted"><i class="fas fa-lightbulb"></i> Parsing: ${item.parsing_info.original} → ${item.parsing_info.parsed_triple.sadwara}-${item.parsing_info.parsed_triple.pancawara}-${item.parsing_info.parsed_triple.saptawara} (conf: ${(item.parsing_info.parsing_confidence*100).toFixed(0)}%)</div>` : ''}
+                </div>
+            `;
+            box.innerHTML += html;
+        });
+
+        container.style.display = 'block';
+    }
+
+    function showError(msg) {
+        const container = document.getElementById('resultContainer');
+        const box = document.getElementById('resultOutput');
+        box.style.display = 'block';
+        box.classList.add('error');
+        box.innerHTML = `<div class="alert alert-danger">❌ ${msg}</div>`;
+        container.style.display = 'block';
+    }
+
+    async function handleConvert(smart = false) {
+        const loader = document.getElementById('resultLoader');
+        loader.style.display = 'block';
+        document.getElementById('resultOutput').style.display = 'none';
+        document.getElementById('resultContainer').style.display = 'block';
+        try {
+            const data = getFormData();
+            for (let k in data) if (data[k] === '' || data[k] === undefined) delete data[k];
+            const func = smart ? 'convert_smart' : 'convert_standard';
+            const result = await callPython(func, data);
+            if (result && result.error) {
+                showError(result.error);
+            } else if (Array.isArray(result) && result.length === 0) {
+                showError('Tidak ditemukan kandidat yang valid.');
+            } else {
+                showResult(result);
+            }
+        } catch (err) {
+            showError(err.message);
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+
+    document.getElementById('formPrasasti').addEventListener('submit', function(e) {
+        e.preventDefault();
+        handleConvert(false);
+    });
+
+    document.getElementById('btnSmartConvert').addEventListener('click', function() {
+        handleConvert(true);
+    });
+
+    let sampleIndex = 0;
+    document.getElementById('btnLoadSample').addEventListener('click', function() {
+        if (!engineReady) { alert('Engine belum siap.'); return; }
+        (async () => {
+            try {
+                const samples = await pyodide.runPythonAsync('json.dumps(SAMPLE_INSCRIPTIONS)');
+                const list = JSON.parse(samples);
+                if (list.length === 0) return;
+                if (sampleIndex >= list.length) sampleIndex = 0;
+                const sample = list[sampleIndex];
+                setFormData(sample);
+                sampleIndex++;
+            } catch (e) {
+                alert('Gagal load sample: ' + e.message);
+            }
+        })();
+    });
+
+    // Auto-load first sample on ready
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkReady = setInterval(() => {
+            if (engineReady) {
+                clearInterval(checkReady);
+                document.getElementById('btnLoadSample').click();
+            }
+        }, 500);
+    });
+</script>
+</body>
+</html>
