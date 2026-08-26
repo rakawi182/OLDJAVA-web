@@ -260,12 +260,14 @@
         <!-- PANE REALTIME -->
         <div class="tab-pane fade" id="pane-realtime" role="tabpanel">
             <div class="card">
-                <div class="card-header"><i class="fas fa-clock"></i> Wuku Sekarang (Realtime)</div>
-                <div class="card-body text-center">
-                    <button id="realtimeBtn" class="btn btn-primary btn-lg mb-3">
-                        <i class="fas fa-sync"></i> Refresh
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-clock"></i> Wuku Sekarang (Realtime)</span>
+                    <button id="realtimeBtn" class="btn btn-outline-light btn-sm" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
                     </button>
-                    <div id="realtimeResult" class="output-box text-start"></div>
+                </div>
+                <div class="card-body text-start">
+                    <div id="realtimeResult" class="output-box"></div>
                     <div id="realtimeLoader" class="loader">
                         <i class="fas fa-spinner fa-spin fa-2x"></i> Memproses…
                     </div>
@@ -661,10 +663,17 @@ def realtime_info():
         now = datetime.now()
         ka = engine.date_to_ka(now.year, now.month, now.day)
         info = engine.get_wuku_by_ka(ka)
+        
+        # Hitung day_in_cycle secara manual (tanpa method tambahan)
+        days_since_epoch = ka - engine.KA_8_FEB_1_BC
+        pos_since_epoch = engine.safe_mod(days_since_epoch, 210)
+        day_in_cycle = pos_since_epoch + 1
+        
         info['datetime_local'] = now.strftime("%Y-%m-%d %H:%M:%S")
         info['datetime_utc'] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
         info['jd'] = engine.ka_to_julian_day(ka)
         info['days_to_next_tu_pa_a'] = engine.get_days_to_next_tu_pa_a(ka)
+        info['day_in_cycle'] = day_in_cycle        
         return info
     except Exception as e:
         return {'error': str(e)}
@@ -839,6 +848,9 @@ def realtime_info():
             const isTpa = d.is_tu_pa_a;
             const tpaBadge = isTpa ? '<span class="badge-tpa"><i class="fas fa-star"></i> TU-PA-A</span>' : '<span class="badge bg-secondary">Bukan TU-PA-A</span>';
 
+            // Posisi siklus 210 hari
+            const dayInCycle = d.day_in_cycle !== undefined ? `${d.day_in_cycle}/210` : '—';
+
             html = `
                 <div class="result-card">
                     <div class="d-flex justify-content-between align-items-start flex-wrap">
@@ -851,10 +863,11 @@ def realtime_info():
                             <span class="badge-wara ms-2"><i class="fas fa-star"></i> ${d.wara_triple_full}</span>
                         </div>
                     </div>
-                    <div class="grid-3">
+                    <div class="grid-4">
                         <div class="item"><span class="label">KA</span><div class="value">${d.ka.toLocaleString()}</div></div>
                         <div class="item"><span class="label">JD</span><div class="value">${d.jd}</div></div>
                         <div class="item"><span class="label">Hari dalam Wuku</span><div class="value">${d.day_in_wuku}/7</div></div>
+                        <div class="item"><span class="label">Posisi Siklus</span><div class="value">${dayInCycle}</div></div>
                     </div>
                     <div class="divider"></div>
                     <div class="d-flex justify-content-between flex-wrap">
