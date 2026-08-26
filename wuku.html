@@ -664,16 +664,23 @@ def realtime_info():
         ka = engine.date_to_ka(now.year, now.month, now.day)
         info = engine.get_wuku_by_ka(ka)
         
-        # Hitung day_in_cycle secara manual (tanpa method tambahan)
+        # Hitung posisi dalam siklus 210 hari
         days_since_epoch = ka - engine.KA_8_FEB_1_BC
         pos_since_epoch = engine.safe_mod(days_since_epoch, 210)
         day_in_cycle = pos_since_epoch + 1
+        
+        # Cari TU-PA-A berikutnya
+        next_tpa = engine.find_next_tu_pa_a(from_ka=ka)
+        y, m, d = next_tpa['date']
+        next_tpa_date_str = f"{y:04d}-{m:02d}-{d:02d}"
         
         info['datetime_local'] = now.strftime("%Y-%m-%d %H:%M:%S")
         info['datetime_utc'] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
         info['jd'] = engine.ka_to_julian_day(ka)
         info['days_to_next_tu_pa_a'] = engine.get_days_to_next_tu_pa_a(ka)
-        info['day_in_cycle'] = day_in_cycle        
+        info['day_in_cycle'] = day_in_cycle
+        info['next_tu_pa_a_date'] = next_tpa_date_str
+        
         return info
     except Exception as e:
         return {'error': str(e)}
@@ -734,7 +741,19 @@ def realtime_info():
         if (type === 'wuku') {
             const d = data;
             const isTpa = d.is_tu_pa_a;
-            const tpaBadge = isTpa ? '<span class="badge-tpa"><i class="fas fa-star"></i> TU-PA-A</span>' : '<span class="badge bg-secondary">Bukan TU-PA-A</span>';
+            
+            // Hitung posisi siklus 210 hari
+            const ka = d.ka;
+            // Kita butuh day_in_cycle dari data, jika tidak ada, hitung manual
+            let dayInCycle = '—';
+            if (d.day_in_cycle !== undefined) {
+                dayInCycle = `${d.day_in_cycle}/210`;
+            } else if (d.wuku_index !== undefined) {
+                dayInCycle = `${d.wuku_index + 1}/210`;
+            }
+            
+            // Badge TU-PA-A (tetap dipertahankan jika memang TU-PA-A)
+            const tpaBadge = isTpa ? '<span class="badge-tpa"><i class="fas fa-star"></i> TU-PA-A</span>' : '';
 
             html = `
                 <div class="result-card">
@@ -752,7 +771,10 @@ def realtime_info():
                         <div class="item"><span class="label">KA</span><div class="value">${d.ka.toLocaleString()}</div></div>
                         <div class="item"><span class="label">Julian Day</span><div class="value">${d.julian_day}</div></div>
                         <div class="item"><span class="label">Hari dalam Wuku</span><div class="value">${d.day_in_wuku}/7</div></div>
-                        <div class="item"><span class="label">Status</span><div>${tpaBadge}</div></div>
+                        <div class="item">
+                            <span class="label">Posisi Siklus</span>
+                            <div class="value">${dayInCycle} ${tpaBadge ? '⭐' : ''}</div>
+                        </div>
                     </div>
                     <div class="divider"></div>
                     <div class="d-flex justify-content-between flex-wrap">
@@ -846,10 +868,22 @@ def realtime_info():
         } else if (type === 'realtime') {
             const d = data;
             const isTpa = d.is_tu_pa_a;
-            const tpaBadge = isTpa ? '<span class="badge-tpa"><i class="fas fa-star"></i> TU-PA-A</span>' : '<span class="badge bg-secondary">Bukan TU-PA-A</span>';
-
-            // Posisi siklus 210 hari
-            const dayInCycle = d.day_in_cycle !== undefined ? `${d.day_in_cycle}/210` : '—';
+            
+            // Hitung posisi siklus 210 hari
+            let dayInCycle = '—';
+            if (d.day_in_cycle !== undefined) {
+                dayInCycle = `${d.day_in_cycle}/210`;
+            }
+            
+            // Tentukan teks status TU-PA-A
+            let statusText = '';
+            if (isTpa) {
+                statusText = '<span class="badge-tpa"><i class="fas fa-star"></i> TU-PA-A (Hari ini!)</span>';
+            } else {
+                // Hitung tanggal TU-PA-A berikutnya
+                const nextTpaDate = d.next_tu_pa_a_date || '—';
+                statusText = `<span>TU-PA-A berikutnya: <strong>${d.days_to_next_tu_pa_a}</strong> hari lagi (${nextTpaDate})</span>`;
+            }
 
             html = `
                 <div class="result-card">
@@ -872,8 +906,7 @@ def realtime_info():
                     <div class="divider"></div>
                     <div class="d-flex justify-content-between flex-wrap">
                         <span><i class="fas fa-globe"></i> UTC: ${d.datetime_utc}</span>
-                        <span>${tpaBadge}</span>
-                        <span><i class="fas fa-arrow-right"></i> TU-PA-A berikutnya: <strong>${d.days_to_next_tu_pa_a}</strong> hari</span>
+                        <span>${statusText}</span>
                     </div>
                 </div>
             `;
