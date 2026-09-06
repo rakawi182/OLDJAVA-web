@@ -709,7 +709,7 @@
                 }
 
                 // 3. Total hari dari epoch ke tanggal sekarang
-                let totalDays = this.cumTo1Sura + this.rem;
+                let totalDays = this.days; // perbaikan: langsung pakai this.days (sama seperti Python)
 
                 // 4. Hari yang sudah dilalui dalam Windu
                 let daysSinceWinduStart = totalDays - tempCum;
@@ -738,6 +738,15 @@
                 this.lapanStart = new Date(this.gregDate);
                 this.lapanStart.setDate(this.lapanStart.getDate() + dToLapan);
 
+                // ---- Hari sejak Anggara Kasih terakhir ----
+                const firstAK = 4;  // Selasa Kliwon pertama dari epoch (Jumat Legi)
+                if (this.days >= firstAK) {
+                    let lastAKOffset = firstAK + 35 * Math.floor((this.days - firstAK) / 35);
+                    this.daysSinceLastAK = this.days - lastAKOffset;
+                } else {
+                    this.daysSinceLastAK = 0;
+                }
+
                 // ---- DAPUR WUKU ----
                 this.dapur = Math.floor(this.days / 210);
 
@@ -759,7 +768,8 @@
         📆 Bulan     : ${this.monthJawa} ${this.day}
         📌 Dina      : ${this.dn} ${this.pn} ${this.prn}
         🌀 Wuku      : ${this.wn}. ${this.wName}
-        ⏳ Masa-Wuku : ${this.mwName} (nuju Anggara Kasih wuku ${this.anggaraKasihWuku})
+        ⏳ Masa-Wuku : ${this.mwName}
+                       (${this.daysSinceLastAK} hari sejak Anggara Kasih wuku ${this.anggaraKasihWuku})
         🔁 Windu     : ${this.maWNum}. ${this.maWName}
         🔰 Kurup     : ${this.kurup}. ${this.churuf}
         🏷️ Lambang   : ${this.lambang}
@@ -855,7 +865,10 @@
                         <div class="info-card"><div class="label">📆 Bulan</div><div class="value">${kal.monthJawa} ${kal.day}</div></div>
                         <div class="info-card"><div class="label">📌 Dina</div><div class="value">${kal.dn} ${kal.pn} ${kal.prn}</div></div>
                         <div class="info-card"><div class="label">🌀 Wuku</div><div class="value">${kal.wn}. ${kal.wName}</div></div>
-                        <div class="info-card"><div class="label">⏳ Masa-Wuku</div><div class="value">${kal.mwName} (nuju Anggara Kasih wuku ${kal.anggaraKasihWuku})</div></div>
+                        <div class="info-card"><div class="label">⏳ Masa-Wuku</div>
+                            <div class="value">${kal.mwName}<br>
+                            (${kal.daysSinceLastAK} hari sejak Anggara Kasih wuku ${kal.anggaraKasihWuku})</div>
+                        </div>
                         <div class="info-card"><div class="label">🔁 Windu</div><div class="value">${kal.maWNum}. ${kal.maWName}</div></div>
                         <div class="info-card"><div class="label">🔰 Kurup</div><div class="value">${kal.kurup}. ${kal.churuf}</div></div>
                         <div class="info-card"><div class="label">🏷️ Lambang</div><div class="value">${kal.lambang}</div></div>
