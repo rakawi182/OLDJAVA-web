@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hari Baik Pernikahan - Primbon Jawa</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Palatino', 'Georgia', serif;
+            background: #f5efe6;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(200, 170, 140, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(180, 150, 120, 0.08) 0%, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 860px;
+            width: 100%;
+            background: #fcf8f0;
+            border-radius: 32px;
+            padding: 30px 35px 40px;
+            box-shadow:
+                0 20px 60px rgba(100, 70, 40, 0.18),
+                0 6px 18px rgba(100, 70, 40, 0.08),
+                inset 0 1px 0 rgba(255, 245, 230, 0.7);
+            border: 1px solid #e8dccc;
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border: 2px solid #dcc9b0;
+            border-radius: 28px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 18px;
+            border-bottom: 2px dashed #dcc9b0;
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #5a3e2b;
+            letter-spacing: 2px;
+            text-shadow: 0 1px 0 rgba(255, 245, 230, 0.8);
+        }
+
+        .header h1 span {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b6b4a, #6b4f36);
+            color: #f5ede4;
+            padding: 0 14px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            margin-left: 8px;
+            vertical-align: middle;
+            line-height: 28px;
+        }
+
+        .header .sub {
+            font-size: 14px;
+            color: #8a755f;
+            margin-top: 4px;
+            letter-spacing: 3px;
+            font-style: italic;
+        }
+
+        .ornament {
+            text-align: center;
+            color: #c4aa8e;
+            font-size: 18px;
+            letter-spacing: 8px;
+            margin: 6px 0 10px;
+            opacity: 0.6;
+            user-select: none;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 30px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+            .container {
+                padding: 20px 16px 30px;
+            }
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5a3e2b;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-group label .badge {
+            font-size: 11px;
+            font-weight: 400;
+            background: #dcc9b0;
+            color: #4d3624;
+            padding: 0 10px;
+            border-radius: 20px;
+            line-height: 18px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-row select {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1.5px solid #dcc9b0;
+            border-radius: 12px;
+            background: #fcf8f0;
+            font-size: 15px;
+            font-family: inherit;
+            color: #3d2c1e;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a6b4a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            cursor: pointer;
+        }
+
+        .form-row select:focus {
+            outline: none;
+            border-color: #a88462;
+            box-shadow: 0 0 0 3px rgba(168, 132, 98, 0.2);
+        }
+
+        .btn-primary {
+            grid-column: 1 / -1;
+            justify-self: center;
+            padding: 12px 44px;
+            font-size: 17px;
+            font-weight: 600;
+            font-family: inherit;
+            color: #fcf8f0;
+            background: linear-gradient(135deg, #7a5d44, #5a3e2b);
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(90, 62, 43, 0.25);
+            letter-spacing: 1px;
+            margin-top: 6px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(90, 62, 43, 0.3);
+        }
+
+        .btn-secondary {
+            padding: 8px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            color: #5a3e2b;
+            background: #ede4d8;
+            border: 1.5px solid #dcc9b0;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .btn-secondary:hover {
+            background: #e0d3c2;
+        }
+
+        .results {
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 2px dashed #dcc9b0;
+            display: none;
+        }
+
+        .results.visible {
+            display: block;
+            animation: fadeSlide 0.4s ease;
+        }
+
+        @keyframes fadeSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #5a3e2b;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title .icon {
+            font-size: 20px;
+        }
+
+        .section-title .count {
+            font-size: 13px;
+            font-weight: 400;
+            background: #e8dccc;
+            color: #4d3624;
+            padding: 0 12px;
+            border-radius: 40px;
+            line-height: 22px;
+        }
+
+        .card {
+            background: #f5ede4;
+            border-radius: 18px;
+            padding: 16px 20px;
+            margin-bottom: 18px;
+            border: 1px solid #e8dccc;
+        }
+
+        .card.calc {
+            background: #f0e8dc;
+        }
+
+        .calc-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 15px;
+            color: #3d2c1e;
+            border-bottom: 1px dashed #e0d0bc;
+        }
+
+        .calc-line:last-child {
+            border-bottom: none;
+        }
+
+        .calc-line .label {
+            font-weight: 500;
+        }
+        .calc-line .value {
+            font-weight: 600;
+            color: #5a3e2b;
+        }
+
+        .day-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 6px 12px;
+            margin-top: 4px;
+        }
+
+        .day-item {
+            padding: 5px 10px 5px 14px;
+            background: #fcf8f0;
+            border-radius: 30px;
+            font-size: 14px;
+            color: #3d2c1e;
+            border: 1px solid #e8dccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day-item .day {
+            font-weight: 500;
+        }
+        .day-item .val {
+            font-weight: 600;
+            color: #7a5d44;
+            background: #ede4d8;
+            padding: 0 10px;
+            border-radius: 30px;
+            font-size: 13px;
+        }
+
+        .empty-msg {
+            color: #8a755f;
+            font-style: italic;
+            padding: 6px 0;
+            font-size: 15px;
+        }
+
+        /* KEMATIAN */
+        .kematian-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 16px;
+            margin: 6px 0 10px;
+        }
+
+        @media (max-width: 500px) {
+            .kematian-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .kematian-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fcf8f0;
+            padding: 4px 10px 4px 14px;
+            border-radius: 40px;
+            border: 1px solid #e8dccc;
+        }
+
+        .kematian-row .num {
+            font-weight: 600;
+            color: #8a755f;
+            font-size: 13px;
+            min-width: 22px;
+        }
+
+        .kematian-row select {
+            flex: 1;
+            padding: 6px 8px 6px 10px;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-family: inherit;
+            color: #3d2c1e;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a6b4a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 4px center;
+        }
+
+        .kematian-row select:focus {
+            outline: none;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 10px 0 6px;
+        }
+
+        /* BULAN + TALIWANGKE */
+        .bulan-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px 20px;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .bulan-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 400px) {
+            .bulan-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .bulan-cat {
+            background: #fcf8f0;
+            border-radius: 14px;
+            padding: 12px 16px;
+            border: 1px solid #e8dccc;
+        }
+
+        .bulan-cat .cat-label {
+            font-weight: 600;
+            font-size: 14px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .bulan-cat .bulan-list {
+            font-size: 15px;
+            color: #3d2c1e;
+            line-height: 1.6;
+        }
+
+        .bulan-cat .bulan-list .tag {
+            display: inline-block;
+            background: #ede4d8;
+            padding: 0 12px;
+            border-radius: 30px;
+            margin: 2px 4px 2px 0;
+            font-size: 14px;
+        }
+
+        .bulan-cat.baik .cat-label {
+            color: #2d6b4a;
+        }
+        .bulan-cat.boleh .cat-label {
+            color: #8a6b3a;
+        }
+        .bulan-cat.larangan .cat-label {
+            color: #b34747;
+        }
+
+        /* TALIWANGKE */
+        .taliwangke-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px 16px;
+            margin-top: 4px;
+        }
+
+        .taliwangke-item {
+            background: #fcf8f0;
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid #e8dccc;
+            font-size: 14px;
+            color: #3d2c1e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .taliwangke-item .bulan {
+            font-weight: 600;
+            color: #5a3e2b;
+        }
+        .taliwangke-item .hari {
+            color: #8a3a3a;
+            font-weight: 500;
+        }
+
+        .scroll-list {
+            max-height: 260px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .scroll-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        .scroll-list::-webkit-scrollbar-track {
+            background: #ede4d8;
+            border-radius: 10px;
+        }
+        .scroll-list::-webkit-scrollbar-thumb {
+            background: #c4aa8e;
+            border-radius: 10px;
+        }
+
+        .footer {
+            margin-top: 22px;
+            text-align: center;
+            font-size: 13px;
+            color: #b09a84;
+            border-top: 1px solid #e8dccc;
+            padding-top: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mt-2 {
+            margin-top: 8px;
+        }
+        .mb-1 {
+            margin-bottom: 4px;
+        }
+        .note {
+            font-size: 13px;
+            color: #8a755f;
+            margin-top: 6px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="ornament">❀ ✿ ❀</div>
+            <h1>
+                Wewaran Nikah
+                <span>Arum Dalu</span>
+            </h1>
+            <div class="sub">—  hitung hari baik pernikahan  —</div>
+        </div>
+
+        <!-- INPUT -->
+        <div class="form-grid" id="inputForm">
+            <div class="form-group">
+                <label><span>👤 Laki-laki</span><span class="badge">weton</span></label>
+                <div class="form-row">
+                    <select id="lakiHari"></select>
+                    <select id="lakiPasaran"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label><span>👤 Perempuan</span><span class="badge">weton</span></label>
+                <div class="form-row">
+                    <select id="perempuanHari"></select>
+                    <select id="perempuanPasaran"></select>
+                </div>
+            </div>
+            <button class="btn-primary" id="hitungBtn">✦  Hitung  ✦</button>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="results" id="results">
+
+            <!-- PERHITUNGAN -->
+            <div class="section-title"><span class="icon">📐</span> Perhitungan</div>
+            <div class="card calc" id="calcDisplay">
+                <div class="calc-line"><span class="label">Laki-laki</span><span class="value" id="calcLaki">—</span></div>
+                <div class="calc-line"><span class="label">Perempuan</span><span class="value" id="calcPerempuan">—</span></div>
+                <div class="calc-line"><span class="label">Total</span><span class="value" id="calcTotal">—</span></div>
+            </div>
+
+            <!-- HARI BAIK (sebelum filter) -->
+            <div class="section-title">
+                <span class="icon">🌿</span> Hari Baik
+                <span class="count" id="countBefore">0</span>
+            </div>
+            <div class="card" id="hariBaikBefore">
+                <div id="listBefore" class="day-list"></div>
+            </div>
+
+            <!-- FILTER KEMATIAN -->
+            <div class="section-title" style="margin-top:6px;">
+                <span class="icon">🕯️</span> Eliminasi Kematian
+                <span class="count">max 4</span>
+            </div>
+            <div class="card">
+                <div class="kematian-grid" id="kematianGrid"></div>
+                <div class="filter-actions">
+                    <button class="btn-secondary" id="filterBtn">☑  Terapkan Filter</button>
+                    <button class="btn-secondary" id="resetFilterBtn">↺  Reset</button>
+                </div>
+            </div>
+
+            <!-- HARI BAIK (setelah filter) -->
+            <div class="section-title" style="margin-top:6px;">
+                <span class="icon">✅</span> Hasil Akhir
+                <span class="count" id="countAfter">0</span>
+            </div>
+            <div class="card" id="hariBaikAfter">
+                <div id="listAfter" class="day-list"></div>
+            </div>
+
+            <!-- BULAN BAIK / BOLEH / LARANGAN -->
+            <div class="section-title" style="margin-top:12px;">
+                <span class="icon">📅</span> Bulan Baik & Larangan
+            </div>
+            <div class="card">
+                <div class="bulan-grid" id="bulanGrid">
+                    <div class="bulan-cat baik">
+                        <span class="cat-label">✦ Baik</span>
+                        <div class="bulan-list" id="bulanBaik">—</div>
+                    </div>
+                    <div class="bulan-cat boleh">
+                        <span class="cat-label">✦ Boleh</span>
+                        <div class="bulan-list" id="bulanBoleh">—</div>
+                    </div>
+                    <div class="bulan-cat larangan">
+                        <span class="cat-label">✦ Larangan</span>
+                        <div class="bulan-list" id="bulanLarangan">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TALIWANGKE (Hari Larangan per Bulan) -->
+            <div class="section-title" style="margin-top:12px;">
+                <span class="icon">🚫</span> Hari Larangan Taliwangke
+                <span class="count" id="taliwangkeCount">0</span>
+            </div>
+            <div class="card">
+                <div id="taliwangkeList" class="taliwangke-list"></div>
+                <div class="note">☝ Setiap bulan memiliki satu hari pasaran yang dilarang untuk pernikahan (taliwangke).</div>
+            </div>
+
+            <!-- HITUNG ULANG -->
+            <div class="text-center" style="margin-top:22px;">
+                <button class="btn-secondary" id="ulangBtn">⟳  Hitung Ulang</button>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">—  Sekar Kemuning  —</div>
+    </div>
+
+    <script>
+        // ============================================================
+        // DATA
+        // ============================================================
+
+        const hari = {
+            "Minggu": 5,
+            "Senin": 4,
+            "Selasa": 3,
+            "Rabu": 7,
+            "Kamis": 8,
+            "Jum'at": 6,
+            "Sabtu": 9
+        };
+
+        const pasaran = {
+            "Kliwon": 8,
+            "Legi": 5,
+            "Pahing": 9,
+            "Pon": 7,
+            "Wage": 4
+        };
+
+        const dataKelompok = {
+            0: [
+                ["Minggu", "Pon", 12],
+                ["Minggu", "Wage", 9],
+                ["Senin", "Kliwon", 12],
+                ["Senin", "Legi", 9],
+                ["Selasa", "Pahing", 12],
+                ["Rabu", "Kliwon", 15],
+                ["Rabu", "Legi", 12],
+                ["Kamis", "Pon", 15],
+                ["Kamis", "Wage", 12],
+                ["Jum'at", "Pahing", 15],
+                ["Sabtu", "Pahing", 18]
+            ],
+            1: [
+                ["Minggu", "Kliwon", 13],
+                ["Minggu", "Legi", 10],
+                ["Senin", "Pahing", 13],
+                ["Selasa", "Pon", 10],
+                ["Selasa", "Wage", 7],
+                ["Rabu", "Pahing", 16],
+                ["Kamis", "Kliwon", 16],
+                ["Kamis", "Legi", 13],
+                ["Jum'at", "Pon", 13],
+                ["Jum'at", "Wage", 10],
+                ["Sabtu", "Pon", 16],
+                ["Sabtu", "Wage", 13]
+            ],
+            2: [
+                ["Minggu", "Pahing", 14],
+                ["Senin", "Pon", 11],
+                ["Senin", "Wage", 8],
+                ["Selasa", "Kliwon", 11],
+                ["Selasa", "Legi", 8],
+                ["Rabu", "Pon", 14],
+                ["Rabu", "Wage", 11],
+                ["Kamis", "Pahing", 17],
+                ["Jum'at", "Kliwon", 14],
+                ["Jum'at", "Legi", 11],
+                ["Sabtu", "Kliwon", 17],
+                ["Sabtu", "Legi", 14]
+            ]
+        };
+
+        const hariPandawa = {
+            "Aboge": [
+                ["Selasa", "Wage"],
+                ["Rabu", "Legi"],
+                ["Kamis", "Pon"],
+                ["Sabtu", "Kliwon"],
+                ["Minggu", "Pahing"]
+            ],
+            "Asapon": [
+                ["Senin", "Pon"],
+                ["Selasa", "Kliwon"],
+                ["Rabu", "Pahing"],
+                ["Jum'at", "Wage"],
+                ["Sabtu", "Legi"]
+            ]
+        };
+
+        const pasanganPandawa = new Set();
+        for (const kelompok of Object.values(hariPandawa)) {
+            for (const [h, p] of kelompok) {
+                pasanganPandawa.add(h + '|' + p);
+            }
+        }
+
+        const aturanBulan = {
+            "Sura": "larangan",
+            "Sapar": "boleh",
+            "Mulud": "larangan",
+            "Ba'da Mulud": "boleh",
+            "Jumadilawal": "boleh",
+            "Jumadilakir": "baik",
+            "Rejeb": "baik",
+            "Ruwah": "baik",
+            "Pasa": "larangan",
+            "Sawal": "boleh",
+            "Sela": "larangan",
+            "Besar": "baik"
+        };
+
+        const taliwangke = {
+            "Sela": "Senin Kliwon",
+            "Jumadilawal": "Senin Kliwon",
+            "Besar": "Selasa Legi",
+            "Jumadilakir": "Selasa Legi",
+            "Sura": "Rabu Pahing",
+            "Rejeb": "Rabu Pahing",
+            "Sapar": "Kamis Pon",
+            "Ruwah": "Kamis Pon",
+            "Mulud": "Jum'at Wage",
+            "Pasa": "Jum'at Wage",
+            "Ba'da Mulud": "Sabtu Kliwon",
+            "Sawal": "Sabtu Kliwon"
+        };
+
+        // ============================================================
+        // FUNGSI
+        // ============================================================
+
+        function getHariBaik(lakiHari, lakiPasaran, perempuanHari, perempuanPasaran) {
+            const totalLaki = hari[lakiHari] + pasaran[lakiPasaran];
+            const totalPerempuan = hari[perempuanHari] + pasaran[perempuanPasaran];
+            const total = totalLaki + totalPerempuan;
+            const sisa = total % 3;
+            let key;
+            if (sisa === 0) key = 2;
+            else if (sisa === 1) key = 1;
+            else key = 0;
+            const daftar = dataKelompok[key] || [];
+            return daftar.filter(([h, p]) => !pasanganPandawa.has(h + '|' + p));
+        }
+
+        function getBulanByStatus(status) {
+            const result = [];
+            for (const [bulan, st] of Object.entries(aturanBulan)) {
+                if (st === status) result.push(bulan);
+            }
+            return result;
+        }
+
+        function filterKematian(daftar, kematianSet) {
+            return daftar.filter(([h, p]) => !kematianSet.has(h + '|' + p));
+        }
+
+        // ============================================================
+        // UI LOGIC
+        // ============================================================
+
+        const hariKeys = Object.keys(hari);
+        const pasaranKeys = Object.keys(pasaran);
+
+        function populateSelect(selId, options) {
+            const sel = document.getElementById(selId);
+            sel.innerHTML = '';
+            for (const opt of options) {
+                const o = document.createElement('option');
+                o.value = opt;
+                o.textContent = opt;
+                sel.appendChild(o);
+            }
+        }
+
+        populateSelect('lakiHari', hariKeys);
+        populateSelect('lakiPasaran', pasaranKeys);
+        populateSelect('perempuanHari', hariKeys);
+        populateSelect('perempuanPasaran', pasaranKeys);
+
+        // kematian dropdowns
+        const kematianGrid = document.getElementById('kematianGrid');
+        for (let i = 0; i < 4; i++) {
+            const row = document.createElement('div');
+            row.className = 'kematian-row';
+            row.innerHTML = `
+                <span class="num">${i+1}.</span>
+                <select class="kmatHari" data-idx="${i}"></select>
+                <select class="kmatPasaran" data-idx="${i}"></select>
+            `;
+            kematianGrid.appendChild(row);
+            const hSel = row.querySelector('.kmatHari');
+            const pSel = row.querySelector('.kmatPasaran');
+            // empty option
+            const eh = document.createElement('option');
+            eh.value = '';
+            eh.textContent = '—';
+            hSel.appendChild(eh);
+            const ep = document.createElement('option');
+            ep.value = '';
+            ep.textContent = '—';
+            pSel.appendChild(ep);
+            for (const h of hariKeys) {
+                const o = document.createElement('option');
+                o.value = h;
+                o.textContent = h;
+                hSel.appendChild(o);
+            }
+            for (const p of pasaranKeys) {
+                const o = document.createElement('option');
+                o.value = p;
+                o.textContent = p;
+                pSel.appendChild(o);
+            }
+        }
+
+        // state
+        let currentHariBaik = [];
+        let currentFiltered = [];
+
+        function renderDayList(containerId, data, countId) {
+            const container = document.getElementById(containerId);
+            const countEl = document.getElementById(countId);
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div class="empty-msg">— tidak ada hari baik —</div>`;
+                if (countEl) countEl.textContent = '0';
+                return;
+            }
+            let html = '';
+            for (const [h, p, v] of data) {
+                html += `<div class="day-item"><span class="day">${h} + ${p}</span><span class="val">${v}</span></div>`;
+            }
+            container.innerHTML = html;
+            if (countEl) countEl.textContent = data.length;
+        }
+
+        function getKematianFromUI() {
+            const set = new Set();
+            const rows = document.querySelectorAll('.kematian-row');
+            for (const row of rows) {
+                const h = row.querySelector('.kmatHari').value;
+                const p = row.querySelector('.kmatPasaran').value;
+                if (h && p) set.add(h + '|' + p);
+            }
+            return set;
+        }
+
+        function resetKematianUI() {
+            const rows = document.querySelectorAll('.kematian-row');
+            for (const row of rows) {
+                row.querySelector('.kmatHari').value = '';
+                row.querySelector('.kmatPasaran').value = '';
+            }
+            applyFilter();
+        }
+
+        function applyFilter() {
+            const kset = getKematianFromUI();
+            const filtered = currentHariBaik.filter(([h, p]) => !kset.has(h + '|' + p));
+            currentFiltered = filtered;
+            renderDayList('listAfter', filtered, 'countAfter');
+        }
+
+        function renderTaliwangke() {
+            const entries = Object.entries(taliwangke);
+            const container = document.getElementById('taliwangkeList');
+            const countEl = document.getElementById('taliwangkeCount');
+            if (entries.length === 0) {
+                container.innerHTML = '<div class="empty-msg">— tidak ada data —</div>';
+                if (countEl) countEl.textContent = '0';
+                return;
+            }
+            let html = '';
+            for (const [bulan, hariPasaran] of entries) {
+                html += `
+                    <div class="taliwangke-item">
+                        <span class="bulan">${bulan}</span>
+                        <span class="hari">${hariPasaran}</span>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+            if (countEl) countEl.textContent = entries.length;
+        }
+
+        function renderBulan() {
+            const baik = getBulanByStatus('baik');
+            const boleh = getBulanByStatus('boleh');
+            const larangan = getBulanByStatus('larangan');
+
+            document.getElementById('bulanBaik').innerHTML = baik.map(b => `<span class="tag">${b}</span>`).join(' ') || '—';
+            document.getElementById('bulanBoleh').innerHTML = boleh.map(b => `<span class="tag">${b}</span>`).join(' ') || '—';
+            document.getElementById('bulanLarangan').innerHTML = larangan.map(b => `<span class="tag">${b}</span>`).join(' ') ||
+                '—';
+        }
+
+        function calculate() {
+            const lH = document.getElementById('lakiHari').value;
+            const lP = document.getElementById('lakiPasaran').value;
+            const pH = document.getElementById('perempuanHari').value;
+            const pP = document.getElementById('perempuanPasaran').value;
+
+            const resultsEl = document.getElementById('results');
+            resultsEl.classList.add('visible');
+
+            // calc
+            const tL = hari[lH] + pasaran[lP];
+            const tP = hari[pH] + pasaran[pP];
+            const total = tL + tP;
+            const sisa = total % 3;
+
+            document.getElementById('calcLaki').textContent = `${lH} + ${lP} = ${tL}`;
+            document.getElementById('calcPerempuan').textContent = `${pH} + ${pP} = ${tP}`;
+            document.getElementById('calcTotal').textContent = `${total}, sisa ${sisa}`;
+
+            // hari baik
+            const hasil = getHariBaik(lH, lP, pH, pP);
+            currentHariBaik = hasil;
+            renderDayList('listBefore', hasil, 'countBefore');
+
+            // reset & apply filter
+            resetKematianUI();
+
+            // bulan
+            renderBulan();
+
+            // taliwangke
+            renderTaliwangke();
+
+            resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ============================================================
+        // EVENT BINDING
+        // ============================================================
+
+        document.getElementById('hitungBtn').addEventListener('click', calculate);
+        document.getElementById('filterBtn').addEventListener('click', applyFilter);
+        document.getElementById('resetFilterBtn').addEventListener('click', resetKematianUI);
+
+        document.getElementById('ulangBtn').addEventListener('click', function() {
+            document.getElementById('results').classList.remove('visible');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        document.querySelectorAll('select').forEach(sel => {
+            sel.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') calculate();
+            });
+        });
+
+        // auto calculate on load
+        window.addEventListener('DOMContentLoaded', calculate);
+    </script>
+
+</body>
+</html>
