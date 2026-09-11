@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pranata Mangsa — EV04 / Meteo-Astro</title>
+<style>
+:root{
+  --bg:#f4efe2;
+  --paper:#fffdf6;
+  --ink:#241c0f;
+  --muted:#5a4a33;
+  --line:#c8b790;
+  --line-soft:#e0d4b8;
+  --accent:#7a3810;
+  --accent2:#8a4a16;
+  --date-ink:#3d2a0c;
+  --katiga:#a87d1e;
+  --labuh:#4f7a2e;
+  --rendheng:#1f5e88;
+  --mareng:#8a4d1f;
+  --shadow:0 2px 10px rgba(80,60,20,.10);
+  --code-bg:#efe3c4;
+  /* Dark blocks */
+  --darkblock:#33240e;
+  --darkblock-ink:#f5ebd2;
+  --darkblock-border:#1a1206;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+
+/* ══════════════════════════════════════════════════════════
+   HEADER — ELEGAN & PROFESIONAL
+   ══════════════════════════════════════════════════════════ */
+header.top{
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255,215,140,.10) 0%, transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(255,215,140,.06) 0%, transparent 50%),
+    linear-gradient(160deg,#1c1206 0%,#3a250c 45%,#5c3a12 100%);
+  color:#fef8ea;
+  padding:34px 26px 28px;
+  box-shadow:0 3px 20px rgba(40,25,5,.35);
+  border-bottom:3px solid #8a5a1e;
+  position:relative;
+  overflow:hidden;
+}
+header.top::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255,220,150,.025) 0, rgba(255,220,150,.025) 1px, transparent 1px, transparent 14px);
+  pointer-events:none;
+}
+.header-wrap{
+  max-width:1080px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:minmax(280px, 1fr) minmax(320px, 1.3fr);
+  gap:32px;
+  align-items:center;
+  position:relative;
+  z-index:1;
+}
+.title-block{
+  border-right:1px solid rgba(255,220,150,.20);
+  padding-right:28px;
+}
+.eyebrow{
+  font-family:"Georgia","Cambria",serif;
+  font-size:11px;
+  letter-spacing:2.8px;
+  text-transform:uppercase;
+  color:#d8b878;
+  margin-bottom:10px;
+  font-weight:600;
+}
+.title-block h1{
+  font-family:"Georgia","Cambria","Times New Roman",serif;
+  font-size:38px;
+  line-height:1.05;
+  letter-spacing:1.5px;
+  margin:0 0 14px;
+  color:#fff;
+  font-weight:700;
+  text-shadow:0 2px 4px rgba(0,0,0,.4), 0 0 30px rgba(255,215,140,.15);
+}
+.title-block h1 .thin{
+  font-weight:400;
+  font-style:italic;
+  color:#f0d9a0;
+  letter-spacing:1px;
+}
+.subtitle{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.badge{
+  display:inline-block;
+  font-family:"Georgia","Cambria",serif;
+  font-size:12.5px;
+  letter-spacing:1.5px;
+  font-weight:700;
+  color:#3a250c;
+  background:linear-gradient(135deg,#f0d9a0,#d8b878);
+  padding:4px 12px;
+  border-radius:3px;
+  box-shadow:0 1px 3px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.subtitle .slash{
+  color:#a07a3a;
+  font-size:14px;
+  font-weight:300;
+}
+.sub-badge{
+  font-size:11.5px;
+  letter-spacing:2.5px;
+  color:#e8cf98;
+  font-weight:600;
+  text-transform:uppercase;
+}
+.header-details{
+  display:flex;
+  flex-direction:column;
+  gap:11px;
+}
+.detail-row{
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+  font-size:13px;
+  line-height:1.45;
+}
+.detail-label{
+  font-family:"Georgia","Cambria",serif;
+  font-size:10.5px;
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+  color:#d8b878;
+  font-weight:600;
+  min-width:96px;
+  flex-shrink:0;
+  padding-top:1px;
+}
+.detail-value{
+  color:#f7e9c8;
+  font-weight:500;
+  flex:1;
+}
+.detail-value b{
+  color:#ffd98a;
+  font-weight:700;
+  letter-spacing:.2px;
+}
+.detail-value .mono-mini{
+  font-family:"Consolas","Courier New",monospace;
+  font-size:12px;
+  color:#ffd98a;
+  letter-spacing:.3px;
+}
+
+@media (max-width:720px){
+  header.top{padding:26px 18px 22px;}
+  .header-wrap{
+    grid-template-columns:1fr;
+    gap:20px;
+  }
+  .title-block{
+    border-right:none;
+    border-bottom:1px solid rgba(255,220,150,.20);
+    padding-right:0;
+    padding-bottom:20px;
+  }
+  .title-block h1{font-size:29px;}
+  .detail-row{flex-direction:column;gap:2px;align-items:flex-start;}
+  .detail-label{min-width:0;}
+}
+
+/* ══════════════════════════════════════════════════════════
+   NAV TABS
+   ══════════════════════════════════════════════════════════ */
+nav.tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+  padding:10px 14px;
+  background:var(--paper);
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  z-index:50;
+  box-shadow:0 1px 4px rgba(80,60,20,.08);
+}
+nav.tabs button{
+  border:1px solid var(--line);
+  background:#faf5e8;
+  color:var(--ink);
+  padding:7px 12px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:12.5px;
+  font-weight:600;
+  transition:.15s;
+}
+nav.tabs button:hover{background:#efe2c2;}
+nav.tabs button.active{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+  box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+
+main{
+  max-width:1080px;
+  margin:0 auto;
+  padding:18px 14px 60px;
+}
+section.tab-content{display:none;}
+section.tab-content.active{display:block;}
+
+.card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:10px;
+  box-shadow:var(--shadow);
+  padding:16px 18px;
+  margin-bottom:16px;
+}
+h2.section{
+  font-size:16.5px;
+  margin:0 0 12px;
+  padding-bottom:6px;
+  border-bottom:2px solid var(--accent);
+  color:var(--accent);
+  letter-spacing:.3px;
+}
+h3.sub{
+  font-size:14.5px;
+  margin:16px 0 8px;
+  color:var(--accent2);
+  letter-spacing:.2px;
+}
+p{margin:8px 0;}
+.muted{color:var(--muted);font-size:12.5px;line-height:1.5;}
+
+label.ctrl{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:13px;
+  margin:4px 12px 4px 0;
+  color:var(--ink);
+  font-weight:600;
+}
+label.ctrl select,label.ctrl input{
+  font-family:inherit;
+  font-size:13px;
+  padding:6px 9px;
+  border:1px solid var(--line);
+  border-radius:5px;
+  background:#fffdf6;
+  color:var(--ink);
+  font-weight:500;
+}
+label.ctrl select:focus,label.ctrl input:focus{
+  outline:2px solid var(--accent);
+  outline-offset:1px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   TABLE
+   ══════════════════════════════════════════════════════════ */
+table.data{
+  width:100%;
+  border-collapse:collapse;
+  font-family:"Consolas","Courier New",monospace;
+  font-size:12px;
+  margin:8px 0;
+  color:var(--ink);
+}
+table.data th,table.data td{
+  border:1px solid var(--line);
+  padding:6px 8px;
+  text-align:right;
+  white-space:nowrap;
+  color:var(--ink);
+}
+table.data th{
+  background:#e9dab6;
+  color:#4a2c08;
+  text-align:center;
+  font-weight:700;
+}
+table.data td.lbl{
+  text-align:left;
+  font-family:inherit;
+  font-weight:700;
+  color:#3d2a0c;
+  background:#f7efd9;
+}
+table.data tr:nth-child(even) td:not(.lbl){background:#faf3e0;}
+.table-scroll{overflow-x:auto;}
+
+/* ══════════════════════════════════════════════════════════
+   MUSIM SECTION
+   ══════════════════════════════════════════════════════════ */
+.musim-block{
+  margin:22px 0 8px;
+  border-left:5px solid var(--line);
+  padding-left:12px;
+}
+.musim-block.Katiga{border-left-color:var(--katiga);}
+.musim-block.Labuh{border-left-color:var(--labuh);}
+.musim-block.Rendheng{border-left-color:var(--rendheng);}
+.musim-block.Mareng{border-left-color:var(--mareng);}
+.musim-block h3{
+  margin:0 0 4px;
+  font-size:15.5px;
+  letter-spacing:.4px;
+  color:var(--ink);
+}
+.musim-block .sub{
+  font-size:12.5px;
+  color:var(--muted);
+  margin-bottom:8px;
+  font-weight:500;
+}
+
+/* ── DARK BLOCKS (meteo musim & mangsa) ── */
+.musim-block .meteo-musim,
+.mangsa-card .mmeteo,
+.today-card .meteo{
+  background:var(--darkblock);
+  border:1px solid var(--darkblock-border);
+  border-radius:6px;
+  font-family:"Consolas","Courier New",monospace;
+  font-size:11.5px;
+  color:var(--darkblock-ink);
+  font-weight:600;
+  line-height:1.7;
+  letter-spacing:.15px;
+}
+.musim-block .meteo-musim{padding:10px 13px;margin-bottom:10px;}
+.mangsa-card .mmeteo{padding:8px 10px;margin-top:8px;}
+.today-card .meteo{padding:9px 11px;margin-top:8px;font-size:11.5px;}
+.musim-block .meteo-musim div,
+.mangsa-card .mmeteo div,
+.today-card .meteo div{margin:1px 0;}
+
+/* ══════════════════════════════════════════════════════════
+   MANGSA CARDS
+   ══════════════════════════════════════════════════════════ */
+.mangsa-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:10px;
+}
+.mangsa-card{
+  background:#fffefa;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:11px 13px;
+  font-size:12.5px;
+  box-shadow:0 1px 3px rgba(80,60,20,.06);
+}
+.mangsa-card .mh{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:5px;
+}
+.mangsa-card .mno{
+  display:inline-block;
+  background:var(--accent);
+  color:#fff;
+  border-radius:5px;
+  padding:1px 8px;
+  font-weight:700;
+  font-size:11.5px;
+}
+.mangsa-card .mnama{
+  font-weight:700;
+  font-size:14px;
+  color:var(--ink);
+  flex:1;
+}
+.mangsa-card .mmusim{
+  font-size:11.5px;
+  color:var(--muted);
+  font-style:italic;
+  font-weight:600;
+}
+.mangsa-card .mper{
+  font-family:"Consolas","Courier New",monospace;
+  font-size:12px;
+  color:#1a1206;
+  font-weight:700;
+  margin-bottom:7px;
+  background:#e8d6a4;
+  border:1px solid #c8b070;
+  padding:3px 9px;
+  border-radius:4px;
+  display:inline-block;
+}
+.mangsa-card .mciri{
+  font-size:12.5px;
+  color:#33270f;
+  margin:6px 0;
+  line-height:1.55;
+}
+.mangsa-card .mcandra{
+  font-size:11.5px;
+  color:var(--muted);
+  font-style:italic;
+  border-top:1px dashed var(--line);
+  padding-top:7px;
+  margin-top:7px;
+  line-height:1.55;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ASTRO CHIPS — DARK, BOLD
+   ══════════════════════════════════════════════════════════ */
+.astro-chips{
+  margin-top:8px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+}
+.astro-chip{
+  display:inline-block;
+  background:linear-gradient(135deg,#8a4212,#5c2a08);
+  color:#ffe4a8;
+  border:1px solid #3a1a05;
+  border-radius:4px;
+  padding:4px 9px;
+  font-size:10.5px;
+  font-family:"Consolas","Courier New",monospace;
+  font-weight:700;
+  line-height:1.4;
+  letter-spacing:.15px;
+  box-shadow:inset 0 1px 0 rgba(255,200,120,.15);
+}
+
+/* ══════════════════════════════════════════════════════════
+   TODAY / CEK CARDS
+   ══════════════════════════════════════════════════════════ */
+.today-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+  gap:14px;
+}
+.today-card{
+  background:#fffefa;
+  border:2px solid var(--line);
+  border-radius:8px;
+  padding:14px 16px;
+}
+.today-card.trad{border-color:#b08a4a;}
+.today-card.cal{border-color:var(--accent);}
+.today-card h4{
+  margin:0 0 10px;
+  font-size:13px;
+  color:var(--accent);
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  font-weight:800;
+}
+.today-card .big{
+  font-size:19px;
+  font-weight:800;
+  margin:4px 0 4px;
+  color:var(--ink);
+}
+.today-card .per{
+  font-family:"Consolas","Courier New",monospace;
+  font-size:12.5px;
+  color:#1a1206;
+  font-weight:700;
+  margin-bottom:10px;
+  background:#e8d6a4;
+  border:1px solid #c8b070;
+  padding:4px 10px;
+  border-radius:4px;
+  display:inline-block;
+}
+.today-card .ciri{
+  font-size:12.5px;
+  color:#33270f;
+  margin:8px 0;
+  line-height:1.55;
+}
+.today-card .delta{
+  font-weight:800;
+  color:#7a3810;
+  font-size:12.5px;
+  margin:6px 0;
+  background:#f9e2c4;
+  padding:5px 9px;
+  border-radius:4px;
+  border-left:3px solid var(--accent);
+}
+.today-card .candra{
+  font-size:11.5px;
+  color:var(--muted);
+  font-style:italic;
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px dashed var(--line);
+  line-height:1.55;
+}
+
+.legend{
+  font-size:12.5px;
+  color:var(--muted);
+  margin-top:12px;
+  padding-top:8px;
+  border-top:1px dashed var(--line);
+}
+.legend code{
+  background:var(--code-bg);
+  color:#4a2c08;
+  padding:1px 6px;
+  border-radius:3px;
+  font-size:11.5px;
+  font-weight:600;
+  font-family:"Consolas","Courier New",monospace;
+}
+
+/* ══════════════════════════════════════════════════════════
+   INFO DATA & METODE
+   ══════════════════════════════════════════════════════════ */
+.info-section h3{
+  font-size:15px;
+  color:var(--accent);
+  margin:0 0 8px;
+  padding-bottom:5px;
+  border-bottom:1px solid var(--line-soft);
+  letter-spacing:.2px;
+}
+.info-section p, .info-section li{
+  font-size:13px;
+  color:var(--ink);
+  line-height:1.6;
+}
+.info-section ul{
+  padding-left:22px;
+  margin:6px 0;
+}
+.info-section li{margin:4px 0;}
+.info-section code{
+  background:var(--code-bg);
+  color:#4a2c08;
+  padding:1px 6px;
+  border-radius:3px;
+  font-size:12px;
+  font-family:"Consolas","Courier New",monospace;
+  font-weight:600;
+}
+.kv-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12.5px;
+  margin:8px 0;
+}
+.kv-table th,.kv-table td{
+  border:1px solid var(--line-soft);
+  padding:7px 10px;
+  text-align:left;
+  vertical-align:top;
+  color:var(--ink);
+}
+.kv-table th{
+  background:#e9dab6;
+  color:#4a2c08;
+  font-weight:700;
+  width:32%;
+}
+.kv-table td code{
+  background:var(--code-bg);
+  padding:1px 5px;
+  border-radius:3px;
+  font-size:11.5px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════════════════════ */
+footer.bottom{
+  text-align:center;
+  font-size:11.5px;
+  color:var(--muted);
+  padding:24px 10px 30px;
+  line-height:1.7;
+}
+footer.bottom .footer-sign{
+  margin-top:6px;
+  font-family:"Georgia","Cambria",serif;
+  font-size:12px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--accent);
+  font-weight:600;
+}
+
+@media (max-width:600px){
+  header.top h1{font-size:26px;}
+  nav.tabs button{font-size:11.5px;padding:6px 9px;}
+  .card{padding:12px;}
+  .today-card .big{font-size:17px;}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="header-wrap">
+    <div class="title-block">
+      <div class="eyebrow">Kalender Pertanian Tradisional Jawa</div>
+      <h1>PRANATA<br><span class="thin">Mangsa</span></h1>
+      <div class="subtitle">
+        <span class="badge">EV04</span>
+        <span class="slash">/</span>
+        <span class="sub-badge">Meteo · Astro</span>
+      </div>
+    </div>
+    <div class="header-details">
+      <div class="detail-row">
+        <span class="detail-label">Meteorologi</span>
+        <span class="detail-value">ERA5 · ERA5-Land · IFS HRES · Open-Meteo</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">ENSO</span>
+        <span class="detail-value">AVISO / DUACS — Niño3.4 mingguan (1993–2026)</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Astronomi</span>
+        <span class="detail-value">VSOP87D · IERS 2010 · ΔT HMNAO</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Titik Target</span>
+        <span class="detail-value"><span class="mono-mini">−7.5220°LS, 112.5661°BT</span> · 28 m dpl</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Interpolasi</span>
+        <span class="detail-value">IDW 2 stasiun — P1 &amp; P2 (power = 2)</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="tradisional" class="active">Kalender Tradisional</button>
+  <button data-tab="terkalibrasi">Kalender Terkalibrasi</button>
+  <button data-tab="cek">Cek Tanggal</button>
+  <button data-tab="perbandingan">Perbandingan Skenario</button>
+  <button data-tab="durasi">Durasi Musim</button>
+  <button data-tab="klimatologi">Klimatologi</button>
+  <button data-tab="astro">Kalibrasi Astronomis</button>
+  <button data-tab="info">Info Data &amp; Metode</button>
+</nav>
+
+<main>
+
+  <section id="tab-tradisional" class="tab-content active">
+    <div class="card">
+      <h2 class="section">Kalender Tradisional — Paku Buwana VII, 1855</h2>
+      <p class="muted">Siklus 12 mangsa seperti tertulis dalam tradisi. Candra (deskripsi Jawa) ditampilkan di tiap mangsa.</p>
+      <label class="ctrl">Tahun Gregorian:
+        <input type="number" id="trad-tahun" value="2025" min="1900" max="2100">
+      </label>
+    </div>
+    <div id="trad-output"></div>
+  </section>
+
+  <section id="tab-terkalibrasi" class="tab-content">
+    <div class="card">
+      <h2 class="section">Kalender Terkalibrasi (Meteorologi + Astronomi)</h2>
+      <p class="muted">Batas mangsa dikalibrasi ulang berdasarkan rejim musim aktual; penanda astronomis ditempatkan secara dinamis sesuai rentang dopy.</p>
+      <label class="ctrl">Tahun-pranata mulai:
+        <input type="number" id="kal-tahun" value="2025" min="1900" max="2100">
+      </label>
+      <label class="ctrl">Skenario:
+        <select id="kal-scn">
+          <option value="R30">R30 — Normal Iklim Terkini (1996–2025, 30 th)</option>
+          <option value="ALL">ALL — Rata-rata Seluruh Data (1950–2025, 76 th)</option>
+          <option value="R10">R10 — 10 Tahun Terakhir (2016–2025)</option>
+          <option value="ELNINO">ELNINO — Tahun El Niño (ASO ≥ +0.5)</option>
+          <option value="LANINA">LANINA — Tahun La Niña (ASO ≤ −0.5)</option>
+          <option value="NETRAL">NETRAL — Tahun ENSO Netral</option>
+        </select>
+      </label>
+    </div>
+    <div id="kal-output"></div>
+  </section>
+
+  <section id="tab-cek" class="tab-content">
+    <div class="card">
+      <h2 class="section">Cek Mangsa untuk Tanggal Tertentu</h2>
+      <label class="ctrl">Tanggal:
+        <input type="date" id="cek-tanggal">
+      </label>
+      <label class="ctrl">Skenario:
+        <select id="cek-scn">
+          <option value="R30">R30</option>
+          <option value="ALL">ALL</option>
+          <option value="R10">R10</option>
+          <option value="ELNINO">ELNINO</option>
+          <option value="LANINA">LANINA</option>
+          <option value="NETRAL">NETRAL</option>
+        </select>
+      </label>
+    </div>
+    <div id="cek-output"></div>
+  </section>
+
+  <section id="tab-perbandingan" class="tab-content">
+    <div class="card">
+      <h2 class="section">Perbandingan Skenario — Selisih Hari vs Tradisional</h2>
+      <p class="muted">Angka = selisih hari awal mangsa vs Tradisional. Nilai negatif berarti lebih awal.</p>
+      <label class="ctrl">Tahun-pranata:
+        <input type="number" id="cmp-tahun" value="2025" min="1900" max="2100">
+      </label>
+    </div>
+    <div id="cmp-output"></div>
+  </section>
+
+  <section id="tab-durasi" class="tab-content">
+    <div class="card">
+      <h2 class="section">Durasi Tiap Musim per Skenario</h2>
+    </div>
+    <div id="dur-output"></div>
+  </section>
+
+  <section id="tab-klimatologi" class="tab-content">
+    <div class="card">
+      <h2 class="section">Klimatologi Bulanan &amp; Per-Musim — Normal R30 (1996–2025)</h2>
+      <p class="muted">Sumber: ERA5/Land-IFS HRES · IDW 2 stasiun · Nilai klimatologis rata-rata.</p>
+    </div>
+    <div id="klim-output"></div>
+  </section>
+
+  <section id="tab-astro" class="tab-content">
+    <div class="card">
+      <h2 class="section">Tabel Kalibrasi Astronomis</h2>
+      <p class="muted">VSOP87D · Nutasi &amp; presesi IERS 2010 · ΔT HMNAO · Rata-rata 2020–2029 · Lokasi −7.5219°LS, 112.5661°BT.</p>
+    </div>
+    <div id="astro-output"></div>
+  </section>
+
+  <section id="tab-info" class="tab-content">
+    <div class="card">
+      <h2 class="section">Info Data &amp; Metode</h2>
+      <p class="muted">Ringkasan sumber data, metode kalibrasi, serta asumsi yang dipakai pada Pranata Mangsa EV04.</p>
+    </div>
+    <div id="info-output"></div>
+  </section>
+
+</main>
+
+<footer class="bottom">
+  Pranata Mangsa — Versi HTML
+  <div class="footer-sign">meteo-astro</div>
+</footer>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   DATA DASAR
+   ══════════════════════════════════════════════════════════════════════ */
+
+const ANCHOR_MONTH = 6, ANCHOR_DAY = 22;
+
+const MONTHS_ID = {1:"Jan",2:"Feb",3:"Mar",4:"Apr",5:"Mei",6:"Jun",
+                   7:"Jul",8:"Agu",9:"Sep",10:"Okt",11:"Nov",12:"Des"};
+const MONTHS_FULL = {1:"Januari",2:"Februari",3:"Maret",4:"April",5:"Mei",6:"Juni",
+                     7:"Juli",8:"Agustus",9:"September",10:"Oktober",11:"November",12:"Desember"};
+
+const MANGSAS = [
+  {no: 1, nama:"Kasa",     bulan: 6, tgl:22, durasi:41},
+  {no: 2, nama:"Karo",     bulan: 8, tgl: 2, durasi:23},
+  {no: 3, nama:"Katiga",   bulan: 8, tgl:25, durasi:24},
+  {no: 4, nama:"Kapat",    bulan: 9, tgl:18, durasi:25},
+  {no: 5, nama:"Kalima",   bulan:10, tgl:13, durasi:27},
+  {no: 6, nama:"Kanem",    bulan:11, tgl: 9, durasi:43},
+  {no: 7, nama:"Kapitu",   bulan:12, tgl:22, durasi:43},
+  {no: 8, nama:"Kawolu",   bulan: 2, tgl: 3, durasi:26},
+  {no: 9, nama:"Kasanga",  bulan: 3, tgl: 1, durasi:25},
+  {no:10, nama:"Kasadasa", bulan: 3, tgl:26, durasi:24},
+  {no:11, nama:"Desta",    bulan: 4, tgl:19, durasi:23},
+  {no:12, nama:"Sada",     bulan: 5, tgl:12, durasi:41},
+];
+
+const MUSIM_MEMBERS = {
+  "Katiga":   [1,2,3],
+  "Labuh":    [4,5,6],
+  "Rendheng": [7,8,9],
+  "Mareng":   [10,11,12],
+};
+const MUSIM_DESKRIPSI = {
+  "Katiga":   "Kemarau Puncak",
+  "Labuh":    "Peralihan → Hujan",
+  "Rendheng": "Musim Hujan Puncak",
+  "Mareng":   "Peralihan → Kemarau",
+};
+const MUSIM_ORDER = ["Katiga","Labuh","Rendheng","Mareng"];
+
+const CIRI = {
+  1:  "Solstis Juni 21 Jun (λ☉=90°, dopy≈−0.8). Weluku/Orion terbit fajar ~25 Jun (dopy≈3.1, 3 hr setelah solstis). Awal tahun pertanian; membersihkan lahan, tanah kering maksimum.",
+  2:  "Pohon randu/kapuk mulai berdaun. Tanah retak. Pengolahan lahan kering.",
+  3:  "Puncak kemarau, sumur mengering. Panen palawija (jagung, kacang).",
+  4:  "Burung gelatik di sawah, manyar membuat sarang. Angin mulai berubah ke barat. Ekuinoks September (23 Sep, dopy≈92.9) jatuh di akhir Kapat.",
+  5:  "Zenith Matahari I: 12 Okt (δ☉=−7.52°, dopy≈112.4, 1 hr lebih awal dari tradisional). Awal hujan. Pleiades terlihat di senja. Embun beracun.",
+  6:  "Weluku/Orion Acronychal Rise (pertama terlihat di senja): ~5 Des (dopy≈166.2). Kulminasi tengah malam Orion: ~8 Des (dopy≈168.9). Hujan lebat. Menabur benih padi. Solstis Desember 21 Des (dopy≈182.7) juga jatuh di Kanem, bukan di Kapitu.",
+  7:  "Solstis Desember (21 Des, dopy≈182.7) secara astronomis berada di Mangsa-6 Kanem, bukan Kapitu. Tradisi menaruh Solstis di Kapitu karena batas lama (22 Des). Pleiades setinggi pecat sawad (~50°). Memindah bibit padi ke sawah.",
+  8:  "Transplantasi selesai. Pleiades kulminasi di senja. Padi tumbuh. Zenith Matahari II (1 Mar, dopy≈252.5) dan Orion Kulminasi Senja (~1 Mar) jatuh di Kawolu untuk skenario R30/R10.",
+  9:  "Zenith Matahari II (dopy≈252.5) & Orion Evening Heliacal Culmination (~26 Feb–1 Mar) secara astronomis berada di Mangsa-8 Kawolu untuk R30/R10; hanya pada skenario TRAD jatuh di Kasanga. Ekuinoks Maret 20 Mar (dopy≈271.8) di akhir Kasanga (R30). Jangkrik berbunyi. Padi berbulir.",
+  10: "Hujan reda, angin timur. Panen raya mulai.",
+  11: "Orion terbalik di barat (terbenam awal). Kapuk mekar. Hutang dilunasi.",
+  12: "Orion terakhir terlihat senja: ~18 Jun (dopy≈361.9, acronychal set). Perkiraan tradisional 4 Jun (heliacal set fajar, dopy≈347) berbeda definisi (+15 hr). Panen selesai. Masa bera (Apit Lemah).",
+};
+
+const CIRI_JAWA = {
+  1: "Sotya murca ing êmbanan, punika candranipun măngsa kasa = I mangsanipun gêgodhongan sami gogrog, kêkajêngan sami paruthul, têgêsipun: sotya murca ing êmbanan = sêsotya coplok saking ing êmbanan, gêgodhongan kaupamèkakên: sêsotya, uwit kaupamèkakên: êmbananipun.",
+  2: "Bantala rêngka, candranipun măngsa kalih = II têgêsipun: bantala rêngka = siti bênthèt, bantala = siti, rêngka = bênthèt, punika mangsanipun siti nêla.",
+  3: "Suta manut ing bapa, candranipun măngsa katiga = III têgêsipun: anak manut ing bapa, punika mangsanipun lung-lungan nurut lanjaran.",
+  4: "Waspa kumêmbêng jroning kalbu, candranipun măngsa sakawan = IV, têgêsipun: êluh kumêmbêng salêbêting manah, punika mangsanipun sumbêr pêpêt (= pêpêt sumbêr) êluh kadamêl upami: toya, manah: kadamêl upami: sumbêr.",
+  5: "Pancuran êmas sumawur ing jagad, candranipun măngsa gangsal = V, pancuran: kadamêl upami: jawah, sumawur: dhawahipun ing jawah.",
+  6: "Rasa mulya kasucian, candranipun măngsa kanêm = VI, mangsanipun wowohan nêdhêng.",
+  7: "Wisa kentar ing maruta, candranipun măngsa kapitu = VII, têgêsipun: wisa larut dening angin, punika mangsanipun kathah sêsakit.",
+  8: "Anjrah jroning kayun, candranipun măngsa kawolu = VIII, punika mangsanipun kucing gandhik.",
+  9: "Wêdharing wacana mulya, candranipun măngsa kasanga = IX, têgêsipun wêdaling wicantên linakung, punika mangsanipun gangsir sami ngênthir, garèng sami ngêrèng.",
+  10:"Gêdhong minêb jroning kalbu, candranipun măngsa sadasa = X, punika mangsanipun sato kewan sami mêtêng.",
+  11:"Sotya sinarawèdi, candranipun măngsa dhêstha = XI, punika mangsanipun pêksi sami ngloloh, têgêsipun: sêsotya, kadamêl upami: anaking pêksi, sinarawèdi = pinulasara, punika ngibaratipun dipun loloh.",
+  12:"Tirta sah saking sasana, candranipun măngsa sadha = XII, têgêsipun: toya pisah saking panggenan, punika măngsa badhidhing, tirta punika ngibarat kringêt, sasana ngibarat badan, dados awis-awis tiyang kringêtên, amargi saking asrêpipun.",
+};
+
+const CIRI_BASE = {
+  1:  "Awal tahun pertanian; membersihkan lahan, tanah kering maksimum.",
+  2:  "Pohon randu/kapuk mulai berdaun. Tanah retak. Pengolahan lahan kering.",
+  3:  "Puncak kemarau, sumur mengering. Panen palawija (jagung, kacang).",
+  4:  "Burung gelatik di sawah, manyar membuat sarang. Angin mulai berubah ke barat.",
+  5:  "Awal hujan. Pleiades terlihat di senja. Embun beracun.",
+  6:  "Hujan lebat. Menabur benih padi.",
+  7:  "Pleiades setinggi pecat sawad (~50°). Memindah bibit padi ke sawah.",
+  8:  "Transplantasi selesai. Pleiades kulminasi di senja. Padi tumbuh.",
+  9:  "Jangkrik berbunyi. Padi berbulir.",
+  10: "Hujan reda, angin timur. Panen raya mulai.",
+  11: "Orion terbalik di barat (terbenam awal). Kapuk mekar. Hutang dilunasi.",
+  12: "Panen selesai. Masa bera (Apit Lemah).",
+};
+
+const ASTRO_CALIB = {
+  solstis_juni:       {mean_dopy:-0.81, std_dopy:0.27, mean_month:6,  mean_day:21, trad_dopy:0,    delta:-0.81,  catatan:"Solstis Juni 21 Jun ~11:00 WIB. Jangkar tradisional 22 Jun terlambat ~20 jam."},
+  solstis_des:        {mean_dopy:182.71,std_dopy:0.28, mean_month:12, mean_day:21, trad_dopy:184,  delta:-1.29,  catatan:"Solstis Desember 21 Des (dopy 182.7). Secara astronomis jatuh di Mangsa-6 Kanem untuk semua skenario modern, bukan di Kapitu seperti pada tradisi."},
+  equinox_maret:      {mean_dopy:271.75,std_dopy:0.30, mean_month:3,  mean_day:20, trad_dopy:273,  delta:-1.25,  catatan:"Ekuinoks Maret 20 Mar ~11:00 WIB. Tidak dipakai sebagai penanda mangsa dalam tradisi."},
+  equinox_sept:       {mean_dopy:92.85, std_dopy:0.27, mean_month:9,  mean_day:23, trad_dopy:92,   delta:0.85,   catatan:"Ekuinoks September 23 Sep ~07:00 WIB. Jatuh di Mangsa-4 Kapat pada skenario TRAD/R30. Tidak dipakai sebagai penanda tradisional."},
+  zenith_I_okt:       {mean_dopy:112.37,std_dopy:0.27, mean_month:10, mean_day:12, trad_dopy:113,  delta:-0.63,  catatan:"Zenith I 12 Okt ~09:00 WIB, 0.6 hr lebih awal dari tradisional 13 Okt. Penanda awal Kalima."},
+  zenith_II_mar:      {mean_dopy:252.46,std_dopy:0.27, mean_month:3,  mean_day:1,  trad_dopy:253,  delta:-0.54,  catatan:"Zenith II 1 Mar ~10:00 WIB. Jatuh di Mangsa-8 Kawolu untuk skenario R30/R10 (bukan Kasanga seperti tradisi)."},
+  orion_helrise:      {mean_dopy:3.11,  std_dopy:0.40, mean_month:6,  mean_day:25, trad_dopy:0,    delta:3.11,   catatan:"Orion heliacal rise 25 Jun — 3 hr setelah solstis. Tradisi 22 Jun kurang tepat karena presesi."},
+  orion_evening_rise: {mean_dopy:166.16,std_dopy:0.46, mean_month:12, mean_day:5,  trad_dopy:167,  delta:-0.84,  catatan:"Orion Acronychal Rise 5 Des (~18:30 WIB). Konsisten dengan tradisional 6 Des."},
+  orion_evening_culm: {mean_dopy:252.5, std_dopy:0.40, mean_month:3,  mean_day:1,  trad_dopy:253,  delta:-0.5,   catatan:"Orion Evening Heliacal Culmination ~26 Feb–1 Mar. Ammarell (1991) Tbl.3: epoch 1850 = 26 Feb, kini ≈1 Mar. Jatuh di Mangsa-8 Kawolu untuk R30/R10."},
+  orion_midnight_culm:{mean_dopy:168.91,std_dopy:0.40, mean_month:12, mean_day:8,  trad_dopy:252,  delta:-83.09, catatan:"Orion kulminasi tengah malam ~8 Des (00:00 WIB). Berbeda dari evening heliacal culmination (1 Mar)."},
+  orion_acron_set:    {mean_dopy:361.93,std_dopy:0.50, mean_month:6,  mean_day:18, trad_dopy:347,  delta:14.93,  catatan:"Orion Acronychal Set 18 Jun (dopy 361.9). Tradisional 4 Jun (dopy 347) memakai definisi heliacal set fajar."},
+};
+
+const ASTRO_LABEL = {
+  solstis_juni:        "Solstis Juni (λ☉=90°)",
+  solstis_des:         "Solstis Desember (λ☉=270°)",
+  equinox_maret:       "Ekuinoks Maret (λ☉=0°)",
+  equinox_sept:        "Ekuinoks September (λ☉=180°)",
+  zenith_I_okt:        "Zenith Matahari I (δ☉=−7.52°)",
+  zenith_II_mar:       "Zenith Matahari II (δ☉=−7.52°)",
+  orion_helrise:       "Orion Heliacal Rise (terbit fajar)",
+  orion_evening_rise:  "Orion Acronychal Rise (terbit senja)",
+  orion_evening_culm:  "Orion Kulminasi Senja",
+  orion_midnight_culm: "Orion Kulminasi Tengah Malam",
+  orion_acron_set:     "Orion Acronychal Set (terbenam senja)",
+};
+
+const CALIB_SCENARIOS = {
+  R30:    {label:"Normal Iklim Terkini (1996–2025, 30 th)",
+           musim_start:{Katiga:19,  Labuh:94,  Rendheng:208, Mareng:286},
+           catatan:"Skenario UTAMA yang direkomendasikan untuk pemakaian sehari-hari saat ini."},
+  ALL:    {label:"Rata-rata Seluruh Data (1950–2025, 76 th)",
+           musim_start:{Katiga:32,  Labuh:91,  Rendheng:187, Mareng:286},
+           catatan:"Baseline jangka panjang — menunjukkan pergeseran vs. kondisi terkini."},
+  R10:    {label:"10 Tahun Terakhir (2016–2025)",
+           musim_start:{Katiga:12,  Labuh:131, Rendheng:185, Mareng:305},
+           catatan:"Basis 10 tahun terakhir (2016–2025). Lebih responsif terhadap tren iklim terkini; sampel kecil sehingga uncertainty lebih besar dari R30."},
+  ELNINO: {label:"Tahun El Niño (ASO Niño3.4 ≥ +0.5)",
+           musim_start:{Katiga:2,   Labuh:133, Rendheng:217, Mareng:288},
+           catatan:"Katiga jauh lebih panjang & lambat berakhir (rata-rata 131 hr vs 88 hr tradisional)."},
+  LANINA: {label:"Tahun La Niña (ASO Niño3.4 ≤ −0.5)",
+           musim_start:{Katiga:35,  Labuh:79,  Rendheng:210, Mareng:284},
+           catatan:"Katiga jauh lebih pendek (44 hr); musim hujan datang lebih awal."},
+  NETRAL: {label:"Tahun ENSO Netral",
+           musim_start:{Katiga:11,  Labuh:102, Rendheng:189, Mareng:288},
+           catatan:"Paling mendekati pola ALL — kondisi tanpa pengaruh ENSO kuat."},
+};
+const DEFAULT_SCENARIO = "R30";
+
+const METEO_MANGSA = {
+   1:[  23, 0.6,  5, 4.40, -3.75, 0.180, 67.1, 32.2, 21.5, 10.1, 19.9],
+   2:[   9, 0.5,  2, 4.98, -4.51, 0.150, 63.7, 33.2, 21.7, 10.7, 22.1],
+   3:[  17, 0.8,  3, 5.36, -4.51, 0.147, 62.3, 34.0, 22.3, 11.1, 23.3],
+   4:[  85, 2.8,  9, 5.31, -2.49, 0.183, 64.3, 34.3, 23.1, 10.8, 23.0],
+   5:[ 244, 7.4, 21, 4.51,  2.88, 0.273, 72.5, 32.9, 23.7,  9.4, 20.4],
+   6:[ 628,12.7, 43, 3.61,  9.12, 0.369, 81.8, 30.6, 23.3,  9.6, 17.3],
+   7:[ 559,15.5, 35, 3.41, 12.12, 0.394, 84.4, 29.7, 23.1, 11.4, 16.8],
+   8:[ 344,15.6, 21, 3.55, 12.07, 0.398, 84.6, 29.9, 23.0, 10.0, 17.6],
+   9:[ 238,11.9, 18, 3.72,  8.16, 0.389, 83.5, 30.3, 23.0,  8.8, 18.3],
+  10:[ 209, 7.8, 20, 3.75,  4.01, 0.364, 81.4, 30.6, 23.0,  8.2, 18.3],
+  11:[  97, 3.7, 12, 3.84, -0.10, 0.309, 77.0, 31.2, 23.0,  8.6, 18.2],
+  12:[  83, 1.9, 14, 3.87, -1.99, 0.249, 72.8, 31.4, 22.2,  9.0, 18.0],
+};
+const METEO_MUSIM = {
+  Katiga:   [60,   75,  0.8, 4.64, -3.84, 0.180, 66.1, 32.6, 21.8, 10.3, 20.8],
+  Labuh:    [47,  114,  8.6, 4.32,  4.26, 0.290, 74.5, 32.3, 23.3,  9.9, 19.7],
+  Rendheng: [73,   78, 14.6, 3.53, 11.09, 0.390, 84.2, 29.9, 23.0, 10.3, 17.4],
+  Mareng:   [78,   98,  4.6, 3.79,  0.82, 0.310, 77.6, 31.1, 22.9,  8.5, 18.1],
+};
+const METEO_BULANAN = {
+   1:[441, 14.2, 3.47, 10.75, 0.390, 83.5, 30.0, 23.1, 10.8, 16.9],
+   2:[457, 16.2, 3.46, 12.72, 0.400, 84.7, 29.7, 23.0, 11.3, 17.1],
+   3:[407, 13.1, 3.67,  9.44, 0.390, 83.9, 30.2, 22.9,  9.2, 18.1],
+   4:[241,  8.1, 3.73,  4.32, 0.370, 81.6, 30.6, 23.0,  8.2, 18.2],
+   5:[113,  3.7, 3.83, -0.18, 0.300, 76.7, 31.2, 22.9,  8.6, 18.2],
+   6:[ 55,  1.8, 3.83, -2.00, 0.250, 73.3, 31.4, 22.3,  9.0, 17.9],
+   7:[ 30,  1.0, 4.19, -3.21, 0.200, 68.8, 31.8, 21.6,  9.7, 19.2],
+   8:[ 14,  0.4, 4.78, -4.34, 0.160, 64.6, 32.8, 21.5, 10.4, 21.4],
+   9:[ 29,  1.0, 5.36, -4.40, 0.150, 62.4, 34.0, 22.3, 11.1, 23.3],
+  10:[110,  3.5, 5.19, -1.65, 0.200, 65.8, 34.1, 23.3, 10.7, 22.6],
+  11:[261,  8.7, 4.28,  4.41, 0.300, 74.6, 32.5, 23.7,  9.0, 19.7],
+  12:[402, 13.0, 3.60,  9.35, 0.370, 81.7, 30.7, 23.3,  9.4, 17.2],
+};
+const METEO_MANGSA_6H = {
+   1:[1.177, 34.2, 50, 54, 11.4, 0.154, 0.335, 26.9, 26.8],
+   2:[1.339, 32.1, 49, 54, 11.4, 0.132, 0.321, 27.7, 27.0],
+   3:[1.498, 33.1, 53, 56, 11.4, 0.126, 0.312, 28.4, 27.2],
+   4:[1.535, 36.8, 64, 64, 11.3, 0.134, 0.301, 29.1, 27.5],
+   5:[0.891, 46.5, 85, 88, 11.4, 0.271, 0.291, 28.4, 27.9],
+   6:[0.463, 52.0, 96, 98, 11.5, 0.379, 0.291, 26.8, 27.9],
+   7:[0.400, 52.7, 97, 98, 11.8, 0.394, 0.377, 26.2, 27.2],
+   8:[0.393, 52.4, 95, 96, 11.7, 0.396, 0.404, 26.2, 26.9],
+   9:[0.430, 51.7, 91, 92, 11.5, 0.386, 0.403, 26.5, 26.7],
+  10:[0.500, 49.9, 83, 85, 11.4, 0.360, 0.395, 26.6, 26.7],
+  11:[0.698, 45.8, 66, 68, 11.3, 0.313, 0.377, 26.9, 26.8],
+  12:[0.902, 39.7, 56, 60, 11.3, 0.235, 0.356, 26.7, 26.8],
+};
+const METEO_MUSIM_6H = {
+  Katiga:   [1.299, 33.3, 51, 11.4],
+  Labuh:    [0.707, 48.1, 87, 11.3],
+  Rendheng: [0.405, 52.4, 95, 11.6],
+  Mareng:   [0.737, 44.9, 67, 11.3],
+};
+
+/* ══════════════════════════════════════════════════════════════════════
+   UTILITAS TANGGAL
+   ══════════════════════════════════════════════════════════════════════ */
+
+function isLeapYear(y){
+  return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
+}
+function ymd(y, m, d){ return new Date(y, m-1, d); }
+function addDays(d, n){ const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+function fmtDate(d){
+  return `${String(d.getDate()).padStart(2,'0')} ${MONTHS_ID[d.getMonth()+1]} ${d.getFullYear()}`;
+}
+function daysBetween(a, b){
+  const ms = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate())
+           - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+  return Math.round(ms / 86400000);
+}
+function normMod(x, m){ return ((x % m) + m) % m; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   KALENDER
+   ══════════════════════════════════════════════════════════════════════ */
+
+function origDopyTable(){
+  const out = {}; let cum = 0;
+  for (const m of MANGSAS){ out[m.no] = cum; cum += m.durasi; }
+  return out;
+}
+const ORIG_DOPY = origDopyTable();
+const ORIG_MUSIM_START = {};
+const ORIG_MUSIM_START_NEXT = {};
+for (const musim of MUSIM_ORDER){
+  ORIG_MUSIM_START[musim] = ORIG_DOPY[MUSIM_MEMBERS[musim][0]];
+}
+ORIG_MUSIM_START_NEXT.Katiga   = ORIG_MUSIM_START.Labuh;
+ORIG_MUSIM_START_NEXT.Labuh    = ORIG_MUSIM_START.Rendheng;
+ORIG_MUSIM_START_NEXT.Rendheng = ORIG_MUSIM_START.Mareng;
+ORIG_MUSIM_START_NEXT.Mareng   = 365 + ORIG_MUSIM_START.Katiga;
+
+function musimOfMangsa(no){
+  for (const mu of MUSIM_ORDER){
+    if (MUSIM_MEMBERS[mu].includes(no)) return mu;
+  }
+  return "";
+}
+
+function dopyToDate(pyear, dopy){
+  const anchor = ymd(pyear, ANCHOR_MONTH, ANCHOR_DAY);
+  return addDays(anchor, Math.round(dopy));
+}
+
+function getPranataYearDopy(d){
+  const anchorThis = ymd(d.getFullYear(), ANCHOR_MONTH, ANCHOR_DAY);
+  if (d >= anchorThis){
+    return {pyear: d.getFullYear(), dopy: daysBetween(anchorThis, d)};
+  }
+  const anchorPrev = ymd(d.getFullYear()-1, ANCHOR_MONTH, ANCHOR_DAY);
+  return {pyear: d.getFullYear()-1, dopy: daysBetween(anchorPrev, d)};
+}
+
+function buildCalendarTradisional(year){
+  const cal = [];
+  for (const m of MANGSAS){
+    const start = ymd(year, m.bulan, m.tgl);
+    let dur = m.durasi;
+    if (m.no === 8 && isLeapYear(year)) dur += 1;
+    const end = addDays(start, dur-1);
+    cal.push({
+      no:m.no, nama:m.nama, mulai:start, akhir:end, durasi:dur,
+      musim:musimOfMangsa(m.no),
+      ciri: CIRI[m.no] || "",
+      candra: CIRI_JAWA[m.no] || "",
+      dopy_start: ORIG_DOPY[m.no],
+      dopy_end: ORIG_DOPY[m.no] + dur - 1,
+    });
+  }
+  return cal;
+}
+
+function buildCalendarTradisionalPyear(pyear){
+  const cal = [];
+  for (const m of MANGSAS){
+    const cy = (m.bulan > ANCHOR_MONTH || (m.bulan === ANCHOR_MONTH && m.tgl >= ANCHOR_DAY))
+              ? pyear : pyear + 1;
+    const start = ymd(cy, m.bulan, m.tgl);
+    let dur = m.durasi;
+    if (m.no === 8 && isLeapYear(cy)) dur += 1;
+    const end = addDays(start, dur-1);
+    cal.push({
+      no:m.no, nama:m.nama, mulai:start, akhir:end, durasi:dur,
+      musim:musimOfMangsa(m.no),
+      ciri: CIRI[m.no] || "",
+      candra: CIRI_JAWA[m.no] || "",
+    });
+  }
+  return cal;
+}
+
+function buildCalibratedMangsa(scenarioKey){
+  const starts = CALIB_SCENARIOS[scenarioKey].musim_start;
+  const startsNext = {
+    Katiga:   starts.Labuh,
+    Labuh:    starts.Rendheng,
+    Rendheng: starts.Mareng,
+    Mareng:   365 + starts.Katiga,
+  };
+  const out = {};
+  for (const musim of MUSIM_ORDER){
+    const members = MUSIM_MEMBERS[musim];
+    const o_start = ORIG_MUSIM_START[musim];
+    const o_len   = ORIG_MUSIM_START_NEXT[musim] - o_start;
+    const n_start = starts[musim];
+    const n_len   = startsNext[musim] - n_start;
+    for (const mno of members){
+      const frac = (ORIG_DOPY[mno] - o_start) / o_len;
+      out[mno] = n_start + frac * n_len;
+    }
+  }
+  return out;
+}
+
+function buildCalendarTerkalibrasi(pyear, scenarioKey){
+  const nd = buildCalibratedMangsa(scenarioKey);
+  const nos = Object.keys(nd).map(Number).sort((a,b)=>a-b);
+  const cal = [];
+  for (let i=0; i<nos.length; i++){
+    const no = nos[i];
+    const m = MANGSAS.find(x=>x.no===no);
+    const start = dopyToDate(pyear, nd[no]);
+    const nxtNo = nos[(i+1) % 12];
+    const nxtDp = (nxtNo === 1) ? 365 + nd[1] : nd[nxtNo];
+    const end = addDays(dopyToDate(pyear, nxtDp), -1);
+    const dur = daysBetween(start, end) + 1;
+    const ciri = buildCiri(scenarioKey, no, nd[no], nxtDp - 1);
+    cal.push({
+      no, nama:m.nama, mulai:start, akhir:end, durasi:dur,
+      musim:musimOfMangsa(no),
+      ciri, candra:"",
+      dopy_start: nd[no], dopy_end: nxtDp - 1,
+    });
+  }
+  return cal;
+}
+
+function getMangsaByDate(tanggal, mode, scenarioKey){
+  const {pyear} = getPranataYearDopy(tanggal);
+  for (const py of [pyear, pyear-1, pyear+1]){
+    const cal = (mode === "tradisional")
+      ? buildCalendarTradisional(py)
+      : buildCalendarTerkalibrasi(py, scenarioKey);
+    for (const m of cal){
+      if (m.mulai <= tanggal && tanggal <= m.akhir) return m;
+    }
+  }
+  return null;
+}
+
+function astroEventsInRange(dopyStart, dopyEnd){
+  const s = normMod(dopyStart, 365);
+  const e = normMod(dopyEnd, 365);
+  const out = [];
+  for (const key in ASTRO_CALIB){
+    const d = normMod(ASTRO_CALIB[key].mean_dopy, 365);
+    if (s <= e){
+      if (d >= s && d <= e) out.push(key);
+    } else {
+      if (d >= s || d <= e) out.push(key);
+    }
+  }
+  out.sort((a,b)=>ASTRO_CALIB[a].mean_dopy - ASTRO_CALIB[b].mean_dopy);
+  return out;
+}
+
+function buildCiri(scenarioKey, mangsaNo, dopyStart, dopyEnd){
+  const base = CIRI_BASE[mangsaNo] || "";
+  const evs = astroEventsInRange(dopyStart, dopyEnd);
+  if (evs.length === 0) return base;
+  const parts = evs.map(k=>{
+    const ev = ASTRO_CALIB[k];
+    const tgl = `${String(ev.mean_day).padStart(2,'0')} ${MONTHS_ID[ev.mean_month]}`;
+    return `${ASTRO_LABEL[k]} ${tgl} (dopy≈${ev.mean_dopy.toFixed(1)})`;
+  });
+  return base + "  |  " + parts.join("  |  ");
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RENDER — komponen
+   ══════════════════════════════════════════════════════════════════════ */
+
+function meteoMusimBlockHtml(musim, durasiOverride){
+  const arr = METEO_MUSIM[musim]; if (!arr) return "";
+  const [durHard, hj, hj_d, et0, wb, sm, rh, tx, tn, angin, rad] = arr;
+  const dur = (durasiOverride != null) ? durasiOverride : durHard;
+  const wbStr = (wb >= 0 ? '+' : '') + wb.toFixed(2) + " mm/hari (" + (wb<0?"defisit":"surplus") + ")";
+  let html = `<div class="meteo-musim">`;
+  html += `<div>Curah hujan : ${hj} mm/musim · ${hj_d.toFixed(1)} mm/hari · ET₀ ${et0.toFixed(2)} mm/hari</div>`;
+  html += `<div>Neraca air  : ${wbStr} · SM ${sm.toFixed(3)} m³/m³</div>`;
+  html += `<div>Suhu udara  : maks ${tx.toFixed(1)}°C · min ${tn.toFixed(1)}°C · RH ${rh.toFixed(1)}%</div>`;
+  html += `<div>Rad./Angin  : ${rad.toFixed(1)} MJ/m² · Angin maks ${angin.toFixed(1)} km/j · Durasi ${dur} hari</div>`;
+  if (METEO_MUSIM_6H[musim]){
+    const [vpd, tcwv, cld, sun] = METEO_MUSIM_6H[musim];
+    html += `<div>[6H] VPD ${vpd.toFixed(3)} kPa · TCWV ${tcwv.toFixed(1)} kg/m²</div>`;
+    html += `<div>[6H] Cloud ${cld.toFixed(0)}% · Sun ${sun.toFixed(1)} h/hari</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function meteoMangsaBlockHtml(no){
+  if (!METEO_MANGSA[no]) return "";
+  const [hj, hj_d, hhr, et0, wb, sm, rh, tx, tn, angin, rad] = METEO_MANGSA[no];
+  const txm = (tx + tn) / 2;
+  const wbStr = (wb>=0?'+':'') + wb.toFixed(2) + " mm/hari (" + (wb<0?"defisit":"surplus") + ")";
+  let html = `<div class="mmeteo">`;
+  html += `<div>Hujan : ${hj} mm/musim · ${hj_d.toFixed(1)} mm/hari · ${hhr} hari hujan</div>`;
+  html += `<div>Suhu  : maks ${tx.toFixed(1)}°C · min ${tn.toFixed(1)}°C · rata ${txm.toFixed(1)}°C</div>`;
+  html += `<div>RH ${rh.toFixed(1)}% · SM ${sm.toFixed(3)} · ET₀ ${et0.toFixed(2)} · Rad ${rad.toFixed(1)} MJ/m²</div>`;
+  html += `<div>Neraca: ${wbStr} · Angin ${angin.toFixed(1)} km/j</div>`;
+  if (METEO_MANGSA_6H[no]){
+    const [vpd, tcwv, cld, cld_a, sun_h, sm_sh, sm_dp, sT_sh, sT_dp] = METEO_MANGSA_6H[no];
+    html += `<div>[6H] VPD ${vpd.toFixed(2)} kPa · TCWV ${tcwv.toFixed(1)} kg/m² · Cloud ${cld.toFixed(0)}% (aft ${cld_a.toFixed(0)}%)</div>`;
+    html += `<div>[6H] Sun ${sun_h.toFixed(1)} h/hari · SM 0-7cm ${sm_sh.toFixed(3)} · SM 28-100cm ${sm_dp.toFixed(3)}</div>`;
+    html += `<div>[6H] sT 0-7cm ${sT_sh.toFixed(1)}°C · sT 100-255cm ${sT_dp.toFixed(1)}°C</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function astroChipsHtml(dopyStart, dopyEnd){
+  const evs = astroEventsInRange(dopyStart, dopyEnd);
+  if (evs.length === 0) return "";
+  let html = `<div class="astro-chips">`;
+  for (const k of evs){
+    const ev = ASTRO_CALIB[k];
+    html += `<span class="astro-chip">${ASTRO_LABEL[k]} · ${String(ev.mean_day).padStart(2,'0')} ${MONTHS_ID[ev.mean_month]} · dopy≈${ev.mean_dopy.toFixed(1)}</span>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RENDER — Kalender Tradisional
+   ══════════════════════════════════════════════════════════════════════ */
+
+function renderTradisional(tahun){
+  const cal = buildCalendarTradisional(tahun);
+  let html = "";
+  for (const musim of MUSIM_ORDER){
+    const mem = cal.filter(m=>m.musim===musim);
+    if (mem.length === 0) continue;
+    const dopyS = mem[0].dopy_start;
+    const dopyE = mem[mem.length-1].dopy_end;
+    html += `<div class="card">`;
+    html += `<div class="musim-block ${musim}">`;
+    html += `<h3>MUSIM ${musim.toUpperCase()}</h3>`;
+    html += `<div class="sub">${MUSIM_DESKRIPSI[musim]} · dopy ${dopyS}–${dopyE}</div>`;
+    html += `<div class="mangsa-grid">`;
+    for (const m of mem){
+      html += `<div class="mangsa-card">`;
+      html += `<div class="mh"><span class="mno">${m.no}</span><span class="mnama">${m.nama}</span><span class="mmusim">${m.musim}</span></div>`;
+      html += `<div class="mper">${fmtDate(m.mulai)} — ${fmtDate(m.akhir)} (${m.durasi} hari)</div>`;
+      html += `<div class="mciri">${escapeHtml(m.ciri)}</div>`;
+      if (m.candra) html += `<div class="mcandra">${escapeHtml(m.candra)}</div>`;
+      html += `</div>`;
+    }
+    html += `</div></div></div>`;
+  }
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RENDER — Kalender Terkalibrasi
+   ══════════════════════════════════════════════════════════════════════ */
+
+function renderTerkalibrasi(pyear, scenarioKey){
+  const cal = buildCalendarTerkalibrasi(pyear, scenarioKey);
+  const ms = CALIB_SCENARIOS[scenarioKey].musim_start;
+  const msNext = {Katiga: ms.Labuh, Labuh: ms.Rendheng, Rendheng: ms.Mareng, Mareng: 365 + ms.Katiga};
+
+  let html = "";
+  html += `<div class="card"><div class="muted">Skenario: <b>${scenarioKey}</b> — ${CALIB_SCENARIOS[scenarioKey].label}<br>${CALIB_SCENARIOS[scenarioKey].catatan}</div></div>`;
+
+  for (const musim of MUSIM_ORDER){
+    const mem = cal.filter(m=>m.musim===musim);
+    const dopyS = ms[musim];
+    const dopyE = msNext[musim] - 1;
+    const durAktual = dopyE - dopyS + 1;
+    html += `<div class="card">`;
+    html += `<div class="musim-block ${musim}">`;
+    html += `<h3>MUSIM ${musim.toUpperCase()}</h3>`;
+    html += `<div class="sub">${MUSIM_DESKRIPSI[musim]} · dopy ${dopyS}–${dopyE} · ${durAktual} hari</div>`;
+    html += meteoMusimBlockHtml(musim, durAktual);
+    html += `<div class="mangsa-grid">`;
+    for (const m of mem){
+      html += `<div class="mangsa-card">`;
+      html += `<div class="mh"><span class="mno">${m.no}</span><span class="mnama">${m.nama}</span><span class="mmusim">${m.musim}</span></div>`;
+      html += `<div class="mper">${fmtDate(m.mulai)} — ${fmtDate(m.akhir)} (${m.durasi} hari) · dopy ${m.dopy_start.toFixed(1)}–${m.dopy_end.toFixed(1)}</div>`;
+      html += `<div class="mciri">${escapeHtml(m.ciri)}</div>`;
+      html += astroChipsHtml(m.dopy_start, m.dopy_end);
+      html += meteoMangsaBlockHtml(m.no);
+      html += `</div>`;
+    }
+    html += `</div></div></div>`;
+  }
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RENDER — Cek Tanggal
+   ══════════════════════════════════════════════════════════════════════ */
+
+function renderCek(tanggal, scenarioKey){
+  const trad = getMangsaByDate(tanggal, "tradisional");
+  const kal  = getMangsaByDate(tanggal, "terkalibrasi", scenarioKey);
+  const {pyear, dopy} = getPranataYearDopy(tanggal);
+
+  let html = `<div class="card">`;
+  html += `<div class="muted">Tahun-Pranata: <b>${pyear}/${pyear+1}</b> · Hari ke-<b>${dopy+1}</b> (dopy=${dopy})</div>`;
+  html += `</div>`;
+
+  html += `<div class="today-grid">`;
+
+  if (trad){
+    html += `<div class="today-card trad">`;
+    html += `<h4>Tradisional — Paku Buwana VII</h4>`;
+    html += `<div class="big">Mangsa ${trad.no}: ${trad.nama.toUpperCase()}</div>`;
+    html += `<div class="per">${fmtDate(trad.mulai)} — ${fmtDate(trad.akhir)} (${trad.durasi} hari) · Musim ${trad.musim}</div>`;
+    html += `<div class="ciri"><b>Ciri:</b> ${escapeHtml(trad.ciri)}</div>`;
+    if (trad.candra) html += `<div class="candra"><b>Candra:</b> ${escapeHtml(trad.candra)}</div>`;
+    html += `</div>`;
+  }
+
+  if (kal){
+    html += `<div class="today-card cal">`;
+    html += `<h4>Terkalibrasi — ${scenarioKey}</h4>`;
+    html += `<div class="big">Mangsa ${kal.no}: ${kal.nama.toUpperCase()}</div>`;
+    html += `<div class="per">${fmtDate(kal.mulai)} — ${fmtDate(kal.akhir)} (${kal.durasi} hari) · Musim ${kal.musim}</div>`;
+    if (trad){
+      if (kal.no !== trad.no){
+        html += `<div class="delta">>> BERBEDA dari tradisional (tradisional: mangsa ${trad.no} ${trad.nama})</div>`;
+      } else {
+        const sel = daysBetween(trad.mulai, kal.mulai);
+        const sgn = sel < 0 ? "lebih awal" : "lebih lambat";
+        html += `<div class="delta">Awal mangsa bergeser ${sel>=0?'+':''}${sel} hari (${Math.abs(sel)} hari ${sgn}) vs tradisional</div>`;
+      }
+    }
+    html += `<div class="ciri"><b>Ciri:</b> ${escapeHtml(kal.ciri)}</div>`;
+
+    if (METEO_MANGSA[kal.no]){
+      const [hj, hj_d, hhr, et0, wb, sm, rh, tx, tn, angin, rad] = METEO_MANGSA[kal.no];
+      const wbStr = (wb>=0?'+':'') + wb.toFixed(2) + " mm/hari (" + (wb<0?"defisit":"surplus") + ")";
+      html += `<div class="meteo">`;
+      html += `<div>Curah hujan : ${hj} mm/musim · ${hj_d.toFixed(1)} mm/hari · ${hhr} hari hujan</div>`;
+      html += `<div>Suhu udara  : maks ${tx.toFixed(1)}°C · min ${tn.toFixed(1)}°C · rata ${((tx+tn)/2).toFixed(1)}°C</div>`;
+      html += `<div>Kelembaban  : RH ${rh.toFixed(1)}% · SM ${sm.toFixed(3)} · ET₀ ${et0.toFixed(2)} mm/hari</div>`;
+      html += `<div>Neraca air  : P−ET₀ ${wbStr} · Rad ${rad.toFixed(1)} MJ/m²</div>`;
+      html += `</div>`;
+    }
+    if (METEO_MANGSA_6H[kal.no]){
+      const [vpd, tcwv, cld, cld_a, sun_h, sm_sh, sm_dp, sT_sh, sT_dp] = METEO_MANGSA_6H[kal.no];
+      html += `<div class="meteo">`;
+      html += `<div>[6H] VPD ${vpd.toFixed(2)} kPa · TCWV ${tcwv.toFixed(1)} kg/m²</div>`;
+      html += `<div>[6H] Cloud ${cld.toFixed(0)}% (aft ${cld_a.toFixed(0)}%) · Sun ${sun_h.toFixed(1)} h/hari</div>`;
+      html += `<div>[6H] SM 0-7cm ${sm_sh.toFixed(3)} · SM 28-100cm ${sm_dp.toFixed(3)} m³/m³</div>`;
+      html += `<div>[6H] sT 0-7cm ${sT_sh.toFixed(1)}°C · sT 100-255cm ${sT_dp.toFixed(1)}°C</div>`;
+      html += `</div>`;
+    }
+    html += astroChipsHtml(kal.dopy_start, kal.dopy_end);
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RENDER — Perbandingan
+   ══════════════════════════════════════════════════════════════════════ */
+
+function renderPerbandingan(pyear){
+  const tradCal = buildCalendarTradisionalPyear(pyear);
+  const scnKeys = Object.keys(CALIB_SCENARIOS);
+  const calByScn = {};
+  for (const k of scnKeys){
+    calByScn[k] = buildCalendarTerkalibrasi(pyear, k);
+  }
+
+  let html = `<div class="card"><div class="table-scroll"><table class="data">`;
+  html += `<tr><th>No</th><th>Nama</th><th>Tradisional</th>`;
+  for (const k of scnKeys) html += `<th>${k}</th>`;
+  html += `</tr>`;
+  for (const td of tradCal){
+    html += `<tr>`;
+    html += `<td style="text-align:center">${td.no}</td>`;
+    html += `<td class="lbl">${td.nama}</td>`;
+    html += `<td>${fmtDate(td.mulai)}</td>`;
+    for (const k of scnKeys){
+      const mCal = calByScn[k].find(x=>x.no===td.no);
+      const delta = daysBetween(td.mulai, mCal.mulai);
+      const color = delta === 0 ? "#5a4a33" : (delta < 0 ? "#155e8a" : "#a03a12");
+      html += `<td style="color:${color};font-weight:700">${delta>=0?'+':''}${delta}</td>`;
+    }
+    html += `</tr>`;
+  }
+  html += `</table></div>`;
+  html += `<div class="legend">Angka = selisih hari awal mangsa vs Tradisional. <code>–</code> = lebih awal, <code>+</code> = lebih lambat.</div>`;
+  html += `<h3 class="sub">Legenda Skenario</h3>`;
+  for (const k of scnKeys){
+    html += `<div style="margin:6px 0"><b>${k}</b> — ${CALIB_SCENARIOS[k].label}<br><span class="muted">${CALIB_SCENARIOS[k].catatan}</span></div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RENDER — Durasi
+   ══════════════════════════════════════════════════════════════════════ */
+
+function renderDurasi(){
+  let html = `<div class="card"><div class="table-scroll"><table class="data">`;
+  html += `<tr><th>Skenario</th>`;
+  for (const mu of MUSIM_ORDER) html += `<th>${mu}</th>`;
+  html += `<th>Total</th></tr>`;
+
+  const o = ORIG_MUSIM_START, on = ORIG_MUSIM_START_NEXT;
+  const durTrad = MUSIM_ORDER.map(mu => on[mu] - o[mu]);
+  html += `<tr><td class="lbl">Tradisional</td>`;
+  for (const d of durTrad) html += `<td>${d}</td>`;
+  html += `<td>${durTrad.reduce((a,b)=>a+b,0)}</td></tr>`;
+
+  for (const k in CALIB_SCENARIOS){
+    const s = CALIB_SCENARIOS[k].musim_start;
+    const sn = {Katiga: s.Labuh, Labuh: s.Rendheng, Rendheng: s.Mareng, Mareng: 365 + s.Katiga};
+    const durs = MUSIM_ORDER.map(mu => sn[mu] - s[mu]);
+    html += `<tr><td class="lbl">${k}</td>`;
+    for (const d of durs) html += `<td>${d}</td>`;
+    html += `<td>${durs.reduce((a,b)=>a+b,0)}</td></tr>`;
+  }
+  html += `</table></div></div>`;
+
+  html += `<div class="card"><h3 class="sub">Klimatologi tiap musim — R30 (1996–2025)</h3>`;
+  for (const mu of MUSIM_ORDER){
+    html += `<div class="musim-block ${mu}">`;
+    html += `<h3>${mu.toUpperCase()} — ${MUSIM_DESKRIPSI[mu]}</h3>`;
+    html += meteoMusimBlockHtml(mu, null);
+    html += `</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RENDER — Klimatologi
+   ══════════════════════════════════════════════════════════════════════ */
+
+function renderKlimatologi(){
+  let html = "";
+  const params = [
+    ["Hujan (mm/bln)",   0, 0],
+    ["Hujan (mm/hari)",  1, 1],
+    ["ET₀  (mm/hari)",   2, 2],
+    ["P−ET₀ (mm/hr)",    3, 1],
+    ["SM   (m³/m³)",     4, 3],
+    ["RH   (%)",         5, 1],
+    ["T maks (°C)",      6, 1],
+    ["T min  (°C)",      7, 1],
+    ["Angin (km/j)",     8, 1],
+    ["Radiasi (MJ/m²)",  9, 1],
+  ];
+  for (const [start, end] of [[1,6],[7,12]]){
+    html += `<div class="card"><h3 class="sub">Bulan ${MONTHS_FULL[start]} – ${MONTHS_FULL[end]}</h3><div class="table-scroll"><table class="data">`;
+    html += `<tr><th>Parameter</th>`;
+    for (let b=start; b<=end; b++) html += `<th>${MONTHS_ID[b]}</th>`;
+    html += `</tr>`;
+    for (const [label, idx, dec] of params){
+      html += `<tr><td class="lbl">${label}</td>`;
+      for (let b=start; b<=end; b++){
+        const v = METEO_BULANAN[b][idx];
+        html += `<td>${v.toFixed(dec)}</td>`;
+      }
+      html += `</tr>`;
+    }
+    html += `</table></div></div>`;
+  }
+
+  const musParams = [
+    ["Hujan total (mm)", 1, 0],
+    ["Hujan (mm/hari)",  2, 1],
+    ["ET₀ (mm/hari)",    3, 2],
+    ["P−ET₀ (mm/hari)",  4, 2],
+    ["SM (m³/m³)",       5, 3],
+    ["RH (%)",           6, 1],
+    ["T maks (°C)",      7, 1],
+    ["T min (°C)",       8, 1],
+    ["Angin (km/j)",     9, 1],
+    ["Radiasi (MJ/m²)", 10, 1],
+    ["Durasi (hari)",    0, 0],
+  ];
+  html += `<div class="card"><h3 class="sub">Ringkasan Per-Musim — R30</h3><div class="table-scroll"><table class="data">`;
+  html += `<tr><th>Parameter</th>`;
+  for (const mu of MUSIM_ORDER) html += `<th>${mu}</th>`;
+  html += `</tr>`;
+  for (const [label, idx, dec] of musParams){
+    html += `<tr><td class="lbl">${label}</td>`;
+    for (const mu of MUSIM_ORDER){
+      html += `<td>${METEO_MUSIM[mu][idx].toFixed(dec)}</td>`;
+    }
+    html += `</tr>`;
+  }
+  html += `</table></div></div>`;
+
+  const h6 = [
+    ["VPD (kPa)",      0, 3],
+    ["TCWV (kg/m²)",   1, 1],
+    ["Cloud (%)",      2, 0],
+    ["Sunshine (h/d)", 3, 1],
+  ];
+  html += `<div class="card"><h3 class="sub">Ringkasan 6H Per-Musim</h3><div class="table-scroll"><table class="data">`;
+  html += `<tr><th>Parameter</th>`;
+  for (const mu of MUSIM_ORDER) html += `<th>${mu}</th>`;
+  html += `</tr>`;
+  for (const [label, idx, dec] of h6){
+    html += `<tr><td class="lbl">${label}</td>`;
+    for (const mu of MUSIM_ORDER){
+      html += `<td>${METEO_MUSIM_6H[mu][idx].toFixed(dec)}</td>`;
+    }
+    html += `</tr>`;
+  }
+  html += `</table></div></div>`;
+
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RENDER — Astro
+   ══════════════════════════════════════════════════════════════════════ */
+
+function renderAstro(){
+  const rows = [
+    ["solstis_juni",       "Solstis Juni",              "1 Kasa"],
+    ["solstis_des",        "Solstis Desember",          "6 Kanem†"],
+    ["equinox_maret",      "Ekuinoks Maret",            "8/9 Kawolu†"],
+    ["equinox_sept",       "Ekuinoks September",        "4 Kapat†"],
+    ["zenith_I_okt",       "Zenith Matahari I",         "5 Kalima"],
+    ["zenith_II_mar",      "Zenith Matahari II",        "8 Kawolu†"],
+    ["orion_helrise",      "Orion Heliacal Rise",       "1 Kasa"],
+    ["orion_evening_rise", "Orion Acronychal Rise",     "6 Kanem"],
+    ["orion_evening_culm", "Orion Kulminasi Senja",     "8 Kawolu†"],
+    ["orion_midnight_culm","Orion Kulminasi Tngah Mlm", "6 Kanem"],
+    ["orion_acron_set",    "Orion Acronychal Set",      "12 Sada"],
+  ];
+
+  let html = `<div class="card"><div class="table-scroll"><table class="data">`;
+  html += `<tr><th>Peristiwa</th><th>Tgl</th><th>dopy</th><th>σ</th><th>Δ vs trad</th><th>Mangsa</th></tr>`;
+  for (const [key, label, mangsa] of rows){
+    const ev = ASTRO_CALIB[key]; if (!ev) continue;
+    const tgl = `${String(ev.mean_day).padStart(2,'0')} ${MONTHS_ID[ev.mean_month]}`;
+    const dStr = (ev.delta>=0?'+':'') + ev.delta.toFixed(1);
+    html += `<tr>`;
+    html += `<td class="lbl">${label}</td>`;
+    html += `<td>${tgl}</td>`;
+    html += `<td>${ev.mean_dopy.toFixed(1)}</td>`;
+    html += `<td>${ev.std_dopy.toFixed(2)}</td>`;
+    html += `<td>${dStr}</td>`;
+    html += `<td style="text-align:left">${mangsa}</td>`;
+    html += `</tr>`;
+  }
+  html += `</table></div>`;
+  html += `<div class="legend">† = berdasarkan skenario R30/R10. Lihat catatan per peristiwa di bawah.</div></div>`;
+
+  html += `<div class="card"><h3 class="sub">Catatan per peristiwa</h3>`;
+  for (const [key, label] of rows){
+    const ev = ASTRO_CALIB[key]; if (!ev) continue;
+    html += `<div style="margin:10px 0"><b>${label}</b><br><span class="muted">${escapeHtml(ev.catatan)}</span></div>`;
+  }
+  html += `</div>`;
+
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RENDER — Info Data & Metode
+   ══════════════════════════════════════════════════════════════════════ */
+
+function renderInfo(){
+  let html = "";
+
+  html += `<div class="card info-section">`;
+  html += `<h3>1. Sumber Data Meteorologi</h3>`;
+  html += `<table class="kv-table">`;
+  html += `<tr><th>Titik Target</th><td><code>−7.5220°LS, 112.5661°BT</code> (MJS Obs., Jawa Timur), 28 m dpl</td></tr>`;
+  html += `<tr><th>Stasiun P1</th><td>ERA5 / ERA5-Land / IFS HRES Open-Meteo — daily 1950–2026, 6-jam 2015–2026<br>Koordinat: <code>−7.486819°LS, 112.538210°BT</code> · Elev 28 m</td></tr>`;
+  html += `<tr><th>Stasiun P2</th><td>ERA5 / ERA5-Land / IFS HRES Open-Meteo — daily 1940–2026, 6-jam 1995–2026<br>Koordinat: <code>−7.5571175°LS, 112.557350°BT</code> · Elev 28 m</td></tr>`;
+  html += `<tr><th>Interpolasi</th><td>Inverse Distance Weighting (IDW, power=2) dengan bobot <code>w1=0.3950</code> (P1), <code>w2=0.6050</code> (P2)</td></tr>`;
+  html += `<tr><th>ENSO Niño3.4</th><td>AVISO / DUACS — data mingguan, 1993–2026</td></tr>`;
+  html += `</table>`;
+  html += `</div>`;
+
+  html += `<div class="card info-section">`;
+  html += `<h3>2. Sumber Data Astronomis</h3>`;
+  html += `<table class="kv-table">`;
+  html += `<tr><th>Efemerida</th><td>VSOP87D (akurasi ~1″) via JRC_Ephemeris v5.0</td></tr>`;
+  html += `<tr><th>Nutasi &amp; Presesi</th><td>IERS 2010, tabel lengkap (IAU 2000A/2006A)</td></tr>`;
+  html += `<tr><th>ΔT (TT−UTC)</th><td>Tabel HMNAO, interpolasi linier</td></tr>`;
+  html += `<tr><th>Rentang Kalibrasi</th><td>2020–2029 (10 tahun rata-rata)</td></tr>`;
+  html += `<tr><th>Lokasi</th><td><code>−7.521951°LS, 112.566089°BT</code>, 28 m dpl</td></tr>`;
+  html += `<tr><th>Objek Bintang</th><td>Sabuk Orion (Alnitak, Alnilam, Mintaka) — rata-rata</td></tr>`;
+  html += `</table>`;
+  html += `</div>`;
+
+  html += `<div class="card info-section">`;
+  html += `<h3>3. Metode Kalibrasi Meteorologi</h3>`;
+  html += `<p>Kalibrasi meteorologi (12 mangsa via <i>time-warp musim</i>) diwarisi dari basis 30 tahun; skenario <b>R10</b> direkalibrasi ulang menggunakan data 6-jam.</p>`;
+  html += `<p><b>Composite Wetness Index 6H (R10)</b> — musim_start final:</p>`;
+  html += `<ul>`;
+  html += `<li><code>Katiga</code> : 12 (mean 12.5, median 6, robust_mean 12)</li>`;
+  html += `<li><code>Labuh</code> : 131 (mean 131.1, median 133, robust_mean 131)</li>`;
+  html += `<li><code>Rendheng</code> : 185 (mean 185.0, median 178, robust_mean 185)</li>`;
+  html += `<li><code>Mareng</code> : 305 (mean 305.2, median 310, robust_mean 305)</li>`;
+  html += `</ul>`;
+  html += `<p>Sampel 10 tahun (2015–2024), uncertainty σ ≈ 12–35 hari, didominasi variabilitas ENSO. Metode alternatif (K-means 5-fitur 6H) memberi <code>{12, 122, 155, 294}</code>; dipilih composite karena lebih stabil terhadap outlier.</p>`;
+  html += `<p><b>Cross-validasi 6H</b> pada musim_start final (median, window ±3 hari, R10 2015–2024, IDW 2 stasiun):</p>`;
+  html += `<table class="kv-table">`;
+  html += `<tr><th>dopy 12 (Katiga)</th><td>VPD 1.11 kPa · TCWV 38.8 kg/m² · precip 0.06 mm/hr · cloud 49%</td></tr>`;
+  html += `<tr><th>dopy 131 (Labuh)</th><td>VPD 1.21 kPa · TCWV 42.7 kg/m² · precip 0.65 mm/hr · cloud 78%</td></tr>`;
+  html += `<tr><th>dopy 185 (Rendheng)</th><td>VPD 0.62 kPa · TCWV 51.8 kg/m² · precip 8.29 mm/hr · cloud 92%</td></tr>`;
+  html += `<tr><th>dopy 305 (Mareng)</th><td>VPD 0.70 kPa · TCWV 47.7 kg/m² · precip 2.00 mm/hr · cloud 81%</td></tr>`;
+  html += `</table>`;
+  html += `<p class="muted">Catatan: VPD di dopy 12 (Katiga) hanya 1.11 kPa karena masih awal musim kering; puncak kering sesungguhnya di dopy 40–50 (VPD ~1.40). Hujan signifikan baru mulai dopy 135–140, sehingga Labuh=131 adalah onset sinyal transisi, bukan awal hujan lebat.</p>`;
+  html += `</div>`;
+
+  html += `<div class="card info-section">`;
+  html += `<h3>4. Metode Kalibrasi Astronomis</h3>`;
+  html += `<p>Kalibrasi astronomis tidak mengubah batas musim/mangsa; hanya mengoreksi referensi tanggal dalam teks deskripsi (CIRI) &amp; penempatan dinamis penanda astro.</p>`;
+  html += `<ul>`;
+  html += `<li><b>Jangkar awal tahun</b> (Solstis Juni): terjadi 21 Jun (~0.81 hari sebelum 22 Jun tradisional) → koreksi kecil −1 hari; jangkar presisi = 21 Jun.</li>`;
+  html += `<li><b>Solstis Desember</b>: 21 Des (bukan 22 Des), dopy 182.71 vs 184.</li>`;
+  html += `<li><b>Zenith Matahari I</b>: 12 Okt (bukan 13 Okt).</li>`;
+  html += `<li><b>Zenith Matahari II</b>: 1 Mar (sama dengan tradisional, ∆−0.54 hr, tidak signifikan).</li>`;
+  html += `<li><b>Orion Heliacal Rise</b>: 25 Jun (dopy≈3.1, bukan 22 Jun/dopy=0). Mangsa-1 Kasa TIDAK dimulai dari heliacal rise Orion.</li>`;
+  html += `<li><b>Orion Evening Rise</b> (first visible at dusk): 5 Des (dopy=166.16, vs 6 Des/dopy=167) — konsisten tradisional ±1 hari.</li>`;
+  html += `<li><b>Orion Evening Heliacal Culmination</b>: ~1 Mar (dopy≈252.5) — cocok dengan tradisional "1 Mar" (Mangsa-9). Ammarell (1991) Tbl.3: epoch 1850 = 26 Feb, kini ≈ 1 Mar.</li>`;
+  html += `<li><b>Orion Kulminasi Tengah Malam</b>: 8 Des (dopy=168.91) — berbeda dari kulminasi senja (1 Mar). Bukan tentang "transit siang".</li>`;
+  html += `<li><b>Orion Acronychal Set</b>: 18 Jun (dopy=361.93, vs 4 Jun/dopy=347 tradisional). Tradisional memakai definisi heliacal set fajar.</li>`;
+  html += `</ul>`;
+  html += `</div>`;
+
+  html += `<div class="card info-section">`;
+  html += `<h3>5. Catatan Penempatan Ciri</h3>`;
+  html += `<ul>`;
+  html += `<li>Solstis Des (dopy 182.7) → Mangsa-6 <b>Kanem</b> di semua skenario modern.</li>`;
+  html += `<li>Zenith II &amp; Orion Evening Culm (dopy ≈252.5) → Mangsa-8 <b>Kawolu</b> di R30/R10; Mangsa-9 Kasanga hanya di TRAD.</li>`;
+  html += `<li>Penempatan penanda astro untuk skenario terkalibrasi dihitung otomatis sesuai rentang dopy aktual.</li>`;
+  html += `</ul>`;
+  html += `</div>`;
+
+  html += `<div class="card info-section">`;
+  html += `<h3>6. Keterbatasan</h3>`;
+  html += `<ul>`;
+  html += `<li>Kalibrasi meteorologi (12 mangsa via time-warp musim) tetap berbasis basis data jangka panjang; hanya skenario R10 yang di-rekalibrasi ulang (6H).</li>`;
+  html += `<li>Kalibrasi astronomis tidak mengubah batas musim/mangsa; hanya mengoreksi referensi tanggal dalam teks deskripsi (CIRI) &amp; penempatan dinamis.</li>`;
+  html += `<li>Pergeseran astronomis terkecil: zenith &amp; solstis &lt;1 hari → praktis tidak mengubah kalender. Pergeseran Orion heliacal rise +3 hr dan acronychal set +15 hr vs tradisional mencerminkan pergeseran presesi ~170 tahun (1855→2025) sebesar ~2°.</li>`;
+  html += `<li>Kulminasi tengah malam Orion (8 Des) vs tradisional (1 Mar) adalah perbedaan DEFINISI, bukan presesi — tradisional mengacu transit siang, model ini mengacu tengah malam.</li>`;
+  html += `<li>Composite Wetness Index 6H menggunakan sampel 10 tahun (2015–2024); uncertainty musim-start ±12–35 hari, didominasi variabilitas ENSO.</li>`;
+  html += `</ul>`;
+  html += `</div>`;
+
+  html += `<div class="card info-section">`;
+  html += `<h3>7. Dampak ke Kalender Terkalibrasi</h3>`;
+  html += `<ul>`;
+  html += `<li>Pergeseran jangkar awal tahun: −1 hari (dari 22 Jun → 21 Jun presisi). Untuk konsistensi tampilan, <code>ANCHOR_DAY</code> tetap 22 Jun, namun <code>ASTRO_CALIB</code> menyimpan nilai presisi.</li>`;
+  html += `<li>Kalibrasi R30 (skenario utama) tidak berubah (berbasis meteorologi).</li>`;
+  html += `<li>Tabel <code>ASTRO_CALIB</code> tersedia untuk referensi presisi &amp; penempatan penanda astro di setiap skenario.</li>`;
+  html += `<li><code>build_ciri()</code> menempatkan penanda astro secara dinamis sesuai rentang dopy aktual setiap skenario.</li>`;
+  html += `</ul>`;
+  html += `</div>`;
+
+  return html;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   UTIL — escape
+   ══════════════════════════════════════════════════════════════════════ */
+function escapeHtml(s){
+  return String(s)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════════════════════ */
+
+const tabButtons = document.querySelectorAll("nav.tabs button");
+const tabContents = document.querySelectorAll("section.tab-content");
+tabButtons.forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const target = btn.dataset.tab;
+    tabButtons.forEach(b=>b.classList.remove("active"));
+    tabContents.forEach(s=>s.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("tab-"+target).classList.add("active");
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+});
+
+function updateTradisional(){
+  const y = parseInt(document.getElementById("trad-tahun").value, 10) || 2025;
+  document.getElementById("trad-output").innerHTML = renderTradisional(y);
+}
+document.getElementById("trad-tahun").addEventListener("change", updateTradisional);
+
+function updateTerkalibrasi(){
+  const y = parseInt(document.getElementById("kal-tahun").value, 10) || 2025;
+  const scn = document.getElementById("kal-scn").value;
+  document.getElementById("kal-output").innerHTML = renderTerkalibrasi(y, scn);
+}
+document.getElementById("kal-tahun").addEventListener("change", updateTerkalibrasi);
+document.getElementById("kal-scn").addEventListener("change", updateTerkalibrasi);
+
+function updateCek(){
+  const inputVal = document.getElementById("cek-tanggal").value;
+  const d = inputVal ? new Date(inputVal + "T00:00:00") : new Date();
+  const scn = document.getElementById("cek-scn").value;
+  document.getElementById("cek-output").innerHTML = renderCek(d, scn);
+}
+document.getElementById("cek-tanggal").addEventListener("change", updateCek);
+document.getElementById("cek-scn").addEventListener("change", updateCek);
+
+function updatePerbandingan(){
+  const y = parseInt(document.getElementById("cmp-tahun").value, 10) || 2025;
+  document.getElementById("cmp-output").innerHTML = renderPerbandingan(y);
+}
+document.getElementById("cmp-tahun").addEventListener("change", updatePerbandingan);
+
+document.getElementById("dur-output").innerHTML = renderDurasi();
+document.getElementById("klim-output").innerHTML = renderKlimatologi();
+document.getElementById("astro-output").innerHTML = renderAstro();
+document.getElementById("info-output").innerHTML = renderInfo();
+
+(function init(){
+  const today = new Date();
+  document.getElementById("cek-tanggal").value = today.toISOString().slice(0,10);
+  const {pyear} = getPranataYearDopy(today);
+  document.getElementById("trad-tahun").value = today.getFullYear();
+  document.getElementById("kal-tahun").value = pyear;
+  document.getElementById("cmp-tahun").value = pyear;
+  updateTradisional();
+  updateTerkalibrasi();
+  updateCek();
+  updatePerbandingan();
+})();
+
+</script>
+</body>
+</html>
