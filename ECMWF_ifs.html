@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ECMWF IFS HRES — Atmospheric Dashboard v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-start: #6ba1f0;
+      --bg-mid: #a3c4f3;
+      --bg-end: #e2eefa;
+      --glass-bg: rgba(255, 255, 255, 0.55);
+      --glass-border: rgba(255, 255, 255, 0.7);
+      --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+      --text-main: #1a2530;
+      --text-muted: #5a6b7c;
+      --accent: #2e5bff;
+      --font: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-mid) 40%, var(--bg-end) 100%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 20px 16px 40px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 4px;
+      gap: 12px;
+    }
+
+    .header .location {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .header .location h1 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .header .location span {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .header-actions button {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      height: 42px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-main);
+      font-family: var(--font);
+      font-weight: 700;
+      font-size: 0.85rem;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .header-actions button:hover {
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .header-actions button svg { width: 20px; height: 20px; }
+
+    #btn-settings { width: 42px; }
+    #btn-unit { min-width: 52px; padding: 0 10px; }
+
+    /* ===== GREETING ===== */
+    .greeting {
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #ffffff;
+      opacity: 1;
+      letter-spacing: 0.3px;
+      text-shadow: 0 2px 8px rgba(26, 37, 48, 0.35);
+      margin-top: -8px;
+    }
+
+    /* ===== HERO CARD ===== */
+    .hero-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 32px;
+      padding: 28px 24px;
+      box-shadow: var(--glass-shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.4) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-temp {
+      font-size: 6.5rem;
+      font-weight: 300;
+      line-height: 1;
+      letter-spacing: -4px;
+      color: var(--text-main);
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      position: relative;
+    }
+
+    .hero-temp sup {
+      font-size: 2.5rem;
+      font-weight: 400;
+      margin-top: 10px;
+      letter-spacing: 0;
+      color: var(--text-muted);
+    }
+
+    .hero-condition {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .hero-range {
+      display: flex;
+      gap: 16px;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      position: relative;
+    }
+
+    .hero-range span { display: flex; align-items: center; gap: 4px; }
+
+    /* ===== CHART CARD ===== */
+    .chart-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 16px 18px;
+      box-shadow: 0 4px 16px rgba(31, 38, 135, 0.05);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .chart-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+
+    .chart-range {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-main);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 70px;
+      position: relative;
+    }
+
+    .chart-container svg { width: 100%; height: 100%; display: block; }
+
+    /* ===== SECTION TITLE ===== */
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: rgba(26, 37, 48, 0.75);
+      margin-bottom: 10px;
+      padding-left: 4px;
+      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+
+    /* ===== HOURLY ===== */
+    .hourly-scroll {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .hourly-scroll::-webkit-scrollbar { display: none; }
+
+    .hourly-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 16px 14px;
+      min-width: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      scroll-snap-align: start;
+      box-shadow: 0 4px 16px rgba(31, 38, 135, 0.05);
+      transition: transform 0.2s;
+    }
+    .hourly-card:hover { transform: translateY(-2px); }
+
+    .hourly-card .time {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    .hourly-card .icon svg {
+      width: 32px;
+      height: 32px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+    .hourly-card .temp {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .hourly-card.now {
+      border-color: var(--accent);
+      background: rgba(46, 91, 255, 0.08);
+    }
+    .hourly-card.now .time { color: var(--accent); font-weight: 700; }
+
+    /* ===== METRICS ===== */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .metric-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 4px 16px rgba(31, 38, 135, 0.05);
+    }
+
+    .metric-card .label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .metric-card .label svg { width: 14px; height: 14px; opacity: 0.6; }
+
+    .metric-card .value {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .metric-card .value small {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+    .metric-card .sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* ===== DETAILS ===== */
+    details.detailed-report {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(31, 38, 135, 0.05);
+    }
+    details.detailed-report summary {
+      padding: 18px 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    details.detailed-report summary::-webkit-details-marker { display: none; }
+    details.detailed-report summary::after {
+      content: '▼';
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      transition: transform 0.3s;
+    }
+    details.detailed-report[open] summary::after { transform: rotate(180deg); }
+
+    .detail-grid {
+      padding: 0 20px 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .detail-row { display: flex; flex-direction: column; gap: 2px; }
+    .detail-row .k {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .detail-row .v {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal-content {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(24px);
+      border-radius: 28px;
+      padding: 28px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .modal-content h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: 4px; }
+    .modal-content label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+    .modal-content input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.8);
+      font-family: var(--font);
+      font-size: 0.95rem;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .modal-content input:focus { border-color: var(--accent); }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+    .modal-actions button {
+      flex: 1;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .modal-actions button:active { transform: scale(0.97); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: rgba(0, 0, 0, 0.05); color: var(--text-main); }
+
+    /* ===== TOAST ===== */
+    .status-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(26, 37, 48, 0.9);
+      backdrop-filter: blur(12px);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 200;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      white-space: nowrap;
+      max-width: 90vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .status-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .status-toast.err { background: rgba(220, 53, 69, 0.9); }
+    .status-toast.ok { background: rgba(40, 167, 69, 0.9); }
+
+    /* ===== LOADING ===== */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      color: #fff;
+      gap: 16px;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .hidden { display: none !important; }
+
+    /* ===== FOOTER CREDIT ===== */
+    .credit {
+      text-align: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: rgba(26, 37, 48, 0.55);
+      margin-top: 12px;
+      padding: 16px 0 4px;
+      border-top: 1px solid rgba(26, 37, 48, 0.12);
+      text-transform: uppercase;
+    }
+    .credit span {
+      color: rgba(26, 37, 48, 0.85);
+      font-weight: 700;
+      letter-spacing: 1.2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div style="width:42px"></div>
+      <div class="location">
+        <h1 id="loc-name">Memuat…</h1>
+        <span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <span id="loc-coords">--°</span>
+        </span>
+      </div>
+      <div class="header-actions">
+        <button id="btn-unit" title="Ganti satuan suhu">°C</button>
+        <button id="btn-settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Greeting -->
+    <div id="greeting" class="greeting">Selamat Malam</div>
+
+    <!-- Loading -->
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <span>Mengambil data ECMWF...</span>
+    </div>
+
+    <!-- Main Content -->
+    <main id="content" class="hidden" style="display:flex; flex-direction:column; gap:20px;">
+
+      <!-- Hero Card -->
+      <section class="hero-card">
+        <div class="hero-temp">
+          <span id="main-temp">--</span><sup id="main-unit">°C</sup>
+        </div>
+        <div class="hero-condition" id="main-condition">--</div>
+        <div class="hero-range">
+          <span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v20M17 7l-5-5-5 5M7 17l5 5 5-5"/>
+            </svg>
+            <span id="temp-max">--°</span>
+          </span>
+          <span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22V2M7 17l5 5 5-5M7 7l5-5 5 5"/>
+            </svg>
+            <span id="temp-min">--°</span>
+          </span>
+        </div>
+      </section>
+
+      <!-- Chart Card -->
+      <section class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Tren Suhu 24 Jam</span>
+          <span class="chart-range" id="chart-range">-- / --</span>
+        </div>
+        <div class="chart-container" id="chart-container"></div>
+      </section>
+
+      <!-- Hourly Forecast -->
+      <section>
+        <div class="section-title">Prakiraan Per Jam</div>
+        <div class="hourly-scroll" id="hourly-container"></div>
+      </section>
+
+      <!-- Metrics Grid -->
+      <section>
+        <div class="section-title">Kondisi Saat Ini</div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
+              </svg>
+              Angin
+            </div>
+            <div class="value"><span id="wind-speed">--</span><small>km/j</small></div>
+            <div class="sub" id="wind-dir">--</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+              </svg>
+              Kelembapan
+            </div>
+            <div class="value"><span id="humidity">--</span><small>%</small></div>
+            <div class="sub" id="dewpoint">Titik embun --°</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 2v20M2 12h20"/>
+              </svg>
+              Tekanan
+            </div>
+            <div class="value"><span id="pressure">--</span><small>hPa</small></div>
+            <div class="sub" id="pressure-msl">MSL -- hPa</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+              </svg>
+              Awan
+            </div>
+            <div class="value"><span id="cloud-cover">--</span><small>%</small></div>
+            <div class="sub" id="precip">Presipitasi -- mm</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Detailed Report -->
+      <details class="detailed-report">
+        <summary>Detail Meteorologi Lengkap</summary>
+        <div class="detail-grid" id="detail-grid"></div>
+      </details>
+
+      <div style="display:flex; gap:10px;">
+        <button id="btn-refresh" class="btn-primary"
+                style="flex:1; padding:14px; border-radius:14px; border:none; font-family:var(--font); font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6M1 20v-6h6"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+          Perbarui Data
+        </button>
+        <button id="btn-csv" class="btn-secondary"
+                style="flex:1; padding:14px; border-radius:14px; border:none; font-family:var(--font); font-weight:600; cursor:pointer;">
+          Ekspor CSV
+        </button>
+      </div>
+
+      <!-- Footer Credit -->
+      <footer class="credit">
+        Design by <span>Jolotundo-Obsv 2026</span>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-content">
+      <h3>Pengaturan Lokasi</h3>
+      <div>
+        <label for="input-lat">Latitude</label>
+        <input id="input-lat" type="number" step="any" value="-7.521951">
+      </div>
+      <div>
+        <label for="input-lon">Longitude</label>
+        <input id="input-lon" type="number" step="any" value="112.566089">
+      </div>
+      <div>
+        <label for="input-hgt">Ketinggian (m)</label>
+        <input id="input-hgt" type="number" step="any" value="27.07">
+      </div>
+      <div class="modal-actions">
+        <button id="btn-cancel-settings" class="btn-secondary">Batal</button>
+        <button id="btn-save-settings" class="btn-primary">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="status-toast"></div>
+
+  <script>
+    "use strict";
+
+    /* =========================================================================
+       KONFIGURASI
+       ========================================================================= */
+    const TZ_OFFSET_HOURS = 7;         // WIB (UTC+7)
+    const UNIT_KEY        = "ecmwf_unit_pref";
+
+    /* =========================================================================
+       KONSTANTA FISIKA
+       ========================================================================= */
+    const G_STANDARD      = 9.80665;
+    const R_DRY_AIR       = 287.05;
+    const LAPSE_RATE_ICAO = 0.0065;
+    const H_SCALE_WATER   = 2000.0;
+    const MAGNUS_A        = 17.67;
+    const MAGNUS_B        = 243.5;
+
+    const CACHE_TTL_MS    = 6 * 3600 * 1000;
+    const MAX_CACHES      = 10;
+    const CACHE_PREFIX    = "ecmwf_cache_";
+    const LOG_KEY         = "ecmwf_meteo_log";
+
+    /* =========================================================================
+       STATE GLOBAL
+       ========================================================================= */
+    let unit = localStorage.getItem(UNIT_KEY) || "C";   // "C" atau "F"
+    let lastData = null;
+    let lastCoords = { lat: -7.521951, lon: 112.566089, hgt: 27.07 };
+    let lastLocationName = null;
+
+    /* =========================================================================
+       KONVERSI SATUAN
+       ========================================================================= */
+    function toDisplayTemp(c) {
+      if (c === null || c === undefined || Number.isNaN(c)) return null;
+      return unit === "F" ? c * 9 / 5 + 32 : c;
+    }
+
+    function tempUnitSymbol() { return unit === "F" ? "°F" : "°C"; }
+
+    function formatTemp(c, decimals = 1) {
+      const v = toDisplayTemp(c);
+      return v === null ? "--" : v.toFixed(decimals);
+    }
+
+    /* =========================================================================
+       REVERSE GEOCODING
+       ========================================================================= */
+    const GEOCODE_CACHE_KEY = "ecmwf_geocode_cache";
+    const GEOCODE_LANG      = "id";
+
+    function _geocodeKey(lat, lon) {
+      return `${lat.toFixed(3)},${lon.toFixed(3)}`;
+    }
+
+    function geocodeCacheGet(lat, lon) {
+      try {
+        const cache = JSON.parse(localStorage.getItem(GEOCODE_CACHE_KEY) || "{}");
+        return cache[_geocodeKey(lat, lon)] ?? null;
+      } catch (_) { return null; }
+    }
+
+    function geocodeCacheSet(lat, lon, name) {
+      try {
+        const cache = JSON.parse(localStorage.getItem(GEOCODE_CACHE_KEY) || "{}");
+        cache[_geocodeKey(lat, lon)] = name;
+        const keys = Object.keys(cache);
+        if (keys.length > 50) keys.slice(0, keys.length - 50).forEach(k => delete cache[k]);
+        localStorage.setItem(GEOCODE_CACHE_KEY, JSON.stringify(cache));
+      } catch (_) { /* abaikan */ }
+    }
+
+    async function reverseGeocode(lat, lon) {
+      const cached = geocodeCacheGet(lat, lon);
+      if (cached !== null) return cached;
+
+      try {
+        const url = `https://api.bigdatacloud.net/data/reverse-geocode-client`
+          + `?latitude=${encodeURIComponent(lat)}`
+          + `&longitude=${encodeURIComponent(lon)}`
+          + `&localityLanguage=${GEOCODE_LANG}`;
+
+        const resp = await fetch(url);
+        if (!resp.ok) return null;
+        const d = await resp.json();
+
+        const name =
+          d.city ||
+          d.locality ||
+          d.localityInfo?.administrative?.[2]?.name ||
+          d.principalSubdivision ||
+          d.countryName ||
+          null;
+
+        if (name) geocodeCacheSet(lat, lon, name);
+        return name;
+      } catch (e) {
+        console.warn("Reverse geocoding gagal:", e);
+        return null;
+      }
+    }
+
+    /* =========================================================================
+       GREETING DINAMIS
+       ========================================================================= */
+    function getGreeting() {
+      const now = new Date();
+      const localHour = (now.getUTCHours() + TZ_OFFSET_HOURS) % 24;
+      if (localHour >= 4  && localHour < 11) return "Selamat Pagi";
+      if (localHour >= 11 && localHour < 15) return "Selamat Siang";
+      if (localHour >= 15 && localHour < 18) return "Selamat Sore";
+      return "Selamat Malam";
+    }
+
+    function updateGreeting() {
+      const el = document.getElementById("greeting");
+      if (el) el.textContent = getGreeting();
+    }
+
+    /* =========================================================================
+       TERMODINAMIKA
+       ========================================================================= */
+    function vapourPressureFromDewpoint(Td) {
+      return 6.112 * Math.exp(MAGNUS_A * Td / (Td + MAGNUS_B));
+    }
+
+    function dewpointFromVapourPressure(e) {
+      if (e <= 0.0) return -273.15;
+      const lnRatio = Math.log(e / 6.112);
+      return (MAGNUS_B * lnRatio) / (MAGNUS_A - lnRatio);
+    }
+
+    function extrapolateToTargetHeight(Ts, Tds, Ps, hs, ht) {
+      const dH     = ht - hs;
+      const TsK    = Ts + 273.15;
+      const TtK    = TsK - LAPSE_RATE_ICAO * dH;
+      const Tt     = TtK - 273.15;
+      const TmeanK = (TsK + TtK) / 2.0;
+
+      let Pt = Math.abs(dH) < 1e-6
+        ? Ps
+        : Ps * Math.exp(-G_STANDARD * dH / (R_DRY_AIR * TmeanK));
+
+      const eSurface = vapourPressureFromDewpoint(Tds);
+      let eTarget = eSurface * Math.exp(-dH / H_SCALE_WATER);
+      eTarget = Math.max(0.01, Math.min(120.0, eTarget));
+
+      const TdTarget = dewpointFromVapourPressure(eTarget);
+
+      let rhTarget = 0.0;
+      if (Tt > -40.0) {
+        const eSatTarget = vapourPressureFromDewpoint(Tt);
+        rhTarget = eSatTarget > 0 ? (eTarget / eSatTarget) * 100.0 : 0.0;
+      }
+      rhTarget = Math.min(100.0, Math.max(0.0, rhTarget));
+
+      return {
+        T_c: Tt, Td_c: TdTarget, P_hpa: Pt, e_hpa: eTarget, RH_pct: rhTarget,
+        T_surface_c: Ts, Td_surface_c: Tds, P_surface_hpa: Ps,
+        h_surface_m: hs, delta_h_m: dH
+      };
+    }
+
+    /* =========================================================================
+       UTILITAS
+       ========================================================================= */
+    function parseUtc(s) {
+      s = String(s).trim();
+      if (s.endsWith("Z")) return new Date(s);
+      if (/[+-]\d{2}:?\d{2}$/.test(s)) return new Date(s);
+      return new Date(s + "Z");
+    }
+
+    function findNearestHourIndex(timeList, targetUtc) {
+      const targetTs = targetUtc.getTime() / 1000;
+      let bestIdx = 0, bestDiff = Infinity;
+      for (let i = 0; i < timeList.length; i++) {
+        const dt = parseUtc(timeList[i]);
+        const diff = Math.abs(dt.getTime() / 1000 - targetTs);
+        if (diff < bestDiff) { bestDiff = diff; bestIdx = i; }
+      }
+      return bestIdx;
+    }
+
+    const COMPASS_16 = ["N","NNE","NE","ENE","E","ESE","SE","SSE",
+                        "S","SSW","SW","WSW","W","WNW","NW","NNW"];
+
+    function windDirectionName(deg) {
+      deg = ((deg % 360) + 360) % 360;
+      return COMPASS_16[Math.round(deg / 22.5) % 16];
+    }
+
+    /* =========================================================================
+       CACHE CUACA
+       ========================================================================= */
+    function cacheKeyFor(utcTime) {
+      const p = n => String(n).padStart(2, "0");
+      return CACHE_PREFIX
+        + utcTime.getUTCFullYear()
+        + p(utcTime.getUTCMonth() + 1)
+        + p(utcTime.getUTCDate())
+        + "_" + p(utcTime.getUTCHours()) + "00";
+    }
+
+    function cacheList() {
+      const out = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(CACHE_PREFIX)) {
+          try {
+            const obj = JSON.parse(localStorage.getItem(k));
+            if (obj && obj.ts) out.push({ key: k, ts: obj.ts });
+          } catch (_) {}
+        }
+      }
+      return out.sort((a, b) => b.ts - a.ts);
+    }
+
+    function cacheRead(key) {
+      try {
+        const obj = JSON.parse(localStorage.getItem(key));
+        if (obj && obj.raw && obj.raw.hourly) return obj;
+      } catch (_) {}
+      return null;
+    }
+
+    function cacheWrite(key, raw) {
+      try {
+        localStorage.setItem(key, JSON.stringify({ ts: Date.now(), raw }));
+        const list = cacheList();
+        list.slice(MAX_CACHES).forEach(e => localStorage.removeItem(e.key));
+      } catch (e) { console.warn("Cache write failed:", e); }
+    }
+
+    function cacheFindFresh() {
+      const now = Date.now();
+      for (const entry of cacheList()) {
+        if (now - entry.ts <= CACHE_TTL_MS) {
+          const obj = cacheRead(entry.key);
+          if (obj) return obj;
+        }
+      }
+      return null;
+    }
+
+    /* =========================================================================
+       REQUEST API
+       ========================================================================= */
+    const HOURLY_VARS = [
+      "temperature_2m", "relative_humidity_2m", "dewpoint_2m",
+      "surface_pressure", "pressure_msl", "cloud_cover",
+      "cloud_cover_low", "cloud_cover_mid", "cloud_cover_high",
+      "wind_speed_10m", "wind_direction_10m", "wind_gusts_10m",
+      "precipitation", "shortwave_radiation"
+    ];
+
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    function buildUrl(lat, lon, startDate, endDate) {
+      const p = new URLSearchParams();
+      p.set("latitude", lat);
+      p.set("longitude", lon);
+      HOURLY_VARS.forEach(v => p.append("hourly", v));
+      p.set("start_date", startDate);
+      p.set("end_date", endDate);
+      p.set("timezone", "UTC");
+      return "https://api.open-meteo.com/v1/ecmwf?" + p.toString();
+    }
+
+    async function fetchFromOpenMeteo(lat, lon, startDate, endDate) {
+      const url = buildUrl(lat, lon, startDate, endDate);
+      const maxRetries = 4;
+      const backoff = [2000, 4000, 8000, 16000];
+
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          const resp = await fetch(url, { cache: "no-store" });
+          if (!resp.ok) {
+            if (attempt === maxRetries - 1) return null;
+            await sleep(backoff[attempt]);
+            continue;
+          }
+          const raw = await resp.json();
+          if (raw && raw.hourly) return raw;
+          return null;
+        } catch (err) {
+          if (attempt === maxRetries - 1) return null;
+          await sleep(backoff[attempt]);
+        }
+      }
+      return null;
+    }
+
+    /* =========================================================================
+       ORKESTRASI UTAMA
+       ========================================================================= */
+    async function getEcmwfMeteo(lat, lon, targetHeightM, utcTime) {
+      utcTime = utcTime || new Date();
+      const key = cacheKeyFor(utcTime);
+
+      const exact = cacheRead(key);
+      if (exact && Date.now() - exact.ts <= CACHE_TTL_MS) {
+        return { data: parseAndExtrapolate(exact.raw, targetHeightM, utcTime), origin: "cache-jam" };
+      }
+
+      const dateStr = utcTime.toISOString().slice(0, 10);
+      const raw = await fetchFromOpenMeteo(lat, lon, dateStr, dateStr);
+
+      if (raw) {
+        cacheWrite(key, raw);
+        return { data: parseAndExtrapolate(raw, targetHeightM, utcTime), origin: "network" };
+      }
+
+      const fresh = cacheFindFresh();
+      if (fresh) {
+        return { data: parseAndExtrapolate(fresh.raw, targetHeightM, utcTime), origin: "cache-lama" };
+      }
+
+      return { data: null, origin: "gagal" };
+    }
+
+    /* =========================================================================
+       PARSING DATA
+       ========================================================================= */
+    function parseAndExtrapolate(raw, targetHeightM, utcTime) {
+      const h = raw.hourly;
+      const timeList = h.time;
+      const idx = findNearestHourIndex(timeList, utcTime);
+
+      const pick = (name, i = idx) => {
+        const arr = h[name];
+        return (Array.isArray(arr) && arr[i] !== undefined) ? arr[i] : null;
+      };
+
+      const T_surface  = pick("temperature_2m");
+      const Td_surface = pick("dewpoint_2m");
+      const P_surface  = pick("surface_pressure");
+
+      const P_msl      = pick("pressure_msl");
+      const windSpeed  = pick("wind_speed_10m");
+      const windDir    = pick("wind_direction_10m");
+      const windGust   = pick("wind_gusts_10m");
+      const precip     = pick("precipitation");
+      const cloudTotal = pick("cloud_cover");
+      const cloudLow   = pick("cloud_cover_low");
+      const cloudMid   = pick("cloud_cover_mid");
+      const cloudHigh  = pick("cloud_cover_high");
+      const swRad      = pick("shortwave_radiation");
+
+      const hSurface = (typeof raw.elevation === "number") ? raw.elevation : 0.0;
+      const ex = extrapolateToTargetHeight(T_surface, Td_surface, P_surface, hSurface, targetHeightM);
+
+      // Carousel 8 jam ke depan
+      const hourlyData = [];
+      for (let i = idx; i < Math.min(idx + 8, timeList.length); i++) {
+        hourlyData.push({
+          time: timeList[i],
+          temp: pick("temperature_2m", i),
+          cloud: pick("cloud_cover", i),
+          precip: pick("precipitation", i),
+          isNow: i === idx
+        });
+      }
+
+      // Data 24 jam untuk chart & daily range
+      const dailyTemps = [];
+      let dayMax = -Infinity, dayMin = Infinity;
+      for (let i = 0; i < timeList.length; i++) {
+        const t = pick("temperature_2m", i);
+        dailyTemps.push(t);
+        if (t !== null && t !== undefined) {
+          if (t > dayMax) dayMax = t;
+          if (t < dayMin) dayMin = t;
+        }
+      }
+
+      return {
+        current: {
+          temperature_c:           ex.T_c,
+          dewpoint_c:              ex.Td_c,
+          pressure_hpa:            ex.P_hpa,
+          vapour_pressure_hpa:     ex.e_hpa,
+          relative_humidity_pct:   ex.RH_pct,
+          surface_temperature_c:   ex.T_surface_c,
+          surface_dewpoint_c:      ex.Td_surface_c,
+          surface_pressure_hpa:    ex.P_surface_hpa,
+          model_orography_m:       ex.h_surface_m,
+          height_delta_m:          ex.delta_h_m,
+          wind_speed_kmh:          windSpeed,
+          wind_direction_deg:      windDir,
+          wind_gust_kmh:           windGust,
+          precipitation_mm:        precip,
+          cloud_cover_total_pct:   cloudTotal,
+          pressure_msl_hpa:        P_msl,
+          cloud_cover_low_pct:     cloudLow,
+          cloud_cover_mid_pct:     cloudMid,
+          cloud_cover_high_pct:    cloudHigh,
+          shortwave_radiation_wm2: swRad
+        },
+        hourly: hourlyData,
+        daily: {
+          max: dayMax === -Infinity ? null : dayMax,
+          min: dayMin === Infinity  ? null : dayMin,
+          temps: dailyTemps,
+          startUtcHour: timeList[0]
+        },
+        metadata: {
+          source: "ECMWF IFS HRES (O1280, 9 km)",
+          latitude:  raw.latitude  ?? 0.0,
+          longitude: raw.longitude ?? 0.0,
+          target_height_m: targetHeightM,
+          forecast_hour_utc: timeList[idx],
+          data_points: timeList.length
+        }
+      };
+    }
+
+    /* =========================================================================
+       IKON CUACA SVG
+       ========================================================================= */
+    function getWeatherIcon(cloudCover, precip) {
+      if (precip > 0.1) {
+        return `<svg viewBox="0 0 24 24" fill="none" stroke="#4a6fa5" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 13v8M8 13v8M12 15v8" stroke="#2e5bff"/>
+                  <path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25" stroke="#5a6b7c"/>
+                </svg>`;
+      }
+      if (cloudCover < 20) {
+        return `<svg viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5" fill="#f5a623" stroke="none"/>
+                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                        stroke="#f5a623"/>
+                </svg>`;
+      }
+      if (cloudCover < 60) {
+        return `<svg viewBox="0 0 24 24" fill="none" stroke="#5a6b7c" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" fill="#e2eefa"/>
+                  <circle cx="7" cy="7" r="3" fill="#f5a623" stroke="none" opacity="0.8"/>
+                </svg>`;
+      }
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="#5a6b7c" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" fill="#cbd5e1"/>
+              </svg>`;
+    }
+
+    function getConditionText(cloudCover, precip) {
+      if (precip > 0.1) return "Hujan Ringan";
+      if (cloudCover < 20) return "Cerah";
+      if (cloudCover < 60) return "Berawan Sebagian";
+      if (cloudCover < 90) return "Berawan";
+      return "Mendung";
+    }
+
+    /* =========================================================================
+       GENERATOR CHART SVG (24 JAM)
+       ========================================================================= */
+    function buildChartSvg(temps) {
+      const W = 300, H = 70, PAD = 8;
+      const valid = temps.map(t => (t === null || t === undefined) ? null : t);
+      const values = valid.filter(v => v !== null);
+      if (!values.length) return "";
+
+      const minV = Math.min(...values);
+      const maxV = Math.max(...values);
+      const range = maxV - minV || 1;
+
+      const n = valid.length;
+      const stepX = (W - PAD * 2) / Math.max(1, n - 1);
+
+      const points = valid.map((t, i) => {
+        if (t === null) return null;
+        const x = PAD + i * stepX;
+        const y = PAD + (1 - (t - minV) / range) * (H - PAD * 2);
+        return { x, y };
+      }).filter(p => p !== null);
+
+      if (!points.length) return "";
+
+      const linePath = points.map((p, i) => (i === 0 ? "M" : "L") + p.x.toFixed(1) + "," + p.y.toFixed(1)).join(" ");
+      const areaPath = `${linePath} L${points[points.length - 1].x.toFixed(1)},${H} L${points[0].x.toFixed(1)},${H} Z`;
+
+      // Cari titik max dan min untuk marker
+      let maxPt = points[0], minPt = points[0];
+      points.forEach(p => {
+        if (p.y < maxPt.y) maxPt = p;
+        if (p.y > minPt.y) minPt = p;
+      });
+
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2e5bff" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#2e5bff" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="chartLine" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#4fd1ff"/>
+            <stop offset="100%" stop-color="#2e5bff"/>
+          </linearGradient>
+        </defs>
+        <path d="${areaPath}" fill="url(#chartFill)"/>
+        <path d="${linePath}" fill="none" stroke="url(#chartLine)" stroke-width="2"
+              stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="${maxPt.x.toFixed(1)}" cy="${maxPt.y.toFixed(1)}" r="3" fill="#ff6b6b"/>
+        <circle cx="${minPt.x.toFixed(1)}" cy="${minPt.y.toFixed(1)}" r="3" fill="#4fd1ff"/>
+      </svg>`;
+    }
+
+    /* =========================================================================
+       RENDER UI
+       ========================================================================= */
+    function renderUI(data, lat, lon, locationName) {
+      const c  = data.current;
+      const md = data.metadata;
+
+      // Header
+      const locNameEl  = document.getElementById("loc-name");
+      const locCoordEl = document.getElementById("loc-coords");
+      if (locationName) {
+        locNameEl.textContent   = locationName;
+        locNameEl.style.display = "";
+      } else {
+        locNameEl.style.display = "none";
+      }
+      locCoordEl.textContent = `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
+
+      // Hero Card
+      document.getElementById("main-temp").textContent = formatTemp(c.temperature_c, 1);
+      document.getElementById("main-unit").textContent = tempUnitSymbol();
+      document.getElementById("main-condition").textContent =
+        getConditionText(c.cloud_cover_total_pct, c.precipitation_mm);
+
+      const dMax = data.daily?.max;
+      const dMin = data.daily?.min;
+      document.getElementById("temp-max").textContent =
+        dMax !== null && dMax !== undefined ? formatTemp(dMax, 0) + "°" : "--°";
+      document.getElementById("temp-min").textContent =
+        dMin !== null && dMin !== undefined ? formatTemp(dMin, 0) + "°" : "--°";
+
+      // Chart
+      const chartEl = document.getElementById("chart-container");
+      const rangeEl = document.getElementById("chart-range");
+      if (data.daily && data.daily.temps) {
+        // Konversi ke unit yang dipilih untuk chart juga
+        const chartTemps = data.daily.temps.map(t => toDisplayTemp(t));
+        chartEl.innerHTML = buildChartSvg(chartTemps);
+        const cMax = toDisplayTemp(dMax);
+        const cMin = toDisplayTemp(dMin);
+        rangeEl.textContent =
+          (cMax !== null ? cMax.toFixed(0) : "--") + "° / " +
+          (cMin !== null ? cMin.toFixed(0) : "--") + "°";
+      }
+
+      // Hourly Carousel (WIB)
+      const hourlyContainer = document.getElementById("hourly-container");
+      hourlyContainer.innerHTML = data.hourly.map(h => {
+        const dt = parseUtc(h.time);
+        const localHour = (dt.getUTCHours() + TZ_OFFSET_HOURS) % 24;
+        const timeStr = localHour.toString().padStart(2, "0") + ":00";
+        const icon = getWeatherIcon(h.cloud || 0, h.precip || 0);
+        const tempVal = formatTemp(h.temp, 0);
+        return `
+          <div class="hourly-card${h.isNow ? " now" : ""}">
+            <div class="time">${timeStr}</div>
+            <div class="icon">${icon}</div>
+            <div class="temp">${tempVal !== "--" ? tempVal + "°" : "--"}</div>
+          </div>
+        `;
+      }).join("");
+
+      // Metrics Grid
+      document.getElementById("wind-speed").textContent =
+        c.wind_speed_kmh ? c.wind_speed_kmh.toFixed(0) : "--";
+      document.getElementById("wind-dir").textContent =
+        c.wind_direction_deg !== null
+          ? `${c.wind_direction_deg.toFixed(0)}° ${windDirectionName(c.wind_direction_deg)}`
+          : "--";
+
+      document.getElementById("humidity").textContent =
+        c.relative_humidity_pct ? c.relative_humidity_pct.toFixed(0) : "--";
+      document.getElementById("dewpoint").textContent =
+        `Titik embun ${formatTemp(c.dewpoint_c, 1)}°`;
+
+      document.getElementById("pressure").textContent =
+        c.pressure_hpa ? c.pressure_hpa.toFixed(0) : "--";
+      document.getElementById("pressure-msl").textContent =
+        c.pressure_msl_hpa
+          ? `MSL ${c.pressure_msl_hpa.toFixed(1)} hPa`
+          : "MSL -- hPa";
+
+      document.getElementById("cloud-cover").textContent =
+        c.cloud_cover_total_pct ? c.cloud_cover_total_pct.toFixed(0) : "--";
+      document.getElementById("precip").textContent =
+        `Presipitasi ${c.precipitation_mm ? c.precipitation_mm.toFixed(1) : "0.0"} mm`;
+
+      // Detail Grid
+      const unitS = tempUnitSymbol();
+      const details = [
+        { k: "Suhu Permukaan (Model)",     v: c.surface_temperature_c !== null ? formatTemp(c.surface_temperature_c, 2) + " " + unitS : "--" },
+        { k: "Titik Embun Permukaan",      v: c.surface_dewpoint_c    !== null ? formatTemp(c.surface_dewpoint_c, 2)    + " " + unitS : "--" },
+        { k: "Tekanan Permukaan (Model)",  v: c.surface_pressure_hpa  ? c.surface_pressure_hpa.toFixed(2)  + " hPa" : "--" },
+        { k: "Tekanan Uap Air",            v: c.vapour_pressure_hpa   ? c.vapour_pressure_hpa.toFixed(2)   + " hPa" : "--" },
+        { k: "Orografi Model",             v: c.model_orography_m     ? c.model_orography_m.toFixed(1)     + " m"   : "--" },
+        { k: "Delta Ketinggian",           v: c.height_delta_m        ? c.height_delta_m.toFixed(1)        + " m"   : "--" },
+        { k: "Hembusan Angin (Gust)",      v: c.wind_gust_kmh         ? c.wind_gust_kmh.toFixed(1)         + " km/j": "--" },
+        { k: "Awan Rendah",                v: c.cloud_cover_low_pct  !== null ? c.cloud_cover_low_pct.toFixed(1)  + " %" : "--" },
+        { k: "Awan Menengah",              v: c.cloud_cover_mid_pct  !== null ? c.cloud_cover_mid_pct.toFixed(1)  + " %" : "--" },
+        { k: "Awan Tinggi",                v: c.cloud_cover_high_pct !== null ? c.cloud_cover_high_pct.toFixed(1) + " %" : "--" },
+        { k: "Radiasi Gelombang Pendek",   v: c.shortwave_radiation_wm2 !== null ? c.shortwave_radiation_wm2.toFixed(1) + " W/m²" : "--" },
+        { k: "Sumber Model",               v: md.source }
+      ];
+
+      document.getElementById("detail-grid").innerHTML = details.map(d => `
+        <div class="detail-row">
+          <div class="k">${d.k}</div>
+          <div class="v">${d.v}</div>
+        </div>
+      `).join("");
+
+      // Update tombol unit
+      document.getElementById("btn-unit").textContent = unit === "F" ? "°F" : "°C";
+    }
+
+    /* =========================================================================
+       EXPORT CSV
+       ========================================================================= */
+    const CSV_FIELDS = [
+      "timestamp_utc", "lat", "lon", "target_height_m",
+      "temperature_c", "dewpoint_c", "relative_humidity_pct",
+      "vapour_pressure_hpa", "pressure_hpa", "surface_pressure_hpa", "pressure_msl_hpa",
+      "wind_speed_kmh", "wind_direction_deg", "wind_gust_kmh",
+      "precipitation_mm", "cloud_cover_total_pct",
+      "cloud_cover_low_pct", "cloud_cover_mid_pct", "cloud_cover_high_pct",
+      "shortwave_radiation_wm2", "model_orography_m"
+    ];
+
+    function appendLog(data, lat, lon, heightM) {
+      const c = data.current;
+      let log = [];
+      try { log = JSON.parse(localStorage.getItem(LOG_KEY) || "[]"); } catch (_) {}
+
+      log.push({
+        timestamp_utc: new Date().toISOString(),
+        lat, lon, target_height_m: heightM,
+        temperature_c: c.temperature_c,
+        dewpoint_c: c.dewpoint_c,
+        relative_humidity_pct: c.relative_humidity_pct,
+        vapour_pressure_hpa: c.vapour_pressure_hpa,
+        pressure_hpa: c.pressure_hpa,
+        surface_pressure_hpa: c.surface_pressure_hpa,
+        pressure_msl_hpa: c.pressure_msl_hpa,
+        wind_speed_kmh: c.wind_speed_kmh,
+        wind_direction_deg: c.wind_direction_deg,
+        wind_gust_kmh: c.wind_gust_kmh,
+        precipitation_mm: c.precipitation_mm,
+        cloud_cover_total_pct: c.cloud_cover_total_pct,
+        cloud_cover_low_pct: c.cloud_cover_low_pct,
+        cloud_cover_mid_pct: c.cloud_cover_mid_pct,
+        cloud_cover_high_pct: c.cloud_cover_high_pct,
+        shortwave_radiation_wm2: c.shortwave_radiation_wm2,
+        model_orography_m: c.model_orography_m
+      });
+
+      if (log.length > 500) log = log.slice(-500);
+      localStorage.setItem(LOG_KEY, JSON.stringify(log));
+    }
+
+    function csvEscape(v) {
+      if (v === null || v === undefined) return "";
+      const s = String(v);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+
+    function downloadCsv() {
+      let log = [];
+      try { log = JSON.parse(localStorage.getItem(LOG_KEY) || "[]"); } catch (_) {}
+
+      if (!log.length) {
+        showToast("⚠️ Belum ada data pada log CSV.", "err");
+        return;
+      }
+
+      const lines = [CSV_FIELDS.join(",")];
+      log.forEach(r => lines.push(CSV_FIELDS.map(f => csvEscape(r[f])).join(",")));
+
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "ecmwf_meteo_log.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+
+      showToast(`✅ ${log.length} baris diekspor ke ecmwf_meteo_log.csv`, "ok");
+    }
+
+    /* =========================================================================
+       UI GLUE
+       ========================================================================= */
+    const elLoading       = document.getElementById("loading");
+    const elContent       = document.getElementById("content");
+    const elSettingsModal = document.getElementById("settings-modal");
+    const elToast         = document.getElementById("toast");
+
+    function showToast(msg, cls) {
+      elToast.textContent = msg;
+      elToast.className = "status-toast " + (cls || "");
+      elToast.classList.add("show");
+      clearTimeout(elToast._timer);
+      elToast._timer = setTimeout(() => elToast.classList.remove("show"), 3500);
+    }
+
+    async function loadData() {
+      elLoading.classList.remove("hidden");
+      elContent.classList.add("hidden");
+
+      try {
+        const [weatherResult, locationName] = await Promise.all([
+          getEcmwfMeteo(lastCoords.lat, lastCoords.lon, lastCoords.hgt, new Date()),
+          reverseGeocode(lastCoords.lat, lastCoords.lon)
+        ]);
+
+        const { data, origin } = weatherResult;
+
+        if (!data) {
+          showToast("❌ Pengambilan data ECMWF gagal.", "err");
+          elLoading.innerHTML = `<span style="color:#fff">❌ Gagal memuat data.</span>`;
+          return;
+        }
+
+        lastData = data;
+        lastLocationName = locationName;
+
+        renderUI(data, lastCoords.lat, lastCoords.lon, locationName);
+        appendLog(data, lastCoords.lat, lastCoords.lon, lastCoords.hgt);
+
+        elLoading.classList.add("hidden");
+        elContent.classList.remove("hidden");
+
+        const labels = {
+          "network":    "🌐 Data baru dari jaringan",
+          "cache-jam":  "💾 Dari cache jam ini",
+          "cache-lama": "💾 Fallback cache terakhir"
+        };
+        const locLabel = locationName
+          ? `📍 ${locationName}`
+          : `📍 ${lastCoords.lat.toFixed(3)}°, ${lastCoords.lon.toFixed(3)}°`;
+        showToast(`${locLabel} — ${labels[origin] || origin}`, "ok");
+
+      } catch (e) {
+        console.error(e);
+        showToast("❌ Kesalahan fatal: " + e.message, "err");
+        elLoading.innerHTML = `<span style="color:#fff">❌ Terjadi kesalahan.</span>`;
+      }
+    }
+
+    /* =========================================================================
+       EVENT LISTENERS
+       ========================================================================= */
+    document.getElementById("btn-refresh").addEventListener("click", loadData);
+    document.getElementById("btn-csv").addEventListener("click", downloadCsv);
+
+    // Toggle unit
+    document.getElementById("btn-unit").addEventListener("click", () => {
+      unit = unit === "C" ? "F" : "C";
+      localStorage.setItem(UNIT_KEY, unit);
+      if (lastData) {
+        renderUI(lastData, lastCoords.lat, lastCoords.lon, lastLocationName);
+      }
+      showToast(`🌡️ Satuan diubah ke ${tempUnitSymbol()}`, "ok");
+    });
+
+    // Settings
+    document.getElementById("btn-settings").addEventListener("click", () => {
+      document.getElementById("input-lat").value = lastCoords.lat;
+      document.getElementById("input-lon").value = lastCoords.lon;
+      document.getElementById("input-hgt").value = lastCoords.hgt;
+      elSettingsModal.classList.add("active");
+    });
+
+    document.getElementById("btn-cancel-settings").addEventListener("click", () => {
+      elSettingsModal.classList.remove("active");
+    });
+
+    document.getElementById("btn-save-settings").addEventListener("click", () => {
+      const lat = parseFloat(document.getElementById("input-lat").value);
+      const lon = parseFloat(document.getElementById("input-lon").value);
+      const hgt = parseFloat(document.getElementById("input-hgt").value);
+
+      if (!Number.isFinite(lat) || !Number.isFinite(lon) || !Number.isFinite(hgt)) {
+        showToast("❌ Koordinat / ketinggian tidak valid.", "err");
+        return;
+      }
+
+      lastCoords = { lat, lon, hgt };
+      elSettingsModal.classList.remove("active");
+      loadData();
+    });
+
+    /* =========================================================================
+       INISIALISASI
+       ========================================================================= */
+    window.addEventListener("DOMContentLoaded", () => {
+      updateGreeting();
+      // Update greeting setiap menit (untuk transisi pagi→siang→sore→malam)
+      setInterval(updateGreeting, 60 * 1000);
+      loadData();
+    });
+  </script>
+</body>
+</html>
