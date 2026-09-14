@@ -163,9 +163,6 @@ table.data tr:nth-child(even) td:not(.lbl){background:rgba(255,255,255,.018);}
 .musim-block h3::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--musim-col);box-shadow:0 0 16px var(--musim-col);flex-shrink:0;}
 .musim-block .sub{font-size:12px;color:var(--muted);margin-bottom:14px;font-weight:500;letter-spacing:.3px;padding-left:18px;}
 
-/* ══════════════════════════════════════════════════════════
-   BLOK METEO — layout terstruktur (label | nilai)
-   ══════════════════════════════════════════════════════════ */
 .musim-block .meteo-musim,
 .mangsa-card .mmeteo,
 .today-card .meteo{
@@ -292,7 +289,7 @@ table.data tr:nth-child(even) td:not(.lbl){background:rgba(255,255,255,.018);}
 .today-card .candra b{color:var(--gold-2);font-style:normal;}
 
 .legend{font-size:12px;color:var(--muted);margin-top:16px;padding-top:12px;border-top:1px dashed rgba(255,255,255,.10);line-height:1.65;}
-.legend code,.info-section code{background:rgba(103,232,249,.10);color:var(--cyan-2);padding:2px 7px;border-radius:5px;font-size:11.5px;font-family:"SF Mono","Consolas","Courier New",monospace;border:1px solid rgba(103,232,249,.18);}
+.legend code,.info-section code{background:rgba(103,232,249,.10);color:var(--cyan-2);padding:2px 7px;border-radius:5px;font-size:11.5px;font-family:"SF Mono","Consolas","Courier New",monospace;border:1px solid rgba(103,232,249,.18);word-break:break-all;overflow-wrap:anywhere;max-width:100%;}
 
 .info-section h3{font-size:14.5px;color:var(--gold-2);margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08);letter-spacing:.4px;font-weight:700;}
 .info-section p,.info-section li{font-size:12.5px;color:var(--ink-2);line-height:1.7;}
@@ -304,7 +301,7 @@ table.data tr:nth-child(even) td:not(.lbl){background:rgba(255,255,255,.018);}
 .info-section li i{color:var(--cyan-2);font-style:italic;}
 
 .kv-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px;margin:10px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.10);}
-.kv-table th,.kv-table td{padding:10px 14px;text-align:left;vertical-align:top;color:var(--ink-2);border-bottom:1px solid rgba(255,255,255,.06);line-height:1.6;}
+.kv-table th,.kv-table td{padding:10px 14px;text-align:left;vertical-align:top;color:var(--ink-2);border-bottom:1px solid rgba(255,255,255,.06);line-height:1.6;overflow-wrap:anywhere;word-break:break-word;}
 .kv-table tr:last-child th,.kv-table tr:last-child td{border-bottom:none;}
 .kv-table th{background:rgba(255,194,102,.075);color:var(--gold-2);font-weight:600;width:32%;border-right:1px solid rgba(255,255,255,.06);letter-spacing:.3px;font-size:12px;}
 
@@ -333,6 +330,52 @@ footer.bottom .footer-sign{margin-top:10px;font-family:Georgia,"Cambria",serif;f
   .musim-block{padding:14px 14px 14px 16px;}
   .card{padding:16px;}
 }
+@media (max-width:680px){
+  .kv-table,
+  .kv-table tbody,
+  .kv-table tr,
+  .kv-table th,
+  .kv-table td{
+    display:block;
+    width:100%;
+  }
+  .kv-table{
+    border:none;
+    border-radius:0;
+    background:transparent;
+  }
+  .kv-table tr{
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:12px;
+    background:rgba(255,255,255,.025);
+    padding:12px 14px;
+    margin-bottom:10px;
+  }
+  .kv-table tr:last-child{
+    border-bottom:1px solid rgba(255,255,255,.10);
+    margin-bottom:0;
+  }
+  .kv-table th{
+    width:auto;
+    border-right:none;
+    border-bottom:none;
+    background:transparent;
+    padding:0 0 6px 0;
+    font-size:10.5px;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+    color:var(--cyan-2);
+    font-weight:700;
+  }
+  .kv-table td{
+    padding:0;
+    border-bottom:none;
+  }
+  .kv-table td code{
+    font-size:11px;
+    padding:2px 6px;
+  }
+}
 </style>
 </head>
 <body>
@@ -349,9 +392,10 @@ footer.bottom .footer-sign{margin-top:10px;font-family:Georgia,"Cambria",serif;f
       </div>
     </div>
     <div class="header-details">
-      <div class="detail-row"><span class="detail-label">Meteorologi</span><span class="detail-value">ERA5 · ERA5-Land · IFS HRES · Open-Meteo</span></div>
-      <div class="detail-row"><span class="detail-label">ENSO</span><span class="detail-value">AVISO / DUACS — Niño3.4 weekly (1993–2026)</span></div>
-      <div class="detail-row"><span class="detail-label">Astronomi</span><span class="detail-value">VSOP87D · IERS 2010 · ΔT HMNAO</span></div>
+      <div class="detail-row"><span class="detail-label">Meteorologi</span><span class="detail-value">ERA5 · ERA5-Land (ECMWF / C3S) · IFS HRES 9km · Open-Meteo</span></div>
+      <div class="detail-row"><span class="detail-label">ENSO</span><span class="detail-value">AVISO / DUACS (CNES · CLS) — SLA Niño3.4 · NOAA OISST v2.1 — SST Niño3.4</span></div>
+      <div class="detail-row"><span class="detail-label">IOD</span><span class="detail-value">JMA — Dipole Mode Index · BoM Australia — IOD Index</span></div>
+      <div class="detail-row"><span class="detail-label">Astronomi</span><span class="detail-value">VSOP87D (IMCCE) · IERS 2010 · IAU 2006 · ΔT HMNAO</span></div>
       <div class="detail-row"><span class="detail-label">Titik Target</span><span class="detail-value"><span class="mono-mini">−7.5220°LS, 112.5661°BT</span> · 28 m dpl</span></div>
       <div class="detail-row"><span class="detail-label">Interpolasi</span><span class="detail-value">IDW 2 stasiun — P1 &amp; P2 (power = 2)</span></div>
     </div>
@@ -382,15 +426,15 @@ footer.bottom .footer-sign{margin-top:10px;font-family:Georgia,"Cambria",serif;f
   <section id="tab-terkalibrasi" class="tab-content">
     <div class="card">
       <h2 class="section">Kalender Terkalibrasi (Meteorologi + Astronomi)</h2>
-      <p class="muted">Batas mangsa dikalibrasi ulang berdasarkan rejim musim aktual. Klimatologi per-mangsa diinterpolasi dari rentang dopy aktual skenario; untuk skenario ELNINO/LANINA diterapkan koreksi delta ENSO empiris (EV05).</p>
+      <p class="muted">Batas mangsa dikalibrasi ulang berdasarkan rejim musim aktual. Klimatologi per-mangsa diinterpolasi dari rentang dopy aktual skenario; untuk skenario ELNINO/LANINA diterapkan koreksi delta ENSO + IOD empiris (EV05).</p>
       <label class="ctrl">Tahun-pranata mulai:<input type="number" id="kal-tahun" value="2025" min="1900" max="2100"></label>
       <label class="ctrl">Skenario:
         <select id="kal-scn">
           <option value="R30">R30 — Normal Iklim Terkini (1996–2025, 30 th)</option>
           <option value="ALL">ALL — Rata-rata Seluruh Data (1950–2025, 76 th)</option>
           <option value="R10">R10 — 10 Tahun Terakhir (2016–2025)</option>
-          <option value="ELNINO">ELNINO — Tahun El Niño (ASO ≥ +0.5)</option>
-          <option value="LANINA">LANINA — Tahun La Niña (ASO ≤ −0.5)</option>
+          <option value="ELNINO">ELNINO — Tahun El Niño (ASO ≥ +0.5) + pIOD</option>
+          <option value="LANINA">LANINA — Tahun La Niña (ASO ≤ −0.5) + nIOD</option>
           <option value="NETRAL">NETRAL — Tahun ENSO Netral</option>
         </select>
       </label>
@@ -429,7 +473,7 @@ footer.bottom .footer-sign{margin-top:10px;font-family:Georgia,"Cambria",serif;f
   <section id="tab-klimatologi" class="tab-content">
     <div class="card">
       <h2 class="section">Klimatologi Bulanan &amp; Per-Musim — Normal R30 (1996–2025)</h2>
-      <p class="muted">Sumber: ERA5/Land-IFS HRES · IDW 2 stasiun · Nilai klimatologis rata-rata.</p>
+      <p class="muted">Sumber: ERA5 / ERA5-Land (ECMWF / C3S) · IFS HRES · IDW 2 stasiun · Nilai klimatologis rata-rata.</p>
     </div>
     <div id="klim-output"></div>
   </section>
@@ -437,7 +481,7 @@ footer.bottom .footer-sign{margin-top:10px;font-family:Georgia,"Cambria",serif;f
   <section id="tab-astro" class="tab-content">
     <div class="card">
       <h2 class="section">Tabel Kalibrasi Astronomis</h2>
-      <p class="muted">VSOP87D · Nutasi &amp; presesi IERS 2010 · ΔT HMNAO · Rata-rata 2020–2029 · Lokasi −7.5219°LS, 112.5661°BT.</p>
+      <p class="muted">VSOP87D (IMCCE) · Nutasi &amp; presesi IERS 2010 (IAU 2006/2000A) · ΔT HMNAO · Rata-rata 2020–2029 · Lokasi −7.5219°LS, 112.5661°BT.</p>
     </div>
     <div id="astro-output"></div>
   </section>
@@ -559,11 +603,24 @@ const CALIB_SCENARIOS = {
   R30:{label:"Normal Iklim Terkini (1996–2025, 30 th)",musim_start:{Katiga:19,Labuh:94,Rendheng:208,Mareng:286},catatan:"Skenario UTAMA yang direkomendasikan untuk pemakaian sehari-hari saat ini."},
   ALL:{label:"Rata-rata Seluruh Data (1950–2025, 76 th)",musim_start:{Katiga:32,Labuh:91,Rendheng:187,Mareng:286},catatan:"Baseline jangka panjang — menunjukkan pergeseran terhadap kondisi terkini."},
   R10:{label:"10 Tahun Terakhir (2016–2025)",musim_start:{Katiga:12,Labuh:131,Rendheng:185,Mareng:305},catatan:"Basis 10 tahun terakhir (2016–2025). Lebih responsif terhadap tren iklim terkini; sampel kecil sehingga uncertainty lebih besar dari R30."},
-  ELNINO:{label:"Tahun El Niño (ASO Niño3.4 ≥ +0.5)",musim_start:{Katiga:2,Labuh:133,Rendheng:217,Mareng:288},catatan:"Katiga jauh lebih panjang & lambat berakhir (rata-rata 131 hr : 88 hr tradisional)."},
-  LANINA:{label:"Tahun La Niña (ASO Niño3.4 ≤ −0.5)",musim_start:{Katiga:35,Labuh:79,Rendheng:210,Mareng:284},catatan:"Katiga jauh lebih pendek (44 hr); musim hujan datang lebih awal."},
-  NETRAL:{label:"Tahun ENSO Netral",musim_start:{Katiga:11,Labuh:102,Rendheng:189,Mareng:288},catatan:"Paling mendekati pola ALL — kondisi tanpa pengaruh ENSO kuat."},
+  ELNINO:{label:"Tahun El Niño (ASO Niño3.4 ≥ +0.5) + pIOD",musim_start:{Katiga:2,Labuh:133,Rendheng:217,Mareng:288},catatan:"Katiga jauh lebih panjang & lambat berakhir (rata-rata 131 hr : 88 hr tradisional). IOD fase pIOD menyertai (sinergi), bobot koreksi IOD = 0.50 pada mangsa 3–5."},
+  LANINA:{label:"Tahun La Niña (ASO Niño3.4 ≤ −0.5) + nIOD",musim_start:{Katiga:35,Labuh:79,Rendheng:210,Mareng:284},catatan:"Katiga jauh lebih pendek (44 hr); musim hujan datang lebih awal. IOD fase nIOD menyertai (sinergi), bobot koreksi IOD = 0.50 pada mangsa 3–5."},
+  NETRAL:{label:"Tahun ENSO Netral",musim_start:{Katiga:11,Labuh:102,Rendheng:189,Mareng:288},catatan:"Paling mendekati pola ALL — kondisi tanpa pengaruh ENSO kuat. Tidak ada koreksi IOD (fase IOD = NETRAL)."},
 };
 const DEFAULT_SCENARIO = "R30";
+
+/* ══════════════════════════════════════════════════════════════════════
+   PEMETAAN SKENARIO → FASE IOD
+   ENSO dan IOD terkopel via sirkulasi atmosfer Pasifik–Hindia:
+   El Niño cenderung disertai pIOD, La Niña disertai nIOD.
+   Skenario non-ENSO (R30/ALL/R10/NETRAL) → IOD NETRAL.
+   ══════════════════════════════════════════════════════════════════════ */
+const IOD_PHASE_MAP = {
+  ELNINO: "pIOD",
+  LANINA: "nIOD",
+};
+const _BOBOT_IOD_STANDALONE = 0.30;
+const _BOBOT_IOD_KOMBINASI = 0.50;
 
 const METEO_MANGSA = {
    1:[  23, 0.6,  5, 4.40, -3.75, 0.180, 67.1, 32.2, 21.5, 10.1, 19.9],
@@ -659,6 +716,39 @@ const ENSO_DELTA = {
     10:[-0.14,+0.27,+0.050,-0.176,-0.78,+1.6],
     11:[-0.00,+0.23,+0.026,-0.072,-0.29,+1.0],
     12:[-0.09,+0.24,+0.010,-0.110,-0.31,+1.4],
+  },
+  NETRAL: {
+    1:[0,0,0,0,0,0], 2:[0,0,0,0,0,0], 3:[0,0,0,0,0,0], 4:[0,0,0,0,0,0],
+    5:[0,0,0,0,0,0], 6:[0,0,0,0,0,0], 7:[0,0,0,0,0,0], 8:[0,0,0,0,0,0],
+    9:[0,0,0,0,0,0], 10:[0,0,0,0,0,0], 11:[0,0,0,0,0,0], 12:[0,0,0,0,0,0],
+  },
+};
+
+/* ══════════════════════════════════════════════════════════════════════
+   IOD DELTA — komposit SON 1950–2025, DMI bulanan JMA/BoM
+   Ambang BOM: ±0.40 (SON running-mean).
+   Hanya mangsa 3, 4, 5 (Katiga, Kapat, Kalima) yang beririsan dengan SON;
+   mangsa lain = nol.
+   Sign fisis: pIOD → panas/kering (ΔTx≥0, ΔHj≤0, ΔRh≤0);
+               nIOD → sejuk/basah (ΔTx≤0, ΔHj≥0, ΔRh≥0).
+   Format per mangsa: [Δtx, Δtn, Δhj_d, Δet0, Δrad, Δrh]
+   ══════════════════════════════════════════════════════════════════════ */
+const IOD_DELTA = {
+  pIOD: {
+    1:[0,0,0,0,0,0], 2:[0,0,0,0,0,0],
+    3:[+0.534,-0.617,-0.943,+0.476,+1.175,-4.860],
+    4:[+1.278,-0.316,-2.224,+0.730,+1.690,-7.271],
+    5:[+2.345,+0.244,-4.980,+0.879,+2.461,-10.023],
+    6:[0,0,0,0,0,0], 7:[0,0,0,0,0,0], 8:[0,0,0,0,0,0],
+    9:[0,0,0,0,0,0], 10:[0,0,0,0,0,0], 11:[0,0,0,0,0,0], 12:[0,0,0,0,0,0],
+  },
+  nIOD: {
+    1:[0,0,0,0,0,0], 2:[0,0,0,0,0,0],
+    3:[-0.841,+0.468,+2.365,-0.423,-1.459,+5.183],
+    4:[-0.831,+0.217,+2.437,-0.383,-1.149,+4.998],
+    5:[-0.487,-0.064,+1.359,-0.112,-0.319,+1.964],
+    6:[0,0,0,0,0,0], 7:[0,0,0,0,0,0], 8:[0,0,0,0,0,0],
+    9:[0,0,0,0,0,0], 10:[0,0,0,0,0,0], 11:[0,0,0,0,0,0], 12:[0,0,0,0,0,0],
   },
   NETRAL: {
     1:[0,0,0,0,0,0], 2:[0,0,0,0,0,0], 3:[0,0,0,0,0,0], 4:[0,0,0,0,0,0],
@@ -797,7 +887,7 @@ function buildCiri(scenarioKey,mangsaNo,dopyStart,dopyEnd){
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   EV05 rev.2: extreme + ENSO helpers
+   EV05 rev.3: extreme + ENSO + IOD helpers
    ══════════════════════════════════════════════════════════════════════ */
 
 function extremeForDopyRange(dopyS,dopyE){
@@ -823,9 +913,7 @@ function fmtSuhu(tx,tn,dopyS,dopyE){
   return `Tx̄ ${tx.toFixed(1)}°C · Tn̄ ${tn.toFixed(1)}°C`;
 }
 
-function ensoDeltaForDopyRange(dopyS,dopyE,phase){
-  if(!ENSO_DELTA[phase]) return [0,0,0,0,0,0];
-  const tbl=ENSO_DELTA[phase];
+function _weightedDopyOverlap(dopyS,dopyE){
   const weights={};
   for(const no in R30_DOPY_RANGES){
     const [rs,re]=R30_DOPY_RANGES[no];
@@ -833,9 +921,18 @@ function ensoDeltaForDopyRange(dopyS,dopyE,phase){
     if(ovl>0) weights[no]=ovl;
   }
   const wkeys=Object.keys(weights);
-  if(wkeys.length===0) return [0,0,0,0,0,0];
+  if(wkeys.length===0) return null;
   const totalW=wkeys.reduce((s,k)=>s+weights[k],0);
   const wn={}; for(const k of wkeys) wn[k]=weights[k]/totalW;
+  return {wn, wkeys};
+}
+
+function ensoDeltaForDopyRange(dopyS,dopyE,phase){
+  if(!ENSO_DELTA[phase]) return [0,0,0,0,0,0];
+  const wr=_weightedDopyOverlap(dopyS,dopyE);
+  if(!wr) return [0,0,0,0,0,0];
+  const {wn,wkeys}=wr;
+  const tbl=ENSO_DELTA[phase];
   const result=[];
   for(let fi=0;fi<6;fi++){
     let s=0; for(const no of wkeys) s+=wn[no]*tbl[no][fi];
@@ -844,18 +941,36 @@ function ensoDeltaForDopyRange(dopyS,dopyE,phase){
   return result;
 }
 
-function meteoForDopyRange(dopyS,dopyE,ensoPhase){
-  if(ensoPhase===undefined) ensoPhase="NETRAL";
-  const weights={};
-  for(const no in R30_DOPY_RANGES){
-    const [rs,re]=R30_DOPY_RANGES[no];
-    const ovl=Math.max(0.0,Math.min(dopyE,re)-Math.max(dopyS,rs));
-    if(ovl>0) weights[no]=ovl;
+/* Delta IOD untuk rentang dopy, dengan bobot:
+ *   0.50 → sinergi ENSO–IOD (ELNINO+pIOD atau LANINA+nIOD)
+ *   0.30 → IOD standalone (tidak muncul dari skenario saat ini, disiapkan
+ *          bila di masa depan IOD bisa dipilih independen dari ENSO)
+ */
+function iodDeltaForDopyRange(dopyS,dopyE,iodPhase,ensoPhase){
+  if(iodPhase!=="pIOD" && iodPhase!=="nIOD") return [0,0,0,0,0,0];
+  const sinergis = ((ensoPhase==="ELNINO" && iodPhase==="pIOD") ||
+                    (ensoPhase==="LANINA" && iodPhase==="nIOD"));
+  const bobot = sinergis ? _BOBOT_IOD_KOMBINASI : _BOBOT_IOD_STANDALONE;
+  const tbl = IOD_DELTA[iodPhase];
+  if(!tbl) return [0,0,0,0,0,0];
+  const wr=_weightedDopyOverlap(dopyS,dopyE);
+  if(!wr) return [0,0,0,0,0,0];
+  const {wn,wkeys}=wr;
+  const result=[];
+  for(let fi=0;fi<6;fi++){
+    let s=0; for(const no of wkeys) s+=wn[no]*tbl[no][fi];
+    result.push(bobot*s);
   }
-  const wkeys=Object.keys(weights);
-  if(wkeys.length===0) return {m:null,m6h:null};
-  const totalW=wkeys.reduce((s,k)=>s+weights[k],0);
-  const wn={}; for(const k of wkeys) wn[k]=weights[k]/totalW;
+  return result;
+}
+
+function meteoForDopyRange(dopyS,dopyE,ensoPhase,iodPhase){
+  if(ensoPhase===undefined) ensoPhase="NETRAL";
+  if(iodPhase===undefined)  iodPhase="NETRAL";
+
+  const wr=_weightedDopyOverlap(dopyS,dopyE);
+  if(!wr) return {m:null,m6h:null};
+  const {wn,wkeys}=wr;
   const dur=Math.max(dopyE-dopyS,1.0);
 
   const rateIdx=[1,3,4,5,6,7,8,9,10];
@@ -877,8 +992,11 @@ function meteoForDopyRange(dopyS,dopyE,ensoPhase){
   const hjDBase=vals[1];
   const hhrBase=vals[2];
 
+  /* ── Koreksi ENSO ───────────────────────────────────────────────── */
+  let ensoRaw=[0,0,0,0,0,0];
   if(ensoPhase==="ELNINO" || ensoPhase==="LANINA"){
-    const [dTx,dTn,dHjd,dEt0,dRad,dRh]=ensoDeltaForDopyRange(dopyS,dopyE,ensoPhase);
+    ensoRaw=ensoDeltaForDopyRange(dopyS,dopyE,ensoPhase);
+    const [dTx,dTn,dHjd,dEt0,dRad,dRh]=ensoRaw;
     const hjDNew=hjDBase+dHjd;
     vals[1]=hjDNew;
     vals[0]=Math.round(hjDNew*dur);
@@ -896,25 +1014,61 @@ function meteoForDopyRange(dopyS,dopyE,ensoPhase){
     vals[4]=vals[1]-vals[3];
   }
 
+  /* ── Koreksi IOD (mangsa 3–5 via dopy overlap, bobot 0.30/0.50) ──── */
+  let iodRaw=[0,0,0,0,0,0];
+  if(iodPhase==="pIOD" || iodPhase==="nIOD"){
+    iodRaw=iodDeltaForDopyRange(dopyS,dopyE,iodPhase,ensoPhase);
+    const [dTxI,dTnI,dHjdI,dEt0I,dRadI,dRhI]=iodRaw;
+    if(dHjdI!==0 || dEt0I!==0 || dRhI!==0 || dRadI!==0 || dTxI!==0 || dTnI!==0){
+      const hjDPreI=vals[1];
+      const hhrPreI=vals[2];
+      const hjDNewI=hjDPreI+dHjdI;
+      vals[1]=hjDNewI;
+      vals[0]=Math.round(hjDNewI*dur);
+      if(hjDPreI>0.05){
+        const scaleI=hjDNewI/hjDPreI;
+        vals[2]=Math.max(0,Math.round(hhrPreI*Math.pow(scaleI,0.6)));
+      }
+      vals[3]+=dEt0I;
+      vals[4]=vals[1]-vals[3];
+      vals[6]+=dRhI;
+      vals[7]+=dTxI;
+      vals[8]+=dTnI;
+      vals[10]+=dRadI;
+    }
+  }
+
+  /* ── Interpolasi 6H ────────────────────────────────────────────── */
   const m6h=[];
   for(let fi=0;fi<9;fi++){
     let s=0; for(const no of wkeys) s+=wn[no]*METEO_MANGSA_6H[no][fi];
     m6h.push(s);
   }
 
+  /* ── Koreksi ENSO pada 6H ──────────────────────────────────────── */
   if(ensoPhase==="ELNINO" || ensoPhase==="LANINA"){
-    const ensoRaw=ensoDeltaForDopyRange(dopyS,dopyE,ensoPhase);
     const dTx=ensoRaw[0], dTn=ensoRaw[1], dRh=ensoRaw[5], dRad=ensoRaw[4];
     const dTmean=0.5*(dTx+dTn);
-
     const vpdBase=m6h[0], tcwvBase=m6h[1], sunBase=m6h[4];
     const dVpd = 0.075*dTmean - 0.030*dRh;
     const dTcwv = -1.75*dTmean;
     const dSun = 0.20*dRad;
-
     m6h[0]=Math.max(0.0, vpdBase+dVpd);
     m6h[1]=Math.max(0.0, tcwvBase+dTcwv);
     m6h[4]=Math.min(13.0, Math.max(6.0, sunBase+dSun));
+  }
+
+  /* ── Koreksi IOD pada 6H ──────────────────────────────────────── */
+  if(iodPhase==="pIOD" || iodPhase==="nIOD"){
+    const dTxI=iodRaw[0], dTnI=iodRaw[1], dRhI=iodRaw[5], dRadI=iodRaw[4];
+    if(dTxI!==0 || dTnI!==0 || dRhI!==0 || dRadI!==0){
+      const dTmeanI=0.5*(dTxI+dTnI);
+      m6h[0]=Math.max(0.0,   m6h[0] + 0.075*dTmeanI - 0.030*dRhI);
+      m6h[1]=Math.max(0.0,   m6h[1] - 1.75*dTmeanI);
+      m6h[2]=Math.min(100.0, Math.max(0.0, m6h[2] - 5.0*dRadI));
+      m6h[3]=Math.min(100.0, Math.max(0.0, m6h[3] - 5.0*dRadI));
+      m6h[4]=Math.min(13.0,  Math.max(6.0, m6h[4] + 0.20*dRadI));
+    }
   }
 
   return {m:vals, m6h:m6h};
@@ -924,9 +1078,9 @@ function meteoForDopyRange(dopyS,dopyE,ensoPhase){
    RENDER — komponen
    ══════════════════════════════════════════════════════════════════════ */
 
-function meteoMusimBlockHtml(musim,durasiOverride,dopyS,dopyE,ensoPhase){
+function meteoMusimBlockHtml(musim,durasiOverride,dopyS,dopyE,ensoPhase,iodPhase){
   if(dopyS!=null && dopyE!=null){
-    const {m,m6h}=meteoForDopyRange(dopyS,dopyE,ensoPhase||"NETRAL");
+    const {m,m6h}=meteoForDopyRange(dopyS,dopyE,ensoPhase||"NETRAL",iodPhase||"NETRAL");
     if(m){
       const [hj,hj_d,hhr,et0,wb,sm,rh,tx,tn,angin,rad]=m;
       const dur=Math.round(dopyE-dopyS+1);
@@ -995,9 +1149,10 @@ function meteoMangsaBlockHtml(no,dopyS,dopyE){
   return _renderMeteoBlockFromTuple(METEO_MANGSA[no], METEO_MANGSA_6H[no]||null, dopyS, dopyE);
 }
 
-function meteoMangsaBlockHtmlFromDopy(dopyS,dopyE,ensoPhase){
+function meteoMangsaBlockHtmlFromDopy(dopyS,dopyE,ensoPhase,iodPhase){
   if(ensoPhase===undefined) ensoPhase="NETRAL";
-  const {m,m6h}=meteoForDopyRange(dopyS,dopyE,ensoPhase);
+  if(iodPhase===undefined)  iodPhase="NETRAL";
+  const {m,m6h}=meteoForDopyRange(dopyS,dopyE,ensoPhase,iodPhase);
   if(!m) return "";
   return _renderMeteoBlockFromTuple(m,m6h,dopyS,dopyE);
 }
@@ -1043,16 +1198,25 @@ function renderTradisional(tahun){
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   RENDER — Kalender Terkalibrasi (dengan ENSO phase)
+   RENDER — Kalender Terkalibrasi (ENSO + IOD auto dari scenario)
    ══════════════════════════════════════════════════════════════════════ */
 function renderTerkalibrasi(pyear,scenarioKey){
   const cal=buildCalendarTerkalibrasi(pyear,scenarioKey);
   const ms=CALIB_SCENARIOS[scenarioKey].musim_start;
   const msNext={Katiga:ms.Labuh,Labuh:ms.Rendheng,Rendheng:ms.Mareng,Mareng:365+ms.Katiga};
   const ensoPhase=(scenarioKey==="ELNINO")?"ELNINO":(scenarioKey==="LANINA")?"LANINA":"NETRAL";
+  const iodPhase = IOD_PHASE_MAP[scenarioKey] || "NETRAL";
+
+  let climNote = `Klimatologi: interpolasi dopy R30 (1996–2025) · skenario ${scenarioKey}`;
+  if(ensoPhase!=="NETRAL"){
+    climNote = `Klimatologi: interpolasi dopy R30 + koreksi Δ${scenarioKey} empiris`;
+    if(iodPhase!=="NETRAL"){
+      climNote += ` + koreksi IOD ${iodPhase} (bobot 0.50 sinergi ENSO–IOD, mangsa 3–5)`;
+    }
+  }
 
   let html="";
-  html+=`<div class="card"><div class="muted">Skenario: <b>${scenarioKey}</b> — ${CALIB_SCENARIOS[scenarioKey].label}<br>${CALIB_SCENARIOS[scenarioKey].catatan}<br>Klimatologi: interpolasi dopy R30 ${ensoPhase!=="NETRAL"?`+ koreksi Δ${scenarioKey} empiris`:"(1996–2025)"} · Tx̄/Tn̄ = rata² harian · (x) = ekstrem absolut</div></div>`;
+  html+=`<div class="card"><div class="muted">Skenario: <b>${scenarioKey}</b> — ${CALIB_SCENARIOS[scenarioKey].label}<br>${CALIB_SCENARIOS[scenarioKey].catatan}<br>${climNote}<br>Tx̄/Tn̄ = rata² harian · (x) = ekstrem absolut · <b>ENSO</b>: AVISO/DUACS + NOAA OISST · <b>IOD</b>: JMA + BoM Australia</div></div>`;
 
   for(const musim of MUSIM_ORDER){
     const mem=cal.filter(m=>m.musim===musim);
@@ -1062,7 +1226,7 @@ function renderTerkalibrasi(pyear,scenarioKey){
     html+=`<div class="card"><div class="musim-block ${musim}">`;
     html+=`<h3>MUSIM ${musim.toUpperCase()}</h3>`;
     html+=`<div class="sub">${MUSIM_DESKRIPSI[musim]} · dopy ${dopyS}–${dopyE} · ${durAktual} hari</div>`;
-    html+=meteoMusimBlockHtml(musim,durAktual,dopyS,dopyE,ensoPhase);
+    html+=meteoMusimBlockHtml(musim,durAktual,dopyS,dopyE,ensoPhase,iodPhase);
     html+=`<div class="mangsa-grid">`;
     for(const m of mem){
       html+=`<div class="mangsa-card">`;
@@ -1070,7 +1234,7 @@ function renderTerkalibrasi(pyear,scenarioKey){
       html+=`<div class="mper">${fmtDate(m.mulai)} — ${fmtDate(m.akhir)} (${m.durasi} hari) · dopy ${m.dopy_start.toFixed(1)}–${m.dopy_end.toFixed(1)}</div>`;
       html+=`<div class="mciri">${escapeHtml(m.ciri)}</div>`;
       html+=astroChipsHtml(m.dopy_start,m.dopy_end);
-      html+=meteoMangsaBlockHtmlFromDopy(m.dopy_start,m.dopy_end,ensoPhase);
+      html+=meteoMangsaBlockHtmlFromDopy(m.dopy_start,m.dopy_end,ensoPhase,iodPhase);
       html+=`</div>`;
     }
     html+=`</div></div></div>`;
@@ -1085,6 +1249,8 @@ function renderCek(tanggal,scenarioKey){
   const trad=getMangsaByDate(tanggal,"tradisional");
   const kal=getMangsaByDate(tanggal,"terkalibrasi",scenarioKey);
   const {pyear,dopy}=getPranataYearDopy(tanggal);
+  const ensoPhase=(scenarioKey==="ELNINO")?"ELNINO":(scenarioKey==="LANINA")?"LANINA":"NETRAL";
+  const iodPhase = IOD_PHASE_MAP[scenarioKey] || "NETRAL";
 
   let html=`<div class="card"><div class="muted">Tahun-Pranata: <b>${pyear}/${pyear+1}</b> · Hari ke-<b>${dopy+1}</b> (dopy=${dopy})</div></div>`;
   html+=`<div class="today-grid">`;
@@ -1113,25 +1279,26 @@ function renderCek(tanggal,scenarioKey){
       }
     }
     html+=`<div class="ciri"><b>Ciri:</b> ${escapeHtml(kal.ciri)}</div>`;
-    if(METEO_MANGSA[kal.no]){
-      const [hj,hj_d,hhr,et0,wb,sm,rh,tx,tn,angin,rad]=METEO_MANGSA[kal.no];
-      const wbStr=(wb>=0?'+':'')+wb.toFixed(2)+" mm/hari ("+(wb<0?"defisit":"surplus")+")";
+
+    /* Gunakan meteoForDopyRange agar ENSO + IOD ikut teraplikasi */
+    const {m,m6h}=meteoForDopyRange(kal.dopy_start,kal.dopy_end,ensoPhase,iodPhase);
+    if(m){
       html+=`<div class="meteo">`;
-      html+=`<div class="mrow"><span class="mlab">Curah hujan</span><span class="mval">${hj} mm/musim · ${hj_d.toFixed(1)} mm/hari · ${hhr} hari hujan</span></div>`;
-      html+=`<div class="mrow"><span class="mlab">Suhu</span><span class="mval">${fmtSuhu(tx,tn,kal.dopy_start,kal.dopy_end)}</span></div>`;
-      html+=`<div class="mrow"><span class="mlab">RH · SM · ET₀</span><span class="mval">${rh.toFixed(1)}% · ${sm.toFixed(3)} · ${et0.toFixed(2)} mm/hari</span></div>`;
-      html+=`<div class="mrow"><span class="mlab">Neraca · Rad</span><span class="mval">P−ET₀ ${wbStr} · ${rad.toFixed(1)} MJ/m²</span></div>`;
+      html+=`<div class="mrow"><span class="mlab">Curah hujan</span><span class="mval">${Math.round(m[0])} mm/musim · ${m[1].toFixed(1)} mm/hari · ${m[2]} hari hujan</span></div>`;
+      html+=`<div class="mrow"><span class="mlab">Suhu</span><span class="mval">${fmtSuhu(m[7],m[8],kal.dopy_start,kal.dopy_end)}</span></div>`;
+      html+=`<div class="mrow"><span class="mlab">RH · SM · ET₀</span><span class="mval">${m[6].toFixed(1)}% · ${m[5].toFixed(3)} · ${m[3].toFixed(2)} mm/hari</span></div>`;
+      const wbStr=(m[4]>=0?'+':'')+m[4].toFixed(2)+" mm/hari";
+      html+=`<div class="mrow"><span class="mlab">Neraca · Rad</span><span class="mval">P−ET₀ ${wbStr} · ${m[10].toFixed(1)} MJ/m²</span></div>`;
       html+=`</div>`;
     }
-    if(METEO_MANGSA_6H[kal.no]){
-      const [vpd,tcwv,cld,cld_a,sun_h,sm_sh,sm_dp,sT_sh,sT_dp]=METEO_MANGSA_6H[kal.no];
+    if(m6h){
       html+=`<div class="meteo">`;
-      html+=`<div class="mrow"><span class="mlab">VPD · TCWV</span><span class="mval">${vpd.toFixed(2)} kPa · ${tcwv.toFixed(1)} kg/m²</span></div>`;
-      html+=`<div class="mrow"><span class="mlab">Cloud · Sun</span><span class="mval">${cld.toFixed(0)}% (aft ${cld_a.toFixed(0)}%) · ${sun_h.toFixed(1)} h/hari</span></div>`;
-      html+=`<div class="mrow"><span class="mlab">SM 0-7</span><span class="mval">${sm_sh.toFixed(3)} m³/m³</span></div>`;
-      html+=`<div class="mrow"><span class="mlab">SM 28-100</span><span class="mval">${sm_dp.toFixed(3)} m³/m³</span></div>`;
-      html+=`<div class="mrow"><span class="mlab">sT 0-7</span><span class="mval">${sT_sh.toFixed(1)}°C</span></div>`;
-      html+=`<div class="mrow"><span class="mlab">sT 100-255</span><span class="mval">${sT_dp.toFixed(1)}°C</span></div>`;
+      html+=`<div class="mrow"><span class="mlab">VPD · TCWV</span><span class="mval">${m6h[0].toFixed(2)} kPa · ${m6h[1].toFixed(1)} kg/m²</span></div>`;
+      html+=`<div class="mrow"><span class="mlab">Cloud · Sun</span><span class="mval">${m6h[2].toFixed(0)}% (aft ${m6h[3].toFixed(0)}%) · ${m6h[4].toFixed(1)} h/hari</span></div>`;
+      html+=`<div class="mrow"><span class="mlab">SM 0-7</span><span class="mval">${m6h[5].toFixed(3)} m³/m³</span></div>`;
+      html+=`<div class="mrow"><span class="mlab">SM 28-100</span><span class="mval">${m6h[6].toFixed(3)} m³/m³</span></div>`;
+      html+=`<div class="mrow"><span class="mlab">sT 0-7</span><span class="mval">${m6h[7].toFixed(1)}°C</span></div>`;
+      html+=`<div class="mrow"><span class="mlab">sT 100-255</span><span class="mval">${m6h[8].toFixed(1)}°C</span></div>`;
       html+=`</div>`;
     }
     html+=astroChipsHtml(kal.dopy_start,kal.dopy_end);
@@ -1174,7 +1341,7 @@ function renderPerbandingan(pyear){
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   RENDER — Durasi (fallback R30, tanpa ENSO)
+   RENDER — Durasi (fallback R30, tanpa ENSO/IOD)
    ══════════════════════════════════════════════════════════════════════ */
 function renderDurasi(){
   let html=`<div class="card"><div class="table-scroll"><table class="data">`;
@@ -1300,28 +1467,50 @@ function renderAstro(){
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   RENDER — Info
+   RENDER — Info (data attribution + metode)
    ══════════════════════════════════════════════════════════════════════ */
 function renderInfo(){
   let html="";
-  html+=`<div class="card info-section"><h3>1. Sumber Data Meteorologi</h3><table class="kv-table">`;
+
+  /* ── 1. Atribusi Sumber Data Meteorologi ──────────────────────── */
+  html+=`<div class="card info-section"><h3>1. Atribusi Sumber Data Meteorologi</h3><table class="kv-table">`;
+  html+=`<tr><th>ERA5</th><td>Reanalisis global, 0.25° (~31 km), 1940–sekarang.<br><b>Institusi:</b> ECMWF / Copernicus Climate Change Service (C3S).<br><b>Sitasi:</b> Hersbach, H., et al. (2020). The ERA5 global reanalysis. QJRMS 146(730): 1999–2049. DOI <code>10.1002/qj.3803</code>.<br><b>Lisensi:</b> Copernicus Licence — CC-BY 4.0</td></tr>`;
+  html+=`<tr><th>ERA5-Land</th><td>Reanalisis permukaan darat, 0.1° (~9 km), 1950–sekarang.<br><b>Institusi:</b> ECMWF / C3S.<br><b>Sitasi:</b> Muñoz-Sabater, J., et al. (2021). ERA5-Land. Earth System Science Data 13(9): 4349–4383. DOI <code>10.5194/essd-13-4349-2021</code>.<br><b>Lisensi:</b> Copernicus Licence — CC-BY 4.0</td></tr>`;
+  html+=`<tr><th>ECMWF IFS (HRES)</th><td>Model NWP global, 9 km, 2017–sekarang.<br><b>Institusi:</b> ECMWF.<br><b>Sitasi:</b> ECMWF (2024). IFS Documentation CY49r1. Technical Report.<br><b>Catatan:</b> Dikumpulkan oleh Open-Meteo dari run IFS 0z/6z/12z/18z sejak 2017.<br><b>Lisensi:</b> CC-BY 4.0</td></tr>`;
+  html+=`<tr><th>Open-Meteo</th><td>API agregator data meteorologi terbuka.<br><b>Sitasi:</b> Zippenfenig, P. (2023). Open-Meteo.com Weather API. DOI <code>10.5281/ZENODO.7970649</code>.<br><b>Lisensi:</b> CC-BY 4.0 (attribution required)</td></tr>`;
   html+=`<tr><th>Titik Target</th><td><code>−7.5220°LS, 112.5661°BT</code> (MJS Obs., Jawa Timur), 28 m dpl</td></tr>`;
   html+=`<tr><th>Stasiun P1</th><td>ERA5 / ERA5-Land / IFS HRES Open-Meteo — daily 1950–2026, 6-jam 2015–2026<br>Koordinat: <code>−7.486819°LS, 112.538210°BT</code> · Elev 28 m</td></tr>`;
   html+=`<tr><th>Stasiun P2</th><td>ERA5 / ERA5-Land / IFS HRES Open-Meteo — daily 1940–2026, 6-jam 1995–2026<br>Koordinat: <code>−7.5571175°LS, 112.557350°BT</code> · Elev 28 m</td></tr>`;
   html+=`<tr><th>Interpolasi</th><td>Inverse Distance Weighting (IDW, power=2) dengan bobot <code>w1=0.3950</code> (P1), <code>w2=0.6050</code> (P2)</td></tr>`;
-  html+=`<tr><th>ENSO Niño3.4</th><td>AVISO / DUACS — data mingguan, 1993–2026</td></tr>`;
   html+=`</table></div>`;
 
-  html+=`<div class="card info-section"><h3>2. Sumber Data Astronomis</h3><table class="kv-table">`;
-  html+=`<tr><th>Efemerida</th><td>VSOP87D (akurasi ~1″) via JRC_Ephemeris v5.0</td></tr>`;
-  html+=`<tr><th>Nutasi &amp; Presesi</th><td>IERS 2010, tabel lengkap (IAU 2000A/2006A)</td></tr>`;
-  html+=`<tr><th>ΔT (TT−UTC)</th><td>Tabel HMNAO, interpolasi linier</td></tr>`;
+  /* ── 2. Atribusi Sumber Data ENSO ──────────────────────────────── */
+  html+=`<div class="card info-section"><h3>2. Atribusi Sumber Data ENSO</h3><table class="kv-table">`;
+  html+=`<tr><th>ENSO SLA (Niño3.4)</th><td>Indeks SLA terfilter (annual, semiannual, 60-hari, tren dihilangkan), 85-hari rolling window, region Niño3.4 (5°S–5°N, 190°E–240°E), mingguan.<br><b>Institusi:</b> CNES / CLS — AVISO+ / DUACS.<br><b>Sitasi:</b> AVISO/DUACS (2025). ENSO Ocean Indicator product (vDT2024) [Data set]. CNES. DOI <code>10.24400/527896/A01-2025.008</code>.<br><b>Input:</b> Global SLA 'all-satellite' daily DUACS2024 DT &amp; NRT dari Copernicus Marine Service (CMEMS).<br><b>Lisensi:</b> Copernicus Marine Licence</td></tr>`;
+  html+=`<tr><th>ENSO SST (Niño3.4)</th><td>Indeks SST terfilter (annual, semiannual, tren dihilangkan), 85-hari rolling window, region Niño3.4, mingguan.<br><b>Institusi:</b> NOAA NCEI / AVISO+.<br><b>Sitasi:</b> Huang, B., et al. (2021). Improvements of DOISST v2.1. J. Climate 34: 2923–2939. DOI <code>10.1175/JCLI-D-20-0166.1</code>.<br><b>Input:</b> NOAA 1/4° Daily Gridded OISST v2.1.<br><b>Lisensi:</b> NOAA Open Data</td></tr>`;
+  html+=`<tr><th>Metode Komposit</th><td>Klasifikasi tahun ENSO mengikuti indeks ASO Niño3.4 (Agustus–September–Oktober): <code>≥ +0.5</code> El Niño (8 tahun), <code>≤ −0.5</code> La Niña (11 tahun), sisanya Netral. Delta empiris dihitung dari komposit harian ERA5/ERA5-Land pada grid P1, R30 1996–2025.</td></tr>`;
+  html+=`</table></div>`;
+
+  /* ── 3. Atribusi Sumber Data IOD ───────────────────────────────── */
+  html+=`<div class="card info-section"><h3>3. Atribusi Sumber Data IOD (Indian Ocean Dipole)</h3><table class="kv-table">`;
+  html+=`<tr><th>JMA — Dipole Mode Index</th><td>DMI = SST anomali rata-rata area <b>WIN</b> (50–70°E, 10°S–10°N) − <b>EIN</b> (90–110°E, 10°S–Equator). Ambang <code>±0.4 °C</code>, running mean 3 bulan, periode Jun–Nov.<br><b>Institusi:</b> Japan Meteorological Agency (JMA).<br><b>Sitasi:</b> Saji, N. H., Goswami, B. N., Vinayachandran, P. N., &amp; Yamagata, T. (1999). A dipole mode in the tropical Indian Ocean. Nature 401: 360–363. DOI <code>10.1038/43854</code>.<br><b>Input SST:</b> MGDSST (Kurihara et al. 2006) setelah Jun 2015; COBE-SST2 (Hirahara et al. 2014) sebelum Mei 2015.<br><b>Lisensi:</b> JMA Open Data</td></tr>`;
+  html+=`<tr><th>BoM Australia — IOD Index</th><td>IOD index dari SST anomali (ERSSTv5 / HadISST), ambang <code>±0.4 °C</code>, 3 minggu berturut-turut (monitoring mingguan).<br><b>Institusi:</b> Australian Bureau of Meteorology (BoM).<br><b>Referensi:</b> <code>http://www.bom.gov.au/climate/iod/</code>.<br><b>Lisensi:</b> BoM Open Data (CC-BY 4.0)</td></tr>`;
+  html+=`<tr><th>Fase &amp; Ambang</th><td><b>pIOD</b> : SON DMI ≥ +0.40 → musim kering lebih panas &amp; kering (Katiga–Kalima).<br><b>nIOD</b> : SON DMI ≤ −0.40 → musim kering lebih sejuk &amp; basah.<br><b>NETRAL</b> : −0.40 &lt; DMI &lt; +0.40 → tanpa koreksi.</td></tr>`;
+  html+=`</table></div>`;
+
+  /* ── 4. Atribusi Sumber Data Astronomis ─────────────────────────── */
+  html+=`<div class="card info-section"><h3>4. Atribusi Sumber Data Astronomis</h3><table class="kv-table">`;
+  html+=`<tr><th>VSOP87D</th><td>Solusi analitik gerak planet, versi D: variabel heliosentrik sferis, equinox dan ekliptika tanggal. Akurasi ~1″ untuk era 1800–2200.<br><b>Institusi:</b> IMCCE — Observatoire de Paris.<br><b>Sitasi:</b> Bretagnon, P., &amp; Francou, G. (1988). Planetary theories in rectangular and spherical variables: VSOP87 solution. Astronomy &amp; Astrophysics 202: 309–315. Bibcode <code>1988A&amp;A...202..309B</code>.<br><b>Referensi:</b> <code>https://ftp.imcce.fr/pub/ephem/planets/vsop87</code></td></tr>`;
+  html+=`<tr><th>IERS Conventions 2010</th><td>Model standar presesi-nutasi IAU 2006/2000A, frame bias, koreksi dX/dY. Akurasi sub-mikroarcsecond.<br><b>Institusi:</b> International Earth Rotation and Reference Systems Service.<br><b>Sitasi:</b> Petit, G., &amp; Luzum, B. (eds.). (2010). IERS Conventions (2010). IERS Technical Note No. 36. ISBN <code>3-89888-989-6</code>.<br><b>Referensi:</b> <code>https://www.iers.org/IERS/EN/Publications/TechnicalNotes/tn36.html</code></td></tr>`;
+  html+=`<tr><th>IAU 2006 Precession (P03)</th><td>Model presesi IAU 2006 (P03), diadopsi Resolusi IAU 2006; menggantikan IAU 2000.<br><b>Sitasi:</b> Wallace, P. T., &amp; Capitaine, N. (2006). Precession-nutation procedures consistent with IAU 2006 resolutions. A&amp;A 459(3): 981–985. DOI <code>10.1051/0004-6361:20065897</code>.</td></tr>`;
+  html+=`<tr><th>HMNAO ΔT</th><td>Tabel dan polinomial ΔT (TT−UT1), rentang −720 s.d. 2019 + ekstrapolasi hingga 2100.<br><b>Institusi:</b> HM Nautical Almanac Office, UK Hydrographic Office.<br><b>Sitasi:</b> HMNAO (2020). Polynomial Coefficients for ΔT and LOD v2020.<br><b>Referensi:</b> <code>http://astro.ukho.gov.uk/nao/lvm/</code></td></tr>`;
   html+=`<tr><th>Rentang Kalibrasi</th><td>2020–2029 (10 tahun rata-rata)</td></tr>`;
   html+=`<tr><th>Lokasi</th><td><code>−7.521951°LS, 112.566089°BT</code>, 28 m dpl</td></tr>`;
   html+=`<tr><th>Objek Bintang</th><td>Sabuk Orion (Alnitak, Alnilam, Mintaka) — rata-rata</td></tr>`;
   html+=`</table></div>`;
 
-  html+=`<div class="card info-section"><h3>3. Metode Kalibrasi Meteorologi</h3>`;
+  /* ── 5. Metode Kalibrasi Meteorologi ───────────────────────────── */
+  html+=`<div class="card info-section"><h3>5. Metode Kalibrasi Meteorologi</h3>`;
   html+=`<p>Kalibrasi meteorologi (12 mangsa via <i>time-warp musim</i>) dari basis 30 tahun; skenario <b>R10</b> direkalibrasi ulang menggunakan data 6-jam.</p>`;
   html+=`<p><b>Composite Wetness Index 6H (R10)</b> — musim_start final:</p><ul>`;
   html+=`<li><code>Katiga</code> : 12 (mean 12.5, median 6, robust_mean 12)</li>`;
@@ -1331,9 +1520,10 @@ function renderInfo(){
   html+=`<p>Sampel 10 tahun (2015–2024), uncertainty σ ≈ 12–35 hari, didominasi variabilitas ENSO.</p>`;
   html+=`</div>`;
 
-  html+=`<div class="card info-section"><h3>4. Recompute Meteo 6H (EV05)</h3>`;
+  /* ── 6. Recompute Meteo 6H ──────────────────────────────────────── */
+  html+=`<div class="card info-section"><h3>6. Recompute Meteo 6H (EV05)</h3>`;
   html+=`<p><b>Recompute</b> field <code>sun_h</code> &amp; <code>vpd</code> pada <code>METEO_MANGSA_6H</code>: IDW-merged harian dari P1-hourly (2015–2026) + P2-6H (1995–2026). Periode acuan <b>1996–2025</b> (10.958 hari). Coverage: IDW 4018 hari (P1∩P2), P2-only 6940 hari.</p>`;
-  html+=`<p>Pola lebih realistis: sun_h rendah saat Rendheng (9.3–9.8 jam), tinggi saat Katiga/Karo/Kasa (11.3–11.4 jam). EV04 terlalu flat (~11.3–11.8).</p>`;
+  html+=`<p>Pola lebih realistis: sun_h rendah saat Rendheng (9.3–9.8 jam), tinggi saat Katiga/Karo/Kasa (11.3–11.4 jam).</p>`;
   html+=`<table class="kv-table">`;
   html+=`<tr><th>Katiga</th><td>sun_h 11.4→11.3 · vpd 1.299→1.296</td></tr>`;
   html+=`<tr><th>Labuh</th><td>sun_h 11.3→10.1 · vpd 0.707→0.900 ← paling besar</td></tr>`;
@@ -1341,18 +1531,32 @@ function renderInfo(){
   html+=`<tr><th>Mareng</th><td>sun_h 11.3→10.7 · vpd 0.737→0.758</td></tr>`;
   html+=`</table></div>`;
 
-  html+=`<div class="card info-section"><h3>5. EV05 rev.2 — Ekstrem Absolut &amp; Koreksi ENSO</h3>`;
-  html+=`<p><b>Ekstrem absolut</b> per mangsa (Tx_abs, Tn_abs) ditambahkan di <code>METEO_MANGSA_EXTREME</code>; untuk setiap rentang dopy, ekstrem dihitung dengan agregasi max/min (monoton, tanpa bobot tumpang-tindih).</p>`;
-  html+=`<p><b>Koreksi ENSO</b> empiris (komposit ERA5/Land R30 1996–2025) diterapkan pada skenario ELNINO/LANINA via <code>ENSO_DELTA</code> + bobot dopy. Delta per rentang dopy = rata-rata berbobot tumpang-tindih dengan mangsa R30 (<i>dopy-anchored ENSO</i>):</p>`;
-  html+=`<ul>`;
-  html+=`<li><b>Hari hujan</b> — skala parsial eksponen <code>0.6</code> (relasi empiris hari_hujan ∝ hj_d^0.6, dari komposit ERA5 15 stasiun Jawa Timur).</li>`;
-  html+=`<li><b>ΔVPD</b> — dari sensitivitas Tetens: <code>0.075·ΔTmean − 0.030·ΔRH</code> (kPa).</li>`;
-  html+=`<li><b>ΔTCWV</b> — <code>−1.75·ΔTmean</code> (kg/m²). <b>Perubahan tanda kritis</b>: El Niño MENURUNKAN kolom uap air lokal (Walker circulation weakening).</li>`;
+  /* ── 7. EV05 rev.3 — ENSO + IOD ─────────────────────────────────── */
+  html+=`<div class="card info-section"><h3>7. EV05 rev.3 — Ekstrem Absolut, Koreksi ENSO &amp; IOD</h3>`;
+
+  html+=`<p><b>Ekstrem absolut</b> per mangsa (Tx_abs, Tn_abs) di <code>METEO_MANGSA_EXTREME</code>; untuk setiap rentang dopy dihitung dengan agregasi max/min (monoton, tanpa bobot tumpang-tindih).</p>`;
+
+  html+=`<p><b>Koreksi ENSO</b> empiris (komposit ERA5/Land R30 1996–2025) diterapkan pada skenario ELNINO/LANINA via <code>ENSO_DELTA</code> + bobot dopy. Delta per rentang dopy = rata-rata berbobot tumpang-tindih dengan mangsa R30 (<i>dopy-anchored ENSO</i>):</p><ul>`;
+  html+=`<li><b>Hari hujan</b> — skala parsial eksponen <code>0.6</code>.</li>`;
+  html+=`<li><b>ΔVPD</b> — <code>0.075·ΔTmean − 0.030·ΔRH</code> (kPa).</li>`;
+  html+=`<li><b>ΔTCWV</b> — <code>−1.75·ΔTmean</code> (kg/m²). <b>Tanda kritis</b>: El Niño MENURUNKAN kolom uap air lokal (Walker circulation weakening).</li>`;
   html+=`<li><b>ΔSun</b> — <code>0.20·ΔRad</code> (jam/MJ·m⁻²). Koefisien 0.20 (bukan 0.25) karena cloud feedback.</li>`;
   html+=`<li><b>Δwb</b> — direcompute eksplisit sebagai <code>hj_d_new − et0_new</code>.</li>`;
-  html+=`</ul></div>`;
+  html+=`</ul>`;
 
-  html+=`<div class="card info-section"><h3>6. Metode Kalibrasi Astronomis</h3>`;
+  html+=`<p><b>Koreksi IOD</b> (baru di rev.3) — diturunkan otomatis dari <code>scenario_key</code>, paralel dengan ENSO:</p><ul>`;
+  html+=`<li><b>Pemetaan skenario → IOD fase:</b> <code>ELNINO → pIOD</code>, <code>LANINA → nIOD</code>, <code>R30/ALL/R10/NETRAL → NETRAL</code>.</li>`;
+  html+=`<li><b>Bobot koreksi:</b> <code>0.50</code> bila sinergi ENSO–IOD (ELNINO+pIOD atau LANINA+nIOD); <code>0.30</code> bila standalone.</li>`;
+  html+=`<li><b>Cakupan mangsa:</b> hanya mangsa 3–5 (Katiga, Kapat, Kalima) — yang beririsan ≥15 hari dengan SON (Sep–Okt–Nov), musim puncak IOD. Untuk skenario bergeser, <i>dopy-anchored</i>: delta dihitung dari tumpang-tindih rentang dopy aktual dengan <code>R30_DOPY_RANGES[3,4,5]</code>.</li>`;
+  html+=`<li><b>Formula 6H:</b> sama dengan ENSO (ΔVPD Tetens, ΔTCWV bertanda negatif).</li>`;
+  html+=`<li><b>Irisan ≥ 15 hari</b> memastikan koreksi hanya aktif bila rentang dopy mangsa benar-benar menyentuh zona SON.</li>`;
+  html+=`</ul>`;
+
+  html+=`<p><b>Referensi komposit IOD:</b> pIOD 8 thn (1961, 1963, 1967, 1972, 1982, 2012, 2018, 2019); nIOD 7 thn (1960, 1974, 1975, 1984, 1996, 2005, 2024). Filter: |ASO Niño3.4| ≥ 0.50 dikecualikan (ENSO-kuat). Ambang SON DMI ±0.40 (BOM Australia).</p>`;
+  html+=`</div>`;
+
+  /* ── 8. Metode Kalibrasi Astronomis ─────────────────────────────── */
+  html+=`<div class="card info-section"><h3>8. Metode Kalibrasi Astronomis</h3>`;
   html+=`<p>Kalibrasi astronomis tidak mengubah batas musim/mangsa; hanya mengoreksi referensi tanggal dalam teks deskripsi (CIRI) &amp; penempatan dinamis penanda astro.</p><ul>`;
   html+=`<li><b>Jangkar awal tahun</b> (Solstis Juni): 21 Jun, koreksi −1 hari.</li>`;
   html+=`<li><b>Solstis Desember</b>: 21 Des, dopy 182.71 vs 184.</li>`;
@@ -1365,19 +1569,22 @@ function renderInfo(){
   html+=`<li><b>Orion Acronychal Set</b>: 18 Jun (dopy=361.93).</li>`;
   html+=`</ul></div>`;
 
-  html+=`<div class="card info-section"><h3>7. Catatan Penempatan Ciri</h3><ul>`;
+  /* ── 9. Catatan Penempatan Ciri ─────────────────────────────────── */
+  html+=`<div class="card info-section"><h3>9. Catatan Penempatan Ciri</h3><ul>`;
   html+=`<li>Solstis Des (dopy 182.7) → Mangsa-6 <b>Kanem</b> di semua skenario modern.</li>`;
   html+=`<li>Zenith II &amp; Orion Evening Culm (dopy ≈252.5) → Mangsa-8 <b>Kawolu</b> di R30/R10; Mangsa-9 Kasanga hanya di TRAD.</li>`;
   html+=`<li>Penempatan penanda astro dihitung otomatis oleh <code>buildCiri()</code> sesuai rentang dopy aktual.</li>`;
   html+=`</ul></div>`;
 
-  html+=`<div class="card info-section"><h3>8. Keterbatasan</h3><ul>`;
+  /* ── 10. Keterbatasan ───────────────────────────────────────────── */
+  html+=`<div class="card info-section"><h3>10. Keterbatasan</h3><ul>`;
   html+=`<li>Kalibrasi meteorologi (12 mangsa) berbasis basis data jangka panjang; hanya R10 yang di-rekalibrasi ulang (6H).</li>`;
   html+=`<li>Kalibrasi astronomis tidak mengubah batas musim/mangsa.</li>`;
   html+=`<li>Pergeseran astronomis: zenith &amp; solstis &lt;1 hari; Orion heliacal rise +3 hr dan acronychal set +15 hr mencerminkan presesi ~170 tahun (1855→2025).</li>`;
   html+=`<li>Kulminasi tengah malam Orion (8 Des) vs tradisional (1 Mar) adalah perbedaan DEFINISI, bukan presesi.</li>`;
   html+=`<li>Composite Wetness Index 6H: sampel 10 tahun (2015–2024); uncertainty ±12–35 hari, didominasi ENSO.</li>`;
-  html+=`<li>Delta ENSO empiris bergantung pada komposit ENSO_DELTA (R30 1996–2025); uncertainty ±20–30%.</li>`;
+  html+=`<li>Delta ENSO empiris bergantung pada komposit <code>ENSO_DELTA</code> (R30 1996–2025); uncertainty ±20–30%.</li>`;
+  html+=`<li>Delta IOD empiris bergantung pada komposit <code>IOD_DELTA</code> (DMI 1950–2025, SON); uncertainty ±20–25%. Fase IOD saat ini hanya di <i>nowcast</i>; untuk kalender tahunan, fase diturunkan dari skenario ENSO.</li>`;
   html+=`</ul></div>`;
   return html;
 }
