@@ -449,7 +449,7 @@
             <div class="thermo-cell">
               <span class="tk">Heat Index</span>
               <div><span class="tv" id="th-hi">--</span><span class="tu">°C</span></div>
-              <div class="td">Rasa panas di kulit (NWS)</div>
+              <div class="td">Feels like (NWS)</div>
             </div>
           </div>
         </div>
@@ -524,7 +524,7 @@
 
     const CACHE_TTL_MS = 6 * 3600 * 1000;
     const MAX_CACHES = 10;
-    const CACHE_PREFIX = "ecmwf_cache_";
+    const CACHE_PREFIX = "ecmwf_cache_v2_";
     const LOG_KEY = "ecmwf_meteo_log";
 
     let unit = localStorage.getItem(UNIT_KEY) || "C";
@@ -739,8 +739,18 @@
       if(exact && Date.now()-exact.ts<=CACHE_TTL_MS){
         return {data:parseAndExtrapolate(exact.raw,ht,utcTime,lat,lon), origin:"cache-jam"};
       }
-      const ds=utcTime.toISOString().slice(0,10);
-      const raw=await fetchFromOpenMeteo(lat,lon,ds,ds);
+      
+      // --- PERBAIKAN: Perluas rentang tanggal (H-1 s/d H+1) ---
+      const dateMin = new Date(utcTime);
+      dateMin.setUTCDate(dateMin.getUTCDate() - 1);
+      const datePlus = new Date(utcTime);
+      datePlus.setUTCDate(datePlus.getUTCDate() + 1);
+      
+      const ds = dateMin.toISOString().slice(0,10);
+      const de = datePlus.toISOString().slice(0,10);
+      // --------------------------------------------------------
+      
+      const raw=await fetchFromOpenMeteo(lat,lon,ds,de);
       if(raw){
         cacheWrite(key,raw);
         return {data:parseAndExtrapolate(raw,ht,utcTime,lat,lon), origin:"network"};
