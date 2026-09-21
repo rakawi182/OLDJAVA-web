@@ -1,0 +1,2430 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ECMWF IFS HRES — Atmospheric Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem("ecmwf_theme_pref");
+    if (!t) t = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", t);
+  } catch(_) {}
+})();
+</script>
+<style>
+:root{
+  --sky-1:#04071a; --sky-2:#080f2e; --sky-3:#14113e; --sky-4:#1e1338;
+  --glass:rgba(255,255,255,.055); --glass-2:rgba(255,255,255,.085);
+  --glass-brd:rgba(255,255,255,.14); --glass-brd-2:rgba(255,255,255,.24);
+  --ink:#eef2ff; --ink-2:#cdd6f5; --muted:#8f99be;
+  --gold:#ffc266; --gold-2:#ffd99a; --gold-deep:#c78a2e;
+  --cyan:#67e8f9; --cyan-2:#a5f3fc; --violet:#a78bfa; --pink:#f0abfc;
+  --rose:#fb7185; --orange:#fb923c; --emerald:#6ee7b7;
+  --grid:rgba(255,255,255,.045);
+  --grid-strong:rgba(255,255,255,.10);
+  --font-body:'Outfit',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --font-display:Georgia,'Cambria','Times New Roman',serif;
+  --font-mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+:root[data-theme="light"]{
+  --glass:rgba(255,255,255,.65);--glass-2:rgba(255,255,255,.85);
+  --glass-brd:rgba(20,17,62,.10);--glass-brd-2:rgba(20,17,62,.20);
+  --ink:#141a3a;--ink-2:#3a4468;--muted:#6b7390;
+  --gold:#c78a2e;--gold-2:#e5ad5c;--gold-deep:#8f6218;
+  --cyan:#0891b2;--cyan-2:#06b6d4;--violet:#7c5cf5;--pink:#c026d3;
+  --rose:#dc2626;--orange:#ea580c;--emerald:#059669;
+  --grid:rgba(20,17,62,.06);
+  --grid-strong:rgba(20,17,62,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+::selection{background:rgba(255,194,102,.35);color:#fff;}
+body{
+  font-family:var(--font-body);color:var(--ink);line-height:1.55;min-height:100vh;
+  display:flex;justify-content:center;padding:20px 16px 40px;
+  -webkit-font-smoothing:antialiased;overflow-x:clip;position:relative;
+  background:
+    radial-gradient(ellipse 90% 60% at 12% -5%, rgba(167,139,250,.28), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 90% 0%, rgba(103,232,249,.20), transparent 55%),
+    radial-gradient(ellipse 100% 60% at 50% 105%, rgba(255,154,74,.22), transparent 60%),
+    radial-gradient(ellipse 60% 45% at 100% 55%, rgba(240,171,252,.12), transparent 60%),
+    linear-gradient(180deg,#04071a 0%,#080f2e 30%,#14113e 62%,#1e1338 100%);
+  background-attachment:fixed;transition:background .35s ease,color .35s ease;
+}
+:root[data-theme="light"] body{
+  background:
+    radial-gradient(ellipse 80% 55% at 15% 0%, rgba(167,139,250,.18), transparent 55%),
+    radial-gradient(ellipse 60% 45% at 90% 5%, rgba(103,232,249,.22), transparent 55%),
+    radial-gradient(ellipse 90% 50% at 50% 105%, rgba(255,180,90,.18), transparent 60%),
+    linear-gradient(180deg,#eef3ff 0%,#e4ecfc 40%,#e0ddf7 75%,#eae0f2 100%);
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 12% 8%, rgba(255,255,255,.9), transparent),
+    radial-gradient(1px 1px at 34% 22%, rgba(255,255,255,.7), transparent),
+    radial-gradient(1.5px 1.5px at 58% 12%, rgba(200,220,255,.85), transparent),
+    radial-gradient(1px 1px at 78% 30%, rgba(255,255,255,.6), transparent),
+    radial-gradient(1px 1px at 22% 55%, rgba(255,255,255,.5), transparent),
+    radial-gradient(1.5px 1.5px at 68% 68%, rgba(220,230,255,.75), transparent),
+    radial-gradient(1px 1px at 88% 82%, rgba(255,255,255,.6), transparent);
+  animation:starTwinkle 7s ease-in-out infinite alternate;
+}
+:root[data-theme="light"] body::before{display:none;}
+@keyframes starTwinkle{0%{opacity:.6;}100%{opacity:1;}}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,194,102,.22);border-radius:5px;border:2px solid transparent;background-clip:padding-box;}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,194,102,.42);background-clip:padding-box;}
+.app-container{width:100%;max-width:480px;display:flex;flex-direction:column;gap:20px;position:relative;z-index:2;}
+.header{display:flex;justify-content:space-between;align-items:center;padding:8px 4px;gap:12px;}
+.header .location{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;}
+.header .location h1{font-family:var(--font-display);font-size:1.55rem;font-weight:600;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.55),0 0 40px rgba(255,194,102,.22);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+:root[data-theme="light"] .header .location h1{color:#141a3a;text-shadow:0 1px 4px rgba(255,255,255,.6);}
+.header .location span{font-family:var(--font-mono);font-size:.68rem;letter-spacing:1px;color:var(--cyan-2);margin-top:4px;display:flex;align-items:center;gap:4px;text-shadow:0 0 12px rgba(103,232,249,.45);opacity:.9;}
+.header-actions{display:flex;gap:8px;}
+.header-actions button{background:var(--glass);border:1px solid var(--glass-brd);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2);font-family:var(--font-mono);font-weight:600;font-size:.82rem;letter-spacing:.4px;transition:all .22s cubic-bezier(.4,0,.2,1);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 4px 16px rgba(0,0,0,.3);}
+.header-actions button:hover{transform:translateY(-1px);background:var(--glass-2);border-color:var(--glass-brd-2);color:var(--ink);}
+.header-actions button svg{width:20px;height:20px;}
+#btn-settings,#btn-theme{width:42px;}
+#btn-unit{min-width:52px;padding:0 10px;}
+.sci-meta{font-family:var(--font-mono);font-size:.6rem;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);text-align:center;padding:8px 14px;margin-top:-10px;border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:center;gap:10px;flex-wrap:wrap;background:linear-gradient(90deg,transparent,rgba(103,232,249,.04),transparent);}
+.sci-meta .sep{color:rgba(143,153,190,.4);}
+.sci-meta .hl{color:var(--cyan-2);text-shadow:0 0 8px rgba(103,232,249,.35);}
+.greeting{font-family:var(--font-mono);text-align:center;font-size:.7rem;font-weight:600;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-top:-8px;text-shadow:0 0 20px rgba(255,194,102,.45);}
+.hero-card{background:linear-gradient(150deg,rgba(255,255,255,.09) 0%,rgba(255,255,255,.025) 60%,rgba(255,255,255,.06) 100%);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border-radius:32px;padding:28px 24px;box-shadow:0 24px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.18);display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;}
+.hero-card .hero-icon-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.05;pointer-events:none;transform:translateY(8px) scale(1.6);}
+.hero-card .hero-icon-bg svg{width:180px;height:180px;}
+.hero-temp{font-family:var(--font-display);font-size:6.5rem;font-weight:400;line-height:1;letter-spacing:-4px;color:#fff;display:flex;align-items:flex-start;margin-bottom:8px;position:relative;text-shadow:0 2px 10px rgba(0,0,0,.4),0 0 60px rgba(255,194,102,.2);z-index:1;}
+.hero-temp #main-temp{background:linear-gradient(135deg,#ffe8b8 0%,#ffc266 60%,#f0abfc 110%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+:root[data-theme="light"] .hero-temp #main-temp{background:linear-gradient(135deg,#8f6218 0%,#c78a2e 55%,#a05f8e 110%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-temp sup{font-family:var(--font-mono);font-size:2rem;font-weight:500;margin-top:10px;color:var(--cyan-2);-webkit-text-fill-color:var(--cyan-2);text-shadow:0 0 20px rgba(103,232,249,.35);}
+.hero-condition{font-size:1.15rem;font-weight:500;color:var(--ink-2);letter-spacing:.5px;margin-bottom:20px;position:relative;z-index:1;}
+.hero-range{display:flex;gap:20px;font-family:var(--font-mono);font-size:.95rem;font-weight:600;color:var(--ink-2);position:relative;z-index:1;}
+.hero-range span{display:flex;align-items:center;gap:6px;}
+.hero-range span:first-child svg{color:var(--rose);}
+.hero-range span:last-child svg{color:var(--cyan);}
+.chart-card{background:var(--glass);border:1px solid var(--glass-brd);backdrop-filter:blur(20px) saturate(150%);border-radius:20px;box-shadow:0 8px 24px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.10);padding:18px 20px;}
+.chart-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+.chart-title{font-family:var(--font-mono);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.6px;color:var(--gold);}
+.chart-range{font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:var(--ink);}
+.chart-container{width:100%;height:96px;position:relative;}
+.chart-container svg{width:100%;height:100%;display:block;}
+.chart-legend{display:flex;gap:14px;margin-top:10px;font-family:var(--font-mono);font-size:.6rem;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);}
+.chart-legend span{display:flex;align-items:center;gap:5px;}
+.chart-legend .dot{width:14px;height:2px;border-radius:2px;background:var(--gold);}
+.chart-legend .dot.dash{background:repeating-linear-gradient(90deg,var(--cyan) 0 3px,transparent 3px 6px);}
+.section-title{font-family:var(--font-mono);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2.2px;color:var(--gold);margin-bottom:12px;padding-left:4px;}
+.hourly-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory;}
+.hourly-scroll::-webkit-scrollbar{display:none;}
+.hourly-card{background:var(--glass);border:1px solid var(--glass-brd);backdrop-filter:blur(16px) saturate(150%);border-radius:20px;padding:16px 14px;min-width:80px;display:flex;flex-direction:column;align-items:center;gap:10px;scroll-snap-align:start;box-shadow:0 8px 20px rgba(0,0,0,.35);}
+.hourly-card .time{font-family:var(--font-mono);font-size:.72rem;font-weight:500;letter-spacing:.8px;color:var(--muted);}
+.hourly-card .icon svg{width:32px;height:32px;}
+.hourly-card .temp{font-family:var(--font-display);font-size:1.15rem;font-weight:500;color:var(--ink);}
+.hourly-card.now{border-color:rgba(255,194,102,.55);background:linear-gradient(135deg,rgba(255,194,102,.16),rgba(240,171,252,.10));}
+.hourly-card.now .time{color:var(--gold-2);font-weight:700;}
+.metrics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.metric-card{background:var(--glass);border:1px solid var(--glass-brd);backdrop-filter:blur(16px) saturate(150%);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:6px;box-shadow:0 8px 20px rgba(0,0,0,.35);}
+.metric-card .label{font-family:var(--font-mono);font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:1.4px;color:var(--cyan);display:flex;align-items:center;gap:6px;}
+.metric-card .value{font-family:var(--font-display);font-size:1.55rem;font-weight:500;color:var(--ink);display:flex;align-items:baseline;gap:5px;letter-spacing:-.8px;}
+.metric-card .value small{font-family:var(--font-mono);font-size:.72rem;font-weight:500;color:var(--muted);}
+.metric-card .sub{font-family:var(--font-mono);font-size:.68rem;color:var(--muted);}
+.sci-panel{background:linear-gradient(150deg,rgba(103,232,249,.05),rgba(167,139,250,.03));border:1px solid rgba(103,232,249,.20);backdrop-filter:blur(20px) saturate(150%);border-radius:20px;padding:20px 20px 18px;box-shadow:0 8px 24px rgba(0,0,0,.4),inset 0 1px 0 rgba(103,232,249,.14);position:relative;}
+.sci-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.55;}
+.sci-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:12px;border-bottom:1px dashed rgba(103,232,249,.22);}
+.sci-badge{font-family:var(--font-mono);font-size:.58rem;font-weight:700;letter-spacing:1.6px;color:#0a1828;background:linear-gradient(135deg,var(--cyan-2),var(--cyan));padding:3px 8px;border-radius:6px;text-transform:uppercase;}
+.sci-head-title{font-family:var(--font-display);font-size:1rem;font-weight:600;color:var(--ink);}
+.sci-block{margin-bottom:22px;}
+.sci-block:last-child{margin-bottom:0;}
+.sci-block-title{font-family:var(--font-mono);font-size:.64rem;font-weight:700;letter-spacing:1.8px;color:var(--cyan-2);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.sci-block-title::before{content:'▸';color:var(--cyan);font-size:.7rem;}
+.thermo-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.thermo-cell{background:rgba(4,10,30,.55);border:1px solid rgba(103,232,249,.14);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;}
+:root[data-theme="light"] .thermo-cell{background:rgba(255,255,255,.65);border-color:rgba(20,17,62,.10);}
+.thermo-cell .tk{font-family:var(--font-mono);font-size:.6rem;font-weight:700;letter-spacing:1.2px;color:var(--cyan);text-transform:uppercase;}
+.thermo-cell .tv{font-family:var(--font-mono);font-size:1rem;font-weight:600;color:var(--ink);line-height:1.1;}
+.thermo-cell .tu{font-family:var(--font-mono);font-size:.62rem;font-weight:500;color:var(--muted);margin-left:3px;}
+.thermo-cell .td{font-family:var(--font-body);font-size:.62rem;color:var(--muted);line-height:1.3;margin-top:2px;}
+.risk-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.risk-chip{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:.62rem;font-weight:600;letter-spacing:.8px;padding:7px 12px;border-radius:9px;border:1px solid;text-transform:uppercase;white-space:nowrap;background:transparent;transition:all .2s;}
+.risk-chip .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor;}
+.risk-none{color:var(--cyan-2);border-color:rgba(103,232,249,.28);}
+.risk-none .dot{background:var(--cyan-2);color:var(--cyan-2);}
+.risk-low{color:var(--emerald);border-color:rgba(110,231,183,.28);}
+.risk-low .dot{background:var(--emerald);color:var(--emerald);}
+.risk-mild{color:var(--gold-2);border-color:rgba(255,194,102,.32);}
+.risk-mild .dot{background:var(--gold-2);color:var(--gold-2);}
+.risk-moderate{color:var(--orange);border-color:rgba(251,146,60,.35);}
+.risk-moderate .dot{background:var(--orange);color:var(--orange);}
+.risk-high{color:var(--rose);border-color:rgba(251,113,133,.45);background:rgba(251,113,133,.06);animation:pulseWarn 2.4s ease-in-out infinite;}
+.risk-high .dot{background:var(--rose);color:var(--rose);}
+@keyframes pulseWarn{0%,100%{box-shadow:0 0 0 rgba(251,113,133,0);}50%{box-shadow:0 0 18px rgba(251,113,133,.32);}}
+.rad-row{display:grid;grid-template-columns:88px 1fr 66px;gap:10px;align-items:center;margin-bottom:8px;font-family:var(--font-mono);font-size:.62rem;}
+.rad-row .rk{color:var(--cyan);font-weight:600;letter-spacing:.8px;text-transform:uppercase;}
+.rad-row .rv{color:var(--ink);font-weight:600;text-align:right;font-size:.7rem;}
+.rad-bar-track{height:8px;background:rgba(4,10,30,.6);border-radius:4px;overflow:hidden;}
+.rad-bar-fill{height:100%;border-radius:4px;transition:width .6s;}
+.rad-bar-fill.sw{background:linear-gradient(90deg,var(--gold-deep),var(--gold),var(--gold-2));}
+.rad-bar-fill.clear{background:linear-gradient(90deg,rgba(255,194,102,.20),rgba(255,194,102,.35));}
+.rad-bar-fill.net{background:linear-gradient(90deg,var(--violet),var(--pink));}
+.spark-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.spark-cell{background:rgba(4,10,30,.5);border:1px solid rgba(103,232,249,.12);border-radius:10px;padding:8px 10px 6px;display:flex;flex-direction:column;gap:4px;}
+:root[data-theme="light"] .spark-cell{background:rgba(255,255,255,.65);border-color:rgba(20,17,62,.10);}
+.spark-cell .sl{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--font-mono);font-size:.58rem;font-weight:700;letter-spacing:1px;color:var(--cyan);text-transform:uppercase;}
+.spark-cell .sl .sv{color:var(--ink);font-size:.72rem;font-weight:600;}
+.spark-cell svg{width:100%;height:26px;display:block;}
+details.detailed-report{background:var(--glass);border:1px solid var(--glass-brd);border-radius:20px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.35);}
+details.detailed-report[open]{border-color:rgba(255,194,102,.28);}
+details.detailed-report summary{padding:18px 20px;font-family:var(--font-mono);font-size:.78rem;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;}
+details.detailed-report summary::-webkit-details-marker{display:none;}
+details.detailed-report summary::after{content:'▼';font-size:.65rem;transition:transform .3s;}
+details.detailed-report[open] summary::after{transform:rotate(180deg);}
+.detail-grid{padding:0 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.detail-row{display:flex;flex-direction:column;gap:3px;}
+.detail-row .k{font-family:var(--font-mono);font-size:.62rem;color:var(--cyan);font-weight:500;text-transform:uppercase;letter-spacing:1px;opacity:.85;}
+.detail-row .v{font-family:var(--font-mono);font-size:.82rem;font-weight:500;color:var(--ink-2);}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(4,7,26,.65);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.modal-overlay.active{display:flex;}
+.modal-content{background:linear-gradient(150deg,rgba(20,17,62,.92),rgba(8,15,46,.92));border:1px solid rgba(255,255,255,.14);border-radius:28px;padding:28px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:16px;box-shadow:0 24px 60px rgba(0,0,0,.65);}
+:root[data-theme="light"] .modal-content{background:linear-gradient(150deg,rgba(255,255,255,.96),rgba(240,245,255,.96));}
+.modal-content h3{font-family:var(--font-display);font-size:1.2rem;font-weight:600;color:var(--ink);}
+.modal-content label{font-family:var(--font-mono);font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:1.4px;color:var(--cyan);margin-bottom:6px;display:block;}
+.modal-content input{width:100%;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);font-family:var(--font-mono);font-size:.92rem;color:var(--ink);outline:none;}
+:root[data-theme="light"] .modal-content input{background:rgba(255,255,255,.7);border-color:rgba(20,17,62,.14);}
+.modal-content input:focus{border-color:rgba(255,194,102,.55);}
+.modal-actions{display:flex;gap:10px;margin-top:8px;}
+.modal-actions button{flex:1;padding:14px;border-radius:14px;border:1px solid transparent;font-family:var(--font-mono);font-size:.78rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer;}
+.btn-primary{background:linear-gradient(135deg,var(--gold-2),var(--gold));color:#1a0e02;border-color:rgba(255,194,102,.45);}
+:root[data-theme="light"] .btn-primary{color:#fff;}
+.btn-secondary{background:rgba(255,255,255,.05);color:var(--ink-2);border-color:rgba(255,255,255,.14);}
+#btn-refresh{background:linear-gradient(135deg,var(--gold-2),var(--gold)) !important;color:#1a0e02 !important;border:1px solid rgba(255,194,102,.45) !important;font-family:var(--font-mono) !important;font-size:.78rem !important;font-weight:700 !important;letter-spacing:1.2px !important;text-transform:uppercase !important;}
+#btn-csv{background:rgba(255,255,255,.05) !important;color:var(--ink-2) !important;border:1px solid rgba(255,255,255,.14) !important;font-family:var(--font-mono) !important;font-size:.78rem !important;font-weight:700 !important;letter-spacing:1.2px !important;text-transform:uppercase !important;}
+.status-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:linear-gradient(150deg,rgba(20,17,62,.95),rgba(8,15,46,.95));border:1px solid rgba(255,255,255,.14);color:var(--ink);padding:12px 24px;border-radius:100px;font-family:var(--font-mono);font-size:.75rem;font-weight:500;opacity:0;transition:all .4s cubic-bezier(.175,.885,.32,1.275);z-index:200;box-shadow:0 10px 40px rgba(0,0,0,.55);white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;}
+:root[data-theme="light"] .status-toast{background:linear-gradient(150deg,rgba(255,255,255,.98),rgba(240,245,255,.98));}
+.status-toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.status-toast.err{border-color:rgba(251,113,133,.45);color:#fecdd3;}
+.status-toast.ok{border-color:rgba(103,232,249,.45);color:var(--cyan-2);}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;color:var(--ink-2);gap:16px;font-family:var(--font-mono);font-size:.78rem;letter-spacing:1.4px;text-transform:uppercase;}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,194,102,.15);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.hidden{display:none !important;}
+.credit{text-align:center;font-family:var(--font-mono);font-size:.65rem;font-weight:600;letter-spacing:2px;color:var(--muted);margin-top:12px;padding:16px 0 4px;border-top:1px solid rgba(255,255,255,.08);text-transform:uppercase;}
+.credit span{background:linear-gradient(115deg,var(--gold-2) 0%,var(--pink) 60%,var(--cyan-2) 110%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;letter-spacing:2.4px;}
+.chart-hover-wrap{position:relative;}
+.ck-tooltip{position:absolute;pointer-events:none;padding:9px 13px;border-radius:11px;background:linear-gradient(150deg,rgba(20,17,62,.96),rgba(8,15,46,.96));border:1px solid rgba(255,255,255,.16);color:#eef2ff;font-family:var(--font-mono);font-size:.72rem;font-weight:600;line-height:1.7;box-shadow:0 8px 24px rgba(0,0,0,.55);opacity:0;transform:translate(-50%,-100%) scale(.92);transition:opacity .15s,transform .15s;white-space:nowrap;z-index:50;}
+:root[data-theme="light"] .ck-tooltip{background:linear-gradient(150deg,rgba(255,255,255,.98),rgba(240,245,255,.98));color:#141a3a;}
+.ck-tooltip.show{opacity:1;transform:translate(-50%,-100%) scale(1);}
+.ck-tooltip .ck-tt-time{color:var(--gold);font-weight:700;letter-spacing:1px;padding-bottom:4px;margin-bottom:2px;border-bottom:1px dashed rgba(255,255,255,.10);}
+.ck-tooltip .ck-tt-row{display:flex;justify-content:space-between;gap:14px;margin-top:3px;}
+.ck-tooltip .ck-tt-row span:first-child{color:var(--muted);}
+.ck-tooltip .ck-tt-row span:last-child{color:var(--gold-2);font-weight:700;}
+.chart-export-btn{position:absolute;top:6px;right:6px;width:26px;height:26px;padding:0;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:20;opacity:.4;}
+.chart-export-btn:hover{opacity:1;color:var(--gold);border-color:rgba(255,194,102,.5);background:rgba(255,194,102,.12);}
+.chart-export-btn svg{width:14px;height:14px;}
+.hover-guide{position:absolute;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,rgba(255,194,102,.55) 20%,rgba(255,194,102,.55) 80%,transparent);pointer-events:none;opacity:0;transition:opacity .12s;z-index:5;}
+.hover-guide.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <header class="header">
+    <div style="width:42px"></div>
+    <div class="location">
+      <h1 id="loc-name">Memuat…</h1>
+      <span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        <span id="loc-coords">--°</span>
+      </span>
+    </div>
+    <div class="header-actions">
+      <button id="btn-theme" title="Ganti tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path id="theme-icon-path" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+      <button id="btn-unit" title="Ganti satuan">°C</button>
+      <button id="btn-settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="greeting" class="greeting">Selamat Malam</div>
+
+  <div class="sci-meta">
+    <span>IFS HRES · O1280 · <span class="hl">9 km</span></span>
+    <span class="sep">•</span>
+    <span id="sci-run">RUN --Z</span>
+    <span class="sep">•</span>
+    <span id="sci-lead">T+--h</span>
+    <span class="sep">•</span>
+    <span id="sci-orog">OROG -- m</span>
+    <span class="sep">•</span>
+    <span id="sci-dh">Δh -- m</span>
+  </div>
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <span>Mengambil data ECMWF...</span>
+  </div>
+
+  <main id="content" class="hidden" style="display:flex; flex-direction:column; gap:20px;">
+    <section class="hero-card">
+      <div class="hero-icon-bg" id="hero-icon-bg"></div>
+      <div class="hero-temp"><span id="main-temp">--</span><sup id="main-unit">°C</sup></div>
+      <div class="hero-condition" id="main-condition">--</div>
+      <div class="hero-range">
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 7l-5-5-5 5M7 17l5 5 5-5"/></svg><span id="temp-max">--°</span></span>
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V2M7 17l5 5 5-5M7 7l5-5 5 5"/></svg><span id="temp-min">--°</span></span>
+      </div>
+    </section>
+
+    <section class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">Tren Suhu &amp; Titik Embun 24 Jam</span>
+        <span class="chart-range" id="chart-range">-- / --</span>
+      </div>
+      <div class="chart-container" id="chart-container"></div>
+      <div class="chart-legend">
+        <span><i class="dot"></i>Suhu (T)</span>
+        <span><i class="dot dash"></i>Titik embun (Td)</span>
+        <span style="margin-left:auto;color:rgba(143,153,190,.6)">BAND = Malam</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Prakiraan Per Jam</div>
+      <div class="hourly-scroll" id="hourly-container"></div>
+    </section>
+
+    <section>
+      <div class="section-title">Kondisi Saat Ini</div>
+      <div class="metrics-grid">
+        <div class="metric-card"><div class="label">Angin</div><div class="value"><span id="wind-speed">--</span><small>km/j</small></div><div class="sub" id="wind-dir">--</div></div>
+        <div class="metric-card"><div class="label">Kelembapan</div><div class="value"><span id="humidity">--</span><small>%</small></div><div class="sub" id="dewpoint">Titik embun --°</div></div>
+        <div class="metric-card"><div class="label">Tekanan</div><div class="value"><span id="pressure">--</span><small>hPa</small></div><div class="sub" id="pressure-msl">MSL -- hPa</div></div>
+        <div class="metric-card"><div class="label">Awan</div><div class="value"><span id="cloud-cover">--</span><small>%</small></div><div class="sub" id="precip">Presipitasi -- mm</div></div>
+      </div>
+    </section>
+
+    <section class="sci-panel">
+      <div class="sci-head"><span class="sci-badge">Scientific</span><span class="sci-head-title">Analisis Atmosferik</span></div>
+      <div class="sci-block">
+        <div class="sci-block-title">Kolom Termodinamika</div>
+        <div class="thermo-grid">
+          <div class="thermo-cell"><span class="tk">θ Potensial</span><div><span class="tv" id="th-theta">--</span><span class="tu">K</span></div><div class="td">Suhu terkoreksi ke 1000 hPa</div></div>
+          <div class="thermo-cell"><span class="tk">θe Ekuivalen</span><div><span class="tv" id="th-thetae">--</span><span class="tu">K</span></div><div class="td">Indikator energi konveksi</div></div>
+          <div class="thermo-cell"><span class="tk">w Campuran</span><div><span class="tv" id="th-w">--</span><span class="tu">g/kg</span></div><div class="td">Rasio uap air</div></div>
+          <div class="thermo-cell"><span class="tk">Tw Wet-Bulb</span><div><span class="tv" id="th-tw">--</span><span class="tu">°C</span></div><div class="td">Batas pendinginan evaporatif</div></div>
+          <div class="thermo-cell"><span class="tk">DPD</span><div><span class="tv" id="th-dpd">--</span><span class="tu">K</span></div><div class="td">T − Td</div></div>
+          <div class="thermo-cell"><span class="tk">LCL</span><div><span class="tv" id="th-lcl">--</span><span class="tu">m</span></div><div class="td">Dasar awan konvektif</div></div>
+          <div class="thermo-cell"><span class="tk">WBGT</span><div><span class="tv" id="th-wbgt">--</span><span class="tu">°C</span></div><div class="td">Stres panas outdoor</div></div>
+          <div class="thermo-cell"><span class="tk">Heat Index</span><div><span class="tv" id="th-hi">--</span><span class="tu">°C</span></div><div class="td">Feels like (NWS)</div></div>
+        </div>
+      </div>
+      <div class="sci-block">
+        <div class="sci-block-title">Stabilitas &amp; Risiko Fisis</div>
+        <div class="risk-chips" id="risk-chips"></div>
+      </div>
+      <div class="sci-block">
+        <div class="sci-block-title">Neraca Radiasi SW</div>
+        <div id="rad-bars"></div>
+      </div>
+      <div class="sci-block">
+        <div class="sci-block-title">Evolusi 24 Jam</div>
+        <div class="spark-grid" id="spark-grid"></div>
+      </div>
+    </section>
+
+    <section class="sci-panel">
+      <div class="sci-head"><span class="sci-badge">Charts</span><span class="sci-head-title">Visualisasi Data</span></div>
+      <div class="sci-block"><div class="sci-block-title">Wind Rose · 8 Arah</div><div id="chart-windrose" style="display:flex;justify-content:center"></div></div>
+      <div class="sci-block"><div class="sci-block-title">Neraca Radiasi SW</div><div style="height:96px" id="chart-radiation"></div></div>
+      <div class="sci-block"><div class="sci-block-title">Struktur Awan Vertikal</div><div style="height:76px" id="chart-cloud"></div></div>
+      <div class="sci-block"><div class="sci-block-title">Presipitasi vs Awan</div><div style="height:86px" id="chart-precip"></div></div>
+      <div class="sci-block"><div class="sci-block-title">Indeks Stres Panas</div><div id="chart-heat"></div></div>
+      <div class="sci-block"><div class="sci-block-title">Tendensi Tekanan MSL</div><div style="height:76px" id="chart-pressure"></div></div>
+      <div class="sci-block"><div class="sci-block-title">Jalur Surya</div><div style="height:110px" id="chart-sunpath"></div></div>
+      <div class="sci-block"><div class="sci-block-title">Envelope Angin &amp; Gust</div><div style="height:86px" id="chart-windenvelope"></div></div>
+      <div class="sci-block"><div class="sci-block-title">Psikrometrik</div><div id="chart-psychro"></div></div>
+      <details class="detailed-report" style="margin-top:0">
+        <summary>Meteogram Lengkap</summary>
+        <div style="padding:16px 20px 20px" id="chart-meteogram"></div>
+      </details>
+    </section>
+
+    <details class="detailed-report">
+      <summary>Detail Meteorologi Lengkap</summary>
+      <div class="detail-grid" id="detail-grid"></div>
+    </details>
+
+    <div style="display:flex; gap:10px;">
+      <button id="btn-refresh" style="flex:1; padding:14px; border-radius:14px; border:none; cursor:pointer;">Perbarui Data</button>
+      <button id="btn-csv" style="flex:1; padding:14px; border-radius:14px; border:none; cursor:pointer;">Ekspor CSV</button>
+    </div>
+
+    <footer class="credit">Design by <span>Jolotundo-Obsv 2026</span></footer>
+  </main>
+</div>
+
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-content">
+    <h3>Pengaturan Lokasi</h3>
+    <div><label for="input-lat">Latitude</label><input id="input-lat" type="number" step="any" value="-7.521951"></div>
+    <div><label for="input-lon">Longitude</label><input id="input-lon" type="number" step="any" value="112.566089"></div>
+    <div><label for="input-hgt">Ketinggian (m)</label><input id="input-hgt" type="number" step="any" value="27.07"></div>
+    <div class="modal-actions">
+      <button id="btn-cancel-settings" class="btn-secondary">Batal</button>
+      <button id="btn-save-settings" class="btn-primary">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="status-toast"></div>
+
+<script>
+"use strict";
+
+/* ============================================================
+ *  1. KONSTANTA
+ * ============================================================ */
+const TZ_OFFSET_HOURS = 7;
+const UNIT_KEY = "ecmwf_unit_pref";
+const THEME_KEY = "ecmwf_theme_pref";
+const LOG_KEY = "ecmwf_meteo_log";
+const CACHE_PREFIX = "ecmwf_single_";
+const CACHE_TTL_MS = 6 * 3600 * 1000;
+
+let unit = localStorage.getItem(UNIT_KEY) || "C";
+let lastData = null;
+let lastCoords = { lat: -7.521951, lon: 112.566089, hgt: 27.07 };
+let lastLocationName = null;
+
+/* ============================================================
+ *  2. UTILITAS
+ * ============================================================ */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const pad2 = n => String(n).padStart(2, "0");
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+function parseUtc(s) {
+  s = String(s).trim();
+  if (s.endsWith("Z")) return new Date(s);
+  if (/[+-]\d{2}:?\d{2}$/.test(s)) return new Date(s);
+  return new Date(s + "Z");
+}
+function toDisplayTemp(c) {
+  if (c == null || Number.isNaN(c)) return null;
+  return unit === "F" ? c * 9 / 5 + 32 : c;
+}
+function tempUnitSymbol() { return unit === "F" ? "°F" : "°C"; }
+function formatTemp(c, d = 1) {
+  const v = toDisplayTemp(c);
+  return v === null ? "--" : v.toFixed(d);
+}
+const COMPASS_16 = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+function windDirectionName(deg) {
+  deg = ((deg % 360) + 360) % 360;
+  return COMPASS_16[Math.round(deg / 22.5) % 16];
+}
+function toLocalHour(utcHour) { return (utcHour + TZ_OFFSET_HOURS + 24) % 24; }
+
+/* ============================================================
+ *  3. FISIKA
+ * ============================================================ */
+const PHYS = { G:9.80665, R:287.05, LAPSE:0.0065, H_SCALE:2000, MAGNUS_A:17.67, MAGNUS_B:243.5, KAPPA:0.2857, EPS:0.622 };
+function esat(TdC) { return 6.112 * Math.exp(PHYS.MAGNUS_A * TdC / (TdC + PHYS.MAGNUS_B)); }
+function dewpoint(e) {
+  if (e <= 0) return -273.15;
+  const ln = Math.log(e / 6.112);
+  return PHYS.MAGNUS_B * ln / (PHYS.MAGNUS_A - ln);
+}
+function wetBulb(T, RH) {
+  return T * Math.atan(0.151977 * Math.sqrt(RH + 8.313659))
+       + Math.atan(T + RH) - Math.atan(RH - 1.676331)
+       + 0.00391838 * Math.pow(RH, 1.5) * Math.atan(0.023101 * RH) - 4.686035;
+}
+function mixingRatio(TdC, PhPa) {
+  const e = esat(TdC);
+  return 1000 * PHYS.EPS * e / Math.max(0.01, PhPa - e);
+}
+function lclHeight(T, Td) { return 125 * (T - Td); }
+function wbgtApprox(T, RH, sw) {
+  const Tg = T + 0.022 * (sw || 0) - 2.5;
+  return 0.7 * wetBulb(T, RH) + 0.2 * Tg + 0.1 * T;
+}
+function heatIndexC(T, RH) {
+  if (T < 27) return T;
+  const Tf = T * 9 / 5 + 32;
+  let HI = -42.379 + 2.04901523 * Tf + 10.14333127 * RH - 0.22475541 * Tf * RH
+         - 0.00683783 * Tf * Tf - 0.05481717 * RH * RH + 0.00122874 * Tf * Tf * RH
+         + 0.00085282 * Tf * RH * RH - 0.00000199 * Tf * Tf * RH * RH;
+  if (RH < 13 && Tf >= 80 && Tf <= 112) HI -= ((13 - RH) / 4) * Math.sqrt((17 - Math.abs(Tf - 95)) / 17);
+  else if (RH > 85 && Tf >= 80 && Tf <= 87) HI += ((RH - 85) / 10) * ((87 - Tf) / 5);
+  return (HI - 32) * 5 / 9;
+}
+function clearSkySW(sw, cloud) {
+  const c = clamp((cloud || 0) / 100, 0, 1);
+  const tau = 1 - 0.75 * Math.pow(c, 1.7);
+  return sw / Math.max(0.05, tau);
+}
+function solarElevationDeg(lat, lon, d) {
+  const y0 = Date.UTC(d.getUTCFullYear(), 0, 1);
+  const doy = Math.floor((d.getTime() - y0) / 86400000) + 1;
+  const decl = 23.44 * Math.sin(2 * Math.PI * (doy - 81) / 365) * Math.PI / 180;
+  const sT = d.getUTCHours() + d.getUTCMinutes() / 60 + lon / 15;
+  const H = (sT - 12) * 15 * Math.PI / 180;
+  const latR = lat * Math.PI / 180;
+  const s = Math.sin(latR) * Math.sin(decl) + Math.cos(latR) * Math.cos(decl) * Math.cos(H);
+  return Math.asin(clamp(s, -1, 1)) * 180 / Math.PI;
+}
+
+/* ============================================================
+ *  4. FETCH ECMWF
+ * ============================================================ */
+async function fetchEcmwf(lat, lon) {
+  const hourlyVars = ["temperature_2m","relative_humidity_2m","dewpoint_2m","surface_pressure","pressure_msl","cloud_cover","cloud_cover_low","cloud_cover_mid","cloud_cover_high","wind_speed_10m","wind_direction_10m","wind_gusts_10m","precipitation","shortwave_radiation"];
+  const now = new Date();
+  const dMin = new Date(now); dMin.setUTCDate(dMin.getUTCDate() - 1);
+  const dMax = new Date(now); dMax.setUTCDate(dMax.getUTCDate() + 1);
+  const sd = dMin.toISOString().slice(0, 10);
+  const ed = dMax.toISOString().slice(0, 10);
+  const p = new URLSearchParams();
+  p.set("latitude", lat);
+  p.set("longitude", lon);
+  hourlyVars.forEach(v => p.append("hourly", v));
+  p.set("start_date", sd);
+  p.set("end_date", ed);
+  p.set("timezone", "UTC");
+  const url = "https://api.open-meteo.com/v1/ecmwf?" + p.toString();
+  for (let a = 0; a < 4; a++) {
+    try {
+      const resp = await fetch(url, { cache: "no-store" });
+      if (!resp.ok) { if (a === 3) return null; await sleep(1000 * Math.pow(2, a)); continue; }
+      const raw = await resp.json();
+      if (raw && raw.hourly) return raw;
+      return null;
+    } catch (e) {
+      if (a === 3) return null;
+      await sleep(1000 * Math.pow(2, a));
+    }
+  }
+  return null;
+}
+
+/* ============================================================
+ *  5. REVERSE GEOCODE
+ * ============================================================ */
+async function reverseGeocode(lat, lon) {
+  const key = `geo_${lat.toFixed(3)}_${lon.toFixed(3)}`;
+  try {
+    const c = JSON.parse(localStorage.getItem(key) || "null");
+    if (c) return c;
+  } catch (_) {}
+  try {
+    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=id`;
+    const resp = await fetch(url);
+    if (!resp.ok) return null;
+    const d = await resp.json();
+    const name = d.city || d.locality ||
+      (d.localityInfo && d.localityInfo.administrative && d.localityInfo.administrative[2] && d.localityInfo.administrative[2].name) ||
+      d.principalSubdivision || d.countryName || null;
+    if (name) { try { localStorage.setItem(key, JSON.stringify(name)); } catch (_) {} }
+    return name;
+  } catch (_) { return null; }
+}
+
+/* ============================================================
+ *  6. CACHE
+ * ============================================================ */
+function cacheKey(t) {
+  return CACHE_PREFIX + t.getUTCFullYear() + pad2(t.getUTCMonth() + 1) + pad2(t.getUTCDate()) + "_" + pad2(t.getUTCHours()) + "00";
+}
+function cacheRead(key) {
+  try {
+    const o = JSON.parse(localStorage.getItem(key));
+    if (o && o.raw && Date.now() - o.ts <= CACHE_TTL_MS) return o;
+  } catch (_) {}
+  return null;
+}
+function cacheWrite(key, raw) {
+  try { localStorage.setItem(key, JSON.stringify({ ts: Date.now(), raw })); } catch (_) {}
+}
+function cacheFindFresh() {
+  const now = Date.now();
+  let best = null, bestTs = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k || !k.startsWith(CACHE_PREFIX)) continue;
+    try {
+      const o = JSON.parse(localStorage.getItem(k));
+      if (o && now - o.ts <= CACHE_TTL_MS && o.ts > bestTs) { best = o; bestTs = o.ts; }
+    } catch (_) {}
+  }
+  return best;
+}
+
+/* ============================================================
+ *  7. PARSE + EKSTRAPOLASI
+ * ============================================================ */
+function extrapolate(Ts, Tds, Ps, hs, ht) {
+  const dH = ht - hs;
+  const TsK = Ts + 273.15;
+  const TtK = TsK - PHYS.LAPSE * dH;
+  const TmK = (TsK + TtK) / 2;
+  const Pt = Math.abs(dH) < 1e-6 ? Ps : Ps * Math.exp(-PHYS.G * dH / (PHYS.R * TmK));
+  const eS = esat(Tds);
+  const eT = clamp(eS * Math.exp(-dH / PHYS.H_SCALE), 0.01, 120);
+  const TdT = dewpoint(eT);
+  const Tt = TtK - 273.15;
+  const eSat = Tt > -40 ? esat(Tt) : 0;
+  const RH = eSat > 0 ? clamp((eT / eSat) * 100, 0, 100) : 0;
+  return { T_c: Tt, Td_c: TdT, P_hpa: Pt, e_hpa: eT, RH_pct: RH, Ts_c: Ts, Tds_c: Tds, Ps_hpa: Ps, hs_m: hs, dh_m: dH };
+}
+
+function parseAndExtrapolate(raw, ht, utcTime, lat, lon) {
+  const h = raw.hourly;
+  const tl = h.time;
+  const tTarget = utcTime.getTime() / 1000;
+  let idx = 0, bd = Infinity;
+  for (let i = 0; i < tl.length; i++) {
+    const diff = Math.abs(parseUtc(tl[i]).getTime() / 1000 - tTarget);
+    if (diff < bd) { bd = diff; idx = i; }
+  }
+  const pick = (name, i = idx) => {
+    const a = h[name];
+    return (Array.isArray(a) && a[i] !== undefined) ? a[i] : null;
+  };
+  const Ts = pick("temperature_2m"), Tds = pick("dewpoint_2m"), Ps = pick("surface_pressure");
+  const Pmsl = pick("pressure_msl"), ws = pick("wind_speed_10m"), wd = pick("wind_direction_10m");
+  const wg = pick("wind_gusts_10m"), pr = pick("precipitation"), cc = pick("cloud_cover");
+  const cl = pick("cloud_cover_low"), cm = pick("cloud_cover_mid"), ch = pick("cloud_cover_high");
+  const sw = pick("shortwave_radiation");
+  const hS = typeof raw.elevation === "number" ? raw.elevation : 0;
+  const ex = extrapolate(Ts, Tds, Ps, hS, ht);
+  const wG = mixingRatio(ex.Td_c, ex.P_hpa);
+  const thetaK = (ex.T_c + 273.15) * Math.pow(1000 / ex.P_hpa, 0.2857);
+  const thetaE = thetaK + 2.5 * wG;
+  const Tw = wetBulb(ex.T_c, ex.RH_pct);
+  const LCL = lclHeight(ex.T_c, ex.Td_c);
+  const DPD = ex.T_c - ex.Td_c;
+  const WBGT = wbgtApprox(ex.T_c, ex.RH_pct, sw || 0);
+  const HI = heatIndexC(ex.T_c, ex.RH_pct);
+  const SWc = clearSkySW(sw || 0, cc || 0);
+  const hourly = [];
+  for (let i = idx; i < Math.min(idx + 8, tl.length); i++) {
+    hourly.push({ time: tl[i], temp: pick("temperature_2m", i), cloud: pick("cloud_cover", i), precip: pick("precipitation", i), isNow: i === idx });
+  }
+  const tArr = [], tdArr = [], rhArr = [], pArr = [], swArr = [], windArr = [];
+  const wdArr = [], wgArr = [], prArr = [], clArr = [], cmArr = [], chArr = [], elevArr = [];
+  let dMax = -Infinity, dMin = Infinity;
+  for (let i = 0; i < tl.length; i++) {
+    const T = pick("temperature_2m", i), Td = pick("dewpoint_2m", i), RH = pick("relative_humidity_2m", i);
+    const P = pick("pressure_msl", i), SW = pick("shortwave_radiation", i), W = pick("wind_speed_10m", i);
+    tArr.push(T); tdArr.push(Td); rhArr.push(RH); pArr.push(P);
+    swArr.push(SW); windArr.push(W);
+    wdArr.push(pick("wind_direction_10m", i));
+    wgArr.push(pick("wind_gusts_10m", i));
+    prArr.push(pick("precipitation", i));
+    clArr.push(pick("cloud_cover_low", i));
+    cmArr.push(pick("cloud_cover_mid", i));
+    chArr.push(pick("cloud_cover_high", i));
+    elevArr.push(solarElevationDeg(lat, lon, parseUtc(tl[i])));
+    if (T != null) { if (T > dMax) dMax = T; if (T < dMin) dMin = T; }
+  }
+  const firstTime = parseUtc(tl[0]);
+  return {
+    current: {
+      temperature_c: ex.T_c, dewpoint_c: ex.Td_c, pressure_hpa: ex.P_hpa,
+      vapour_pressure_hpa: ex.e_hpa, relative_humidity_pct: ex.RH_pct,
+      surface_temperature_c: ex.Ts_c, surface_dewpoint_c: ex.Tds_c,
+      surface_pressure_hpa: ex.Ps_hpa, model_orography_m: ex.hs_m, height_delta_m: ex.dh_m,
+      wind_speed_kmh: ws, wind_direction_deg: wd, wind_gust_kmh: wg,
+      precipitation_mm: pr, cloud_cover_total_pct: cc, cloud_cover_low_pct: cl,
+      cloud_cover_mid_pct: cm, cloud_cover_high_pct: ch, pressure_msl_hpa: Pmsl,
+      shortwave_radiation_wm2: sw
+    },
+    derived: {
+      theta_K: thetaK, thetaE_K: thetaE, mixingRatio_gkg: wG,
+      wetBulb_C: Tw, LCL_m: LCL, DPD_K: DPD, WBGT_C: WBGT,
+      heatIndex_C: HI, clearSkySW_wm2: SWc
+    },
+    hourly,
+    daily: {
+      max: dMax === -Infinity ? null : dMax,
+      min: dMin === Infinity ? null : dMin,
+      temps: tArr, dewpoints: tdArr, rH: rhArr, pressure: pArr,
+      sw: swArr, wind: windArr, elev: elevArr,
+      windDirs: wdArr, windGusts: wgArr, precip: prArr,
+      cloudLow: clArr, cloudMid: cmArr, cloudHigh: chArr,
+      startUtcHour: tl[0]
+    },
+    metadata: {
+      source: "ECMWF IFS HRES (O1280, 9 km)",
+      latitude: raw.latitude ?? 0,
+      longitude: raw.longitude ?? 0,
+      target_height_m: ht,
+      forecast_hour_utc: tl[idx],
+      data_points: tl.length,
+      run_hour_utc: firstTime.getUTCHours(),
+      lead_hours: idx,
+      start_utc_iso: tl[0],
+      windDirectionName: wd != null ? windDirectionName(wd) : null
+    }
+  };
+}
+
+/* ============================================================
+ *  8. CHARTKIT
+ * ============================================================ */
+const PALETTES = {
+  dark: { gold:"#ffc266",gold2:"#ffd99a",cyan:"#67e8f9",cyan2:"#a5f3fc",violet:"#a78bfa",pink:"#f0abfc",rose:"#fb7185",orange:"#fb923c",emerald:"#6ee7b7",muted:"#8f99be" },
+  light: { gold:"#c78a2e",gold2:"#e5ad5c",cyan:"#0891b2",cyan2:"#06b6d4",violet:"#7c5cf5",pink:"#c026d3",rose:"#dc2626",orange:"#ea580c",emerald:"#059669",muted:"#6b7390" }
+};
+function themeColors() {
+  const t = document.documentElement.getAttribute("data-theme") || "dark";
+  return PALETTES[t] || PALETTES.dark;
+}
+function domainColors() {
+  const C = themeColors();
+  return {
+    thermal:  { from: C.gold2, to: C.rose },
+    moisture: { from: C.cyan,  to: C.violet },
+    wind:     { from: C.pink,  to: C.orange },
+    radiation:{ from: C.gold2, to: C.orange },
+    stability:{ from: C.emerald,to: C.gold }
+  };
+}
+function linePath(values, xOf, yOf) {
+  let p = "";
+  for (let i = 0; i < values.length; i++) {
+    const v = values[i]; if (v == null) continue;
+    p += (p ? "L" : "M") + xOf(i).toFixed(1) + "," + yOf(v).toFixed(1);
+  }
+  return p;
+}
+function areaPath(values, xOf, yOf, baseY) {
+  const pts = [];
+  values.forEach((v, i) => { if (v != null) pts.push({ x: xOf(i), y: yOf(v) }); });
+  if (pts.length < 2) return "";
+  let p = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+  for (let i = 1; i < pts.length; i++) p += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
+  p += ` L ${pts[pts.length - 1].x.toFixed(1)} ${baseY.toFixed(1)} L ${pts[0].x.toFixed(1)} ${baseY.toFixed(1)} Z`;
+  return p;
+}
+function gridLines(W, H, PAD, ticks) {
+  ticks = ticks || 4;
+  let out = "";
+  for (let i = 0; i <= ticks; i++) {
+    const y = PAD + (i / ticks) * (H - PAD * 2);
+    out += `<line x1="${PAD}" y1="${y.toFixed(1)}" x2="${W - PAD}" y2="${y.toFixed(1)}" stroke="var(--grid)" stroke-width="0.5" stroke-dasharray="2 4"/>`;
+  }
+  return out;
+}
+function haloDot(x, y, color) {
+  return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="14" fill="${color}" opacity="0.06"/>` +
+         `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="8" fill="${color}" opacity="0.18"/>` +
+         `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.2" fill="${color}" stroke="#1a0e02" stroke-width="1"/>`;
+}
+function annular(cx, cy, r0, r1, a0, a1, fill, opacity) {
+  opacity = opacity == null ? 0.9 : opacity;
+  const x0o = cx + Math.cos(a0) * r1, y0o = cy + Math.sin(a0) * r1;
+  const x1o = cx + Math.cos(a1) * r1, y1o = cy + Math.sin(a1) * r1;
+  const large = (a1 - a0) > Math.PI ? 1 : 0;
+  let d = `M ${x0o.toFixed(2)} ${y0o.toFixed(2)} A ${r1.toFixed(2)} ${r1.toFixed(2)} 0 ${large} 1 ${x1o.toFixed(2)} ${y1o.toFixed(2)}`;
+  if (r0 > 0.5) {
+    const x1i = cx + Math.cos(a1) * r0, y1i = cy + Math.sin(a1) * r0;
+    const x0i = cx + Math.cos(a0) * r0, y0i = cy + Math.sin(a0) * r0;
+    d += ` L ${x1i.toFixed(2)} ${y1i.toFixed(2)} A ${r0.toFixed(2)} ${r0.toFixed(2)} 0 ${large} 0 ${x0i.toFixed(2)} ${y0i.toFixed(2)}`;
+  } else { d += ` L ${cx} ${cy}`; }
+  d += " Z";
+  return `<path d="${d}" fill="${fill}" opacity="${opacity}"/>`;
+}
+function arcStroke(cx, cy, r, a0, a1, stroke, w, op) {
+  const x0 = cx + Math.cos(a0) * r, y0 = cy + Math.sin(a0) * r;
+  const x1 = cx + Math.cos(a1) * r, y1 = cy + Math.sin(a1) * r;
+  const large = Math.abs(a1 - a0) > Math.PI ? 1 : 0;
+  return `<path d="M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}" fill="none" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round" opacity="${op}"/>`;
+}
+
+/* ============================================================
+ *  9. HOVER SYNC
+ * ============================================================ */
+const HoverSync = {
+  entries: new Set(),
+  register(entry) { this.entries.add(entry); },
+  clearAll() { this.entries.forEach(e => e.hide()); },
+  fire(idx, originEl) {
+    this.entries.forEach(e => {
+      if (e.el === originEl) return;
+      e.show(idx);
+    });
+  }
+};
+
+/* ============================================================
+ *  10. WIND ROSE — 8 arah
+ * ============================================================ */
+function windRose(speeds, dirs, opts = {}) {
+  const C = themeColors();
+  const size = opts.size || 300;
+  const PAD = 40;
+  const R = size / 2 - PAD;
+  const cx = size / 2, cy = size / 2;
+  const SECTORS = 8;
+  const SECTOR_NAMES = ["N","NE","E","SE","S","SW","W","NW"];
+  const BINS = [
+    { max: 6,        color: "#6ee7b7", label: "< 6"    },
+    { max: 12,       color: "#67e8f9", label: "6–12"   },
+    { max: 20,       color: "#a78bfa", label: "12–20"  },
+    { max: 30,       color: "#ffc266", label: "20–30"  },
+    { max: Infinity, color: "#fb7185", label: "> 30"   }
+  ];
+
+  const grid = Array.from({ length: SECTORS }, () => new Array(BINS.length).fill(0));
+  const secSpeeds = Array.from({ length: SECTORS }, () => []);
+  let total = 0, calm = 0;
+  for (let i = 0; i < speeds.length; i++) {
+    const s = speeds[i], d = dirs[i];
+    if (s == null || d == null) continue;
+    if (s < 1) { calm++; total++; continue; }
+    const sec = Math.round((((d % 360) + 360) % 360) / 45) % SECTORS;
+    const bi = BINS.findIndex(b => s < b.max);
+    if (bi >= 0) { grid[sec][bi]++; secSpeeds[sec].push(s); total++; }
+  }
+  if (!total) return `<div style="text-align:center;color:${C.muted};font-size:.7rem;padding:20px">Data angin tidak tersedia</div>`;
+
+  const pct = grid.map(sec => sec.map(v => v / total * 100));
+  const sectorTotals = pct.map(sec => sec.reduce((a, b) => a + b, 0));
+  const maxSectorTotal = Math.max(...sectorTotals, 1);
+  const domIdx = sectorTotals.indexOf(Math.max(...sectorTotals));
+  const calmPct = total > 0 ? (calm / total * 100) : 0;
+
+  const secA = 2 * Math.PI / SECTORS;
+  const half = secA * 0.44;
+
+  let rings = "";
+  const ringPcts = [25, 50, 75, 100];
+  ringPcts.forEach(p => {
+    const r = (p / 100) * R;
+    rings += `<circle cx="${cx}" cy="${cy}" r="${r.toFixed(1)}" fill="none" stroke="${C.muted}" stroke-opacity="0.10" stroke-width="0.6"/>`;
+    if (p !== 100) {
+      rings += `<text x="${cx + 4}" y="${cy - r + 3}" font-family="JetBrains Mono" font-size="6.5" font-weight="600" fill="${C.muted}" opacity="0.55">${p}%</text>`;
+    }
+  });
+
+  let spokes = "";
+  for (let i = 0; i < SECTORS; i++) {
+    const a = i * secA - Math.PI / 2;
+    const x2 = cx + Math.cos(a) * R;
+    const y2 = cy + Math.sin(a) * R;
+    spokes += `<line x1="${cx}" y1="${cy}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${C.muted}" stroke-opacity="0.08" stroke-width="0.5"/>`;
+  }
+
+  let bars = "";
+  for (let s = 0; s < SECTORS; s++) {
+    const cA = s * secA - Math.PI / 2;
+    const isDominant = s === domIdx && maxSectorTotal > 0;
+    let r0 = 0;
+    for (let b = 0; b < BINS.length; b++) {
+      const v = pct[s][b];
+      if (v <= 0) continue;
+      const r1 = r0 + (v / maxSectorTotal) * R;
+      const op = isDominant ? 0.98 : 0.88;
+      bars += annular(cx, cy, r0, r1, cA - half, cA + half, BINS[b].color, op);
+      r0 = r1;
+    }
+  }
+
+  if (maxSectorTotal > 0) {
+    const cA = domIdx * secA - Math.PI / 2;
+    const topR = (sectorTotals[domIdx] / maxSectorTotal) * R;
+    bars += arcStroke(cx, cy, topR, cA - half, cA + half, "#ffffff", 1.2, 0.55);
+  }
+
+  let compass = "";
+  for (let i = 0; i < SECTORS; i++) {
+    const a = i * secA - Math.PI / 2;
+    const dotR = R + 12;
+    const lblR = R + 26;
+    const dx = cx + Math.cos(a) * dotR;
+    const dy = cy + Math.sin(a) * dotR;
+    const lx = cx + Math.cos(a) * lblR;
+    const ly = cy + Math.sin(a) * lblR;
+    const isCard = (i % 2 === 0);
+    compass += `<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="${isCard ? 1.8 : 1.2}" fill="${isCard ? C.gold : C.muted}" opacity="${isCard ? 0.9 : 0.5}"/>`;
+    const anchor = (i === 0) ? "middle" : (i === 2) ? "start" : (i === 4) ? "middle" : (i === 6) ? "end" : "middle";
+    const dyT = (i === 0) ? "-4" : (i === 4) ? "10" : "3";
+    compass += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" dy="${dyT}" text-anchor="${anchor}" font-family="JetBrains Mono" font-size="${isCard ? 10 : 8.5}" font-weight="700" fill="${isCard ? C.gold : C.muted}" opacity="${isCard ? 1 : 0.75}">${SECTOR_NAMES[i]}</text>`;
+  }
+
+  const calmR = 24;
+  let calmCenter = "";
+  if (calmPct > 0) {
+    calmCenter = `
+      <circle cx="${cx}" cy="${cy}" r="${calmR}" fill="rgba(4,10,30,.7)" stroke="${C.muted}" stroke-opacity="0.30" stroke-width="0.8" stroke-dasharray="2 3"/>
+      <text x="${cx}" y="${cy - 3}" text-anchor="middle" font-family="JetBrains Mono" font-size="7" font-weight="600" fill="${C.muted}" opacity="0.75">CALM</text>
+      <text x="${cx}" y="${cy + 8}" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="700" fill="${C.gold}">${calmPct.toFixed(0)}%</text>
+    `;
+  } else {
+    calmCenter = `<circle cx="${cx}" cy="${cy}" r="2.5" fill="${C.gold}"/>`;
+  }
+
+  let marker = "";
+  if (opts.currentDir != null && opts.currentSpeed != null) {
+    const a = (opts.currentDir % 360) * Math.PI / 180 - Math.PI / 2;
+    const mr = R + 12;
+    const mx = cx + Math.cos(a) * mr;
+    const my = cy + Math.sin(a) * mr;
+    marker = `
+      <circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="9" fill="${C.gold}" opacity="0.22"/>
+      <circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="5" fill="${C.gold}" stroke="#1a0e02" stroke-width="1.5"/>
+      <circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="2" fill="#1a0e02"/>
+    `;
+  }
+
+  let legend = "";
+  BINS.forEach((b, i) => {
+    legend += `<g transform="translate(${i * 50},0)"><rect x="0" y="0" width="11" height="6" rx="1.5" fill="${b.color}"/><text x="14" y="5.5" font-family="JetBrains Mono" font-size="8" font-weight="600" fill="${C.muted}">${b.label}</text></g>`;
+  });
+
+  const dataJSON = JSON.stringify({
+    grid: pct,
+    binLabels: BINS.map(b => b.label),
+    binColors: BINS.map(b => b.color),
+    sectorSpeeds: secSpeeds.map(arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0),
+    sectorNames: SECTOR_NAMES,
+    R: R, size: size, SECTORS: SECTORS, cx: cx, cy: cy,
+    calmPct: calmPct
+  }).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+  return `<div class="wr-wrap" style="display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;position:relative" data-wr="${dataJSON}">
+    <svg viewBox="0 0 ${size} ${size}" preserveAspectRatio="xMidYMid meet" style="display:block;width:100%;max-width:${size}px;height:auto;aspect-ratio:1/1;overflow:visible">
+      <defs>
+        <radialGradient id="wrBg" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="${C.gold}" stop-opacity="0.05"/>
+          <stop offset="100%" stop-color="${C.gold}" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#wrBg)"/>
+      ${rings}
+      ${spokes}
+      ${bars}
+      ${compass}
+      ${calmCenter}
+      ${marker}
+    </svg>
+    <svg viewBox="0 0 ${BINS.length * 50} 10" style="display:block;width:${BINS.length * 50}px;max-width:100%;height:auto">${legend}</svg>
+  </div>`;
+}
+
+/* ============================================================
+ *  11. RADIATION
+ * ============================================================ */
+function radiation(sw, clearSW, elevs, opts = {}) {
+  const C = themeColors();
+  const D = domainColors();
+  const W = opts.width || 300, H = opts.height || 96, PAD = 10;
+  const n = sw.length; if (!n) return "";
+  const all = [...sw, ...clearSW].filter(v => v != null);
+  const maxV = Math.max(...all, 100);
+  const xOf = i => PAD + (i / Math.max(1, n - 1)) * (W - PAD * 2);
+  const yOf = v => PAD + (1 - v / maxV) * (H - PAD * 2);
+
+  let night = "", sN = null;
+  for (let i = 0; i < n; i++) {
+    const isNight = elevs && elevs[i] != null && elevs[i] < 0;
+    if (isNight && sN === null) sN = i;
+    if (!isNight && sN !== null) {
+      const x0 = xOf(sN), x1 = xOf(i);
+      night += `<rect x="${x0.toFixed(1)}" y="${PAD}" width="${(x1 - x0).toFixed(1)}" height="${H - PAD * 2}" fill="${C.violet}" opacity="0.06"/>`;
+      sN = null;
+    }
+  }
+  if (sN !== null) {
+    const x0 = xOf(sN), x1 = xOf(n - 1);
+    night += `<rect x="${x0.toFixed(1)}" y="${PAD}" width="${(x1 - x0).toFixed(1)}" height="${H - PAD * 2}" fill="${C.violet}" opacity="0.06"/>`;
+  }
+  let pIdx = -1, pMax = -1;
+  sw.forEach((v, i) => { if (v != null && v > pMax) { pMax = v; pIdx = i; } });
+
+  const nowIdx = (opts.nowIdx != null && opts.nowIdx >= 0 && opts.nowIdx < n) ? opts.nowIdx : null;
+  const nowLine = nowIdx != null
+    ? `<line x1="${xOf(nowIdx).toFixed(1)}" y1="${PAD}" x2="${xOf(nowIdx).toFixed(1)}" y2="${H - PAD}" stroke="${C.gold}" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.4"/>`
+    : "";
+
+  const uid = "r" + Math.random().toString(36).slice(2, 7);
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:100%">
+    <defs>
+      <linearGradient id="radFill${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${D.radiation.from}" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="${D.radiation.to}" stop-opacity="0.04"/>
+      </linearGradient>
+      <linearGradient id="radStroke${uid}" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${D.radiation.from}"/>
+        <stop offset="100%" stop-color="${D.radiation.to}"/>
+      </linearGradient>
+    </defs>
+    ${night}
+    ${gridLines(W, H, PAD, 3)}
+    <path d="${linePath(clearSW, xOf, yOf)}" fill="none" stroke="${C.cyan}" stroke-width="1.2" stroke-dasharray="3 3" stroke-linecap="round" opacity="0.55"/>
+    <path d="${areaPath(sw, xOf, yOf, H - PAD)}" fill="url(#radFill${uid})"/>
+    <path d="${linePath(sw, xOf, yOf)}" fill="none" stroke="url(#radStroke${uid})" stroke-width="2" stroke-linejoin="round"/>
+    ${nowLine}
+    ${pIdx >= 0 ? haloDot(xOf(pIdx), yOf(pMax), C.gold) : ""}
+  </svg>`;
+}
+
+/* ============================================================
+ *  12. CLOUD RIBBON
+ * ============================================================ */
+function cloudRibbon(lowArr, midArr, highArr, opts = {}) {
+  const C = themeColors();
+  const W = opts.width || 300, H = opts.height || 76, PAD = 8;
+  const n = lowArr.length; if (!n) return "";
+  const norm = [];
+  for (let i = 0; i < n; i++) {
+    const l = lowArr[i] || 0, m = midArr[i] || 0, h = highArr[i] || 0;
+    const sum = l + m + h;
+    norm.push(sum > 100 ? { l: l / sum * 100, m: m / sum * 100, h: h / sum * 100 } : { l, m, h });
+  }
+  const xOf = i => PAD + (i / Math.max(1, n - 1)) * (W - PAD * 2);
+  const yOf = pct => H - PAD - (pct / 100) * (H - PAD * 2);
+  const stack = (top, bot, fillId, op) => {
+    let d = "";
+    for (let i = 0; i < n; i++) d += (d ? "L" : "M") + xOf(i).toFixed(1) + "," + yOf(top[i]).toFixed(1);
+    for (let i = n - 1; i >= 0; i--) d += " L " + xOf(i).toFixed(1) + "," + yOf(bot[i]).toFixed(1);
+    d += " Z";
+    return `<path d="${d}" fill="url(#${fillId})" opacity="${op}"/>`;
+  };
+  const s0 = norm.map(() => 0);
+  const s1 = norm.map(d => d.l);
+  const s2 = norm.map(d => d.l + d.m);
+  const s3 = norm.map(d => d.l + d.m + d.h);
+
+  const uid = "c" + Math.random().toString(36).slice(2, 7);
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:100%">
+    <defs>
+      <linearGradient id="cLow${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${C.cyan}" stop-opacity="0.72"/>
+        <stop offset="100%" stop-color="${C.cyan}" stop-opacity="0.32"/>
+      </linearGradient>
+      <linearGradient id="cMid${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${C.violet}" stop-opacity="0.66"/>
+        <stop offset="100%" stop-color="${C.violet}" stop-opacity="0.28"/>
+      </linearGradient>
+      <linearGradient id="cHigh${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${C.pink}" stop-opacity="0.62"/>
+        <stop offset="100%" stop-color="${C.pink}" stop-opacity="0.22"/>
+      </linearGradient>
+    </defs>
+    ${gridLines(W, H, PAD, 2)}
+    ${stack(s3, s2, `cHigh${uid}`, 0.85)}
+    ${stack(s2, s1, `cMid${uid}`, 0.85)}
+    ${stack(s1, s0, `cLow${uid}`, 0.9)}
+  </svg>`;
+}
+
+/* ============================================================
+ *  13. PRECIP + CLOUD
+ * ============================================================ */
+function precipCloud(precip, cloud, opts = {}) {
+  const C = themeColors();
+  const D = domainColors();
+  const W = opts.width || 300, H = opts.height || 86, PAD = 10;
+  const n = precip.length; if (!n) return "";
+  const maxP = Math.max(...precip.filter(v => v != null), 1);
+  const xOf = i => PAD + ((i + 0.5) / n) * (W - PAD * 2);
+  const bw = Math.max(2.5, (W - PAD * 2) / n * 0.68);
+  const yP = v => H - PAD - (v / maxP) * (H - PAD * 2) * 0.82;
+  const yC = v => PAD + (1 - v / 100) * (H - PAD * 2);
+
+  let bars = "";
+  precip.forEach((v, i) => {
+    if (v == null || v <= 0.02) return;
+    const x = xOf(i) - bw / 2;
+    const y = yP(v);
+    const h = (H - PAD) - y;
+    const isStrong = v >= 0.5;
+    bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="${isStrong ? D.moisture.from : 'rgba(103,232,249,.32)'}"/>`;
+    if (v >= 0.5) {
+      const cx0 = xOf(i);
+      const dropTop = y + 3;
+      bars += `<circle cx="${(cx0 - 1).toFixed(1)}" cy="${(dropTop).toFixed(1)}" r="0.9" fill="${C.cyan2}" opacity="0.9"/>`;
+      bars += `<circle cx="${(cx0 + 1.5).toFixed(1)}" cy="${(dropTop + 2.5).toFixed(1)}" r="0.75" fill="${C.cyan2}" opacity="0.75"/>`;
+      if (v >= 1.5) {
+        bars += `<circle cx="${(cx0).toFixed(1)}" cy="${(dropTop + 5).toFixed(1)}" r="0.7" fill="${C.cyan2}" opacity="0.6"/>`;
+      }
+    }
+  });
+
+  const nowIdx = (opts.nowIdx != null && opts.nowIdx >= 0 && opts.nowIdx < n) ? opts.nowIdx : null;
+
+  let cur = "";
+  if (nowIdx != null && precip[nowIdx] != null && precip[nowIdx] > 0.02) {
+    cur = haloDot(xOf(nowIdx), yP(precip[nowIdx]), D.moisture.from);
+  }
+  const nowLine = nowIdx != null
+    ? `<line x1="${xOf(nowIdx).toFixed(1)}" y1="${PAD - 2}" x2="${xOf(nowIdx).toFixed(1)}" y2="${H - PAD + 2}" stroke="${C.gold}" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.4"/>`
+    : "";
+
+  const uid = "p" + Math.random().toString(36).slice(2, 7);
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:100%">
+    <defs>
+      <linearGradient id="pcStroke${uid}" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${C.violet}" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="${C.violet}" stop-opacity="0.85"/>
+      </linearGradient>
+    </defs>
+    ${gridLines(W, H, PAD, 3)}
+    <path d="${linePath(cloud, xOf, yC)}" fill="none" stroke="url(#pcStroke${uid})" stroke-width="1.5" stroke-linejoin="round"/>
+    ${bars}
+    ${nowLine}
+    ${cur}
+  </svg>`;
+}
+
+/* ============================================================
+ *  14. HEAT GAUGES
+ * ============================================================ */
+function heatGauges(wbgt, hi, tw) {
+  const C = themeColors();
+  const gauges = [
+    { label: "WBGT", v: wbgt, min: 15, max: 40, z: [[25, C.emerald], [28, C.gold], [32, C.orange], [40, C.rose]] },
+    { label: "HI", v: hi, min: 20, max: 50, z: [[27, C.emerald], [32, C.gold], [40, C.orange], [50, C.rose]] },
+    { label: "Tw", v: tw, min: 10, max: 35, z: [[18, C.emerald], [24, C.gold], [28, C.orange], [35, C.rose]] }
+  ];
+  const W = 100, H = 78, gap = 12;
+  let out = "";
+  gauges.forEach((g, gi) => {
+    const cx = W / 2, cy = H - 18, R = 30;
+    const aStart = Math.PI, aEnd = 0;
+    const track = arcStroke(cx, cy, R, aStart, aEnd, "rgba(255,255,255,.06)", 8, 1);
+    let zones = "", prev = g.min;
+    g.z.forEach(([thr, col]) => {
+      const a0 = aStart + (prev - g.min) / (g.max - g.min) * (aEnd - aStart);
+      const a1 = aStart + (thr - g.min) / (g.max - g.min) * (aEnd - aStart);
+      zones += arcStroke(cx, cy, R, a0, a1, col, 8, 0.42);
+      prev = thr;
+    });
+    const v = clamp(g.v == null ? g.min : g.v, g.min, g.max);
+    const ang = aStart + (v - g.min) / (g.max - g.min) * (aEnd - aStart);
+    const px = cx + Math.cos(ang) * R;
+    const py = cy + Math.sin(ang) * R;
+    let valueColor = C.muted;
+    if (v < g.z[0][0]) valueColor = C.emerald;
+    else if (v < g.z[1][0]) valueColor = C.gold;
+    else if (v < g.z[2][0]) valueColor = C.orange;
+    else valueColor = C.rose;
+    out += `<g transform="translate(${gi * (W + gap)},0)">
+      ${track}
+      ${zones}
+      <circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4.5" fill="${valueColor}" stroke="#0a0e1c" stroke-width="1.5"/>
+      <circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="9" fill="${valueColor}" opacity="0.18"/>
+      <text x="${cx}" y="${cy - 2}" text-anchor="middle" font-family="Georgia,serif" font-size="17" font-weight="600" fill="#fff">${v.toFixed(1)}</text>
+      <text x="${cx}" y="${H - 3}" text-anchor="middle" font-family="JetBrains Mono" font-size="7.5" font-weight="700" fill="${C.muted}" letter-spacing="1.4">${g.label}</text>
+    </g>`;
+  });
+  return `<svg viewBox="0 0 ${W * 3 + gap * 2} ${H}" style="width:100%;height:auto;display:block">${out}</svg>`;
+}
+
+/* ============================================================
+ *  15. PRESSURE TENDENCY
+ * ============================================================ */
+function pressureTendency(pressures, opts = {}) {
+  const C = themeColors();
+  const D = domainColors();
+  const W = opts.width || 300, H = opts.height || 76, PAD = 12;
+  const n = pressures.length;
+  if (!n) return "";
+
+  const valid = pressures.filter(v => v != null);
+  if (!valid.length) return "";
+
+  const mn = Math.min(...valid), mx = Math.max(...valid);
+  const rng = mx - mn || 1;
+  const xOf = i => PAD + (i / Math.max(1, n - 1)) * (W - PAD * 2);
+  const yOf = v => PAD + (1 - (v - mn) / rng) * (H - PAD * 2);
+
+  let badge = "";
+  let trendColor = C.muted;
+  if (valid.length >= 4) {
+    const recent = valid.slice(-4);
+    const delta = recent[recent.length - 1] - recent[0];
+    trendColor = delta > 0.5 ? C.cyan : delta < -0.5 ? C.rose : C.muted;
+    const lbl = delta > 0.5
+      ? `+${delta.toFixed(1)} hPa/3j`
+      : delta < -0.5
+        ? `${delta.toFixed(1)} hPa/3j`
+        : `Stabil`;
+    badge = `<div style="position:absolute;top:6px;right:8px;font-family:var(--font-mono);font-size:.62rem;font-weight:700;color:${trendColor};background:rgba(4,10,30,.5);padding:2px 7px;border-radius:6px;border:1px solid rgba(255,255,255,.06);">${lbl}</div>`;
+  }
+
+  const nowIdx = (opts.nowIdx != null && opts.nowIdx >= 0 && opts.nowIdx < n && pressures[opts.nowIdx] != null)
+    ? opts.nowIdx
+    : null;
+
+  const curDot = nowIdx != null
+    ? haloDot(xOf(nowIdx), yOf(pressures[nowIdx]), D.moisture.from)
+    : "";
+
+  const nowLine = nowIdx != null
+    ? `<line x1="${xOf(nowIdx).toFixed(1)}" y1="${PAD - 2}" x2="${xOf(nowIdx).toFixed(1)}" y2="${H - PAD + 2}" stroke="${C.gold}" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.4"/>`
+    : "";
+
+  const uid = "pr" + Math.random().toString(36).slice(2, 7);
+
+  return `<div style="position:relative">${badge}
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:100%">
+      <defs>
+        <linearGradient id="pFill${uid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${D.moisture.from}" stop-opacity="0.32"/>
+          <stop offset="100%" stop-color="${D.moisture.to}" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="pStroke${uid}" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="${D.moisture.from}"/>
+          <stop offset="100%" stop-color="${D.moisture.to}"/>
+        </linearGradient>
+      </defs>
+      ${gridLines(W, H, PAD, 3)}
+      <path d="${areaPath(pressures, xOf, yOf, H - PAD)}" fill="url(#pFill${uid})"/>
+      <path d="${linePath(pressures, xOf, yOf)}" fill="none" stroke="url(#pStroke${uid})" stroke-width="2" stroke-linejoin="round"/>
+      ${nowLine}
+      ${curDot}
+    </svg>
+  </div>`;
+}
+
+/* ============================================================
+ *  16. SUN PATH
+ * ============================================================ */
+function sunPath(elevs, opts = {}) {
+  const C = themeColors();
+  const D = domainColors();
+  const W = opts.width || 300, H = opts.height || 110, PAD = 18;
+  const n = elevs.length;
+  if (!n) return "";
+
+  const maxE = Math.max(...elevs, 10);
+  const minE = Math.min(...elevs, -10);
+  const rng = maxE - minE;
+  const xOf = i => PAD + (i / Math.max(1, n - 1)) * (W - PAD * 2);
+  const yOf = v => H - PAD - ((v - minE) / rng) * (H - PAD * 2);
+  const yH = yOf(0);
+
+  let dayPath = "";
+  let started = false;
+  for (let i = 0; i < n; i++) {
+    const v = elevs[i];
+    if (v > 0) {
+      if (!started) { dayPath += `M ${xOf(i).toFixed(1)} ${yH.toFixed(1)} L ${xOf(i).toFixed(1)} ${yOf(v).toFixed(1)}`; started = true; }
+      else dayPath += ` L ${xOf(i).toFixed(1)} ${yOf(v).toFixed(1)}`;
+    } else if (started) {
+      dayPath += ` L ${xOf(i).toFixed(1)} ${yH.toFixed(1)} Z`;
+      started = false;
+    }
+  }
+  if (started) dayPath += ` L ${xOf(n - 1).toFixed(1)} ${yH.toFixed(1)} Z`;
+
+  /* Marker di nowIdx */
+  const nowIdx = (opts.nowIdx != null && opts.nowIdx >= 0 && opts.nowIdx < elevs.length)
+    ? opts.nowIdx
+    : null;
+
+  let curI = -1;
+  if (nowIdx != null && elevs[nowIdx] > 0) curI = nowIdx;
+
+  const sunMark = curI >= 0
+    ? `<circle cx="${xOf(curI).toFixed(1)}" cy="${yOf(elevs[curI]).toFixed(1)}" r="14" fill="${C.gold}" opacity="0.10"/>
+       <circle cx="${xOf(curI).toFixed(1)}" cy="${yOf(elevs[curI]).toFixed(1)}" r="8" fill="${C.gold}" opacity="0.28"/>
+       <circle cx="${xOf(curI).toFixed(1)}" cy="${yOf(elevs[curI]).toFixed(1)}" r="4" fill="${C.gold}" stroke="#1a0e02" stroke-width="1.2"/>`
+    : "";
+
+  const tzOff = opts.tzOffset != null ? opts.tzOffset : TZ_OFFSET_HOURS;
+  const timeLbl = [0, 6, 12, 18, 23].map(i => {
+    if (i >= n) return "";
+    const localH = ((i + tzOff) % 24 + 24) % 24;
+    return `<text x="${xOf(i).toFixed(1)}" y="${H - 3}" text-anchor="middle" font-family="JetBrains Mono" font-size="7.5" fill="${C.muted}" opacity="0.75">${pad2(localH)}h</text>`;
+  }).join("");
+
+  const nowLineSP = nowIdx != null
+    ? `<line x1="${xOf(nowIdx).toFixed(1)}" y1="${PAD}" x2="${xOf(nowIdx).toFixed(1)}" y2="${H - PAD}" stroke="${C.gold}" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.35"/>`
+    : "";
+
+  const uid = "sun" + Math.random().toString(36).slice(2, 7);
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:100%">
+    <defs>
+      <linearGradient id="sunDay${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${D.radiation.from}" stop-opacity="0.42"/>
+        <stop offset="100%" stop-color="${D.radiation.to}" stop-opacity="0.06"/>
+      </linearGradient>
+      <linearGradient id="sunStroke${uid}" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${D.radiation.from}"/>
+        <stop offset="100%" stop-color="${D.radiation.to}"/>
+      </linearGradient>
+    </defs>
+    <rect x="${PAD}" y="${PAD}" width="${W - PAD * 2}" height="${(yH - PAD).toFixed(1)}" fill="${C.cyan}" opacity="0.03"/>
+    <rect x="${PAD}" y="${yH.toFixed(1)}" width="${W - PAD * 2}" height="${(H - PAD - yH).toFixed(1)}" fill="${C.violet}" opacity="0.035"/>
+    <line x1="${PAD}" y1="${yH.toFixed(1)}" x2="${W - PAD}" y2="${yH.toFixed(1)}" stroke="${C.gold}" stroke-width="1" stroke-dasharray="3 3" opacity="0.35"/>
+    ${dayPath ? `<path d="${dayPath}" fill="url(#sunDay${uid})"/>` : ""}
+    <path d="${linePath(elevs, xOf, yOf)}" fill="none" stroke="url(#sunStroke${uid})" stroke-width="2.2" stroke-linejoin="round"/>
+    ${nowLineSP}
+    ${sunMark}
+    ${timeLbl}
+  </svg>`;
+}
+
+/* ============================================================
+ *  17. WIND ENVELOPE
+ * ============================================================ */
+function windEnvelope(speeds, gusts, opts = {}) {
+  const C = themeColors();
+  const D = domainColors();
+  const W = opts.width || 300, H = opts.height || 86, PAD = 10;
+  const n = speeds.length;
+  if (!n) return "";
+
+  const all = [...speeds, ...(gusts || [])].filter(v => v != null);
+  if (!all.length) return "";
+
+  const maxV = Math.max(...all, 10);
+  const xOf = i => PAD + (i / Math.max(1, n - 1)) * (W - PAD * 2);
+  const yOf = v => PAD + (1 - v / maxV) * (H - PAD * 2);
+
+  const gPts = [], sPts = [];
+  (gusts || []).forEach((v, i) => { if (v != null) gPts.push({ x: xOf(i), y: yOf(v) }); });
+  speeds.forEach((v, i) => { if (v != null) sPts.push({ x: xOf(i), y: yOf(v) }); });
+
+  let env = "";
+  if (gPts.length > 1 && sPts.length > 1) {
+    env = `M ${gPts[0].x.toFixed(1)} ${gPts[0].y.toFixed(1)}`;
+    for (let i = 1; i < gPts.length; i++) env += ` L ${gPts[i].x.toFixed(1)} ${gPts[i].y.toFixed(1)}`;
+    for (let i = sPts.length - 1; i >= 0; i--) env += ` L ${sPts[i].x.toFixed(1)} ${sPts[i].y.toFixed(1)}`;
+    env += " Z";
+  }
+
+  const nowIdx = (opts.nowIdx != null && opts.nowIdx >= 0 && opts.nowIdx < n && speeds[opts.nowIdx] != null)
+    ? opts.nowIdx
+    : null;
+
+  const curDot = nowIdx != null
+    ? haloDot(xOf(nowIdx), yOf(speeds[nowIdx]), D.wind.from)
+    : "";
+
+  const nowLine = nowIdx != null
+    ? `<line x1="${xOf(nowIdx).toFixed(1)}" y1="${PAD - 2}" x2="${xOf(nowIdx).toFixed(1)}" y2="${H - PAD + 2}" stroke="${C.gold}" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.4"/>`
+    : "";
+
+  const uid = "w" + Math.random().toString(36).slice(2, 7);
+
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:100%">
+    <defs>
+      <linearGradient id="wFill${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${D.wind.from}" stop-opacity="0.52"/>
+        <stop offset="100%" stop-color="${D.wind.to}" stop-opacity="0.05"/>
+      </linearGradient>
+      <linearGradient id="wStroke${uid}" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${D.wind.from}"/>
+        <stop offset="100%" stop-color="${D.wind.to}"/>
+      </linearGradient>
+    </defs>
+    ${gridLines(W, H, PAD, 3)}
+    ${env ? `<path d="${env}" fill="${D.wind.to}" opacity="0.12"/>` : ""}
+    <path d="${areaPath(speeds, xOf, yOf, H - PAD)}" fill="url(#wFill${uid})"/>
+    ${gusts ? `<path d="${linePath(gusts, xOf, yOf)}" fill="none" stroke="${D.wind.to}" stroke-width="1.3" stroke-dasharray="3 2" opacity="0.68"/>` : ""}
+    <path d="${linePath(speeds, xOf, yOf)}" fill="none" stroke="url(#wStroke${uid})" stroke-width="2" stroke-linejoin="round"/>
+    ${nowLine}
+    ${curDot}
+  </svg>`;
+}
+
+/* ============================================================
+ *  18. PSYCHROMETRIC
+ * ============================================================ */
+function psychrometric(temps, dewpoints, pressures, opts = {}) {
+  const C = themeColors();
+  const W = opts.width || 300, H = opts.height || 160, PAD = 24;
+  const n = temps.length; if (!n) return "";
+  const wArr = [];
+  for (let i = 0; i < n; i++) {
+    const Td = dewpoints[i], P = pressures[i] || 1013;
+    if (Td == null) { wArr.push(null); continue; }
+    const e = 6.112 * Math.exp(17.67 * Td / (Td + 243.5));
+    wArr.push(622 * e / (P - e));
+  }
+  const vT = temps.filter(v => v != null), vW = wArr.filter(v => v != null);
+  if (!vT.length || !vW.length) return "";
+  const tMin = Math.min(...vT) - 1, tMax = Math.max(...vT) + 1;
+  const wMax = Math.max(...vW, 5) * 1.15;
+  const xOf = t => PAD + ((t - tMin) / (tMax - tMin)) * (W - PAD * 2);
+  const yOf = w => H - PAD - (w / wMax) * (H - PAD * 2);
+
+  let grid = "";
+  [0, wMax * 0.25, wMax * 0.5, wMax * 0.75, wMax].forEach(w => {
+    grid += `<line x1="${PAD}" y1="${yOf(w).toFixed(1)}" x2="${W - PAD}" y2="${yOf(w).toFixed(1)}" stroke="var(--grid)" stroke-width="0.5" stroke-dasharray="2 4"/>`;
+  });
+
+  const rhSet = [20, 40, 60, 80, 100];
+  let rhCurves = "", rhLabels = "";
+  rhSet.forEach(rh => {
+    let d = "";
+    for (let t = tMin; t <= tMax; t += 0.5) {
+      const es = 6.112 * Math.exp(17.67 * t / (t + 243.5));
+      const e = rh / 100 * es, w = 622 * e / (1013 - e);
+      d += (d ? "L" : "M") + xOf(t).toFixed(1) + "," + yOf(w).toFixed(1);
+    }
+    rhCurves += `<path d="${d}" fill="none" stroke="${C.cyan}" stroke-width="0.6" opacity="0.32"/>`;
+    const tL = tMax - 0.3;
+    const esL = 6.112 * Math.exp(17.67 * tL / (tL + 243.5));
+    const eL = rh / 100 * esL, wL = 622 * eL / (1013 - eL);
+    rhLabels += `<text x="${(xOf(tL) - 2).toFixed(1)}" y="${(yOf(wL) - 1).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono" font-size="6.5" fill="${C.cyan}" opacity="0.6">${rh}%</text>`;
+  });
+
+  const nowIdx = (opts.nowIdx != null && opts.nowIdx >= 0 && opts.nowIdx < n)
+    ? opts.nowIdx
+    : null;
+
+  let pts = "";
+  temps.forEach((T, i) => {
+    const w = wArr[i]; if (T == null || w == null) return;
+    const isLast = (nowIdx != null) ? (i === nowIdx) : (i === n - 1);
+    const hue = 190 + (i / n) * 110;
+    if (isLast) {
+      pts += `<circle cx="${xOf(T).toFixed(1)}" cy="${yOf(w).toFixed(1)}" r="12" fill="hsl(${hue},70%,70%)" opacity="0.15"/>`;
+      pts += `<circle cx="${xOf(T).toFixed(1)}" cy="${yOf(w).toFixed(1)}" r="6" fill="hsl(${hue},70%,70%)" opacity="0.30"/>`;
+      pts += `<circle cx="${xOf(T).toFixed(1)}" cy="${yOf(w).toFixed(1)}" r="3.5" fill="hsl(${hue},70%,70%)" stroke="#fff" stroke-width="1.4"/>`;
+    } else {
+      pts += `<circle cx="${xOf(T).toFixed(1)}" cy="${yOf(w).toFixed(1)}" r="2.2" fill="hsl(${hue},70%,70%)" opacity="0.7"/>`;
+    }
+  });
+
+  let axisX = "";
+  [tMin, (tMin + tMax) / 2, tMax].forEach(t => axisX += `<text x="${xOf(t).toFixed(1)}" y="${H - 6}" text-anchor="middle" font-family="JetBrains Mono" font-size="7" fill="${C.muted}" opacity="0.7">${t.toFixed(0)}°</text>`);
+  let axisY = "";
+  [0, wMax / 2, wMax].forEach(w => axisY += `<text x="${PAD - 4}" y="${(yOf(w) + 3).toFixed(1)}" text-anchor="end" font-family="JetBrains Mono" font-size="7" fill="${C.muted}" opacity="0.7">${w.toFixed(1)}</text>`);
+
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+    <rect x="${PAD}" y="${PAD}" width="${W - PAD * 2}" height="${H - PAD * 2}" fill="rgba(4,10,30,.28)" rx="6"/>
+    ${grid}
+    ${rhCurves}${rhLabels}${pts}${axisX}${axisY}
+  </svg>`;
+}
+
+/* ============================================================
+ *  19. METEOGRAM
+ * ============================================================ */
+function meteogram(data, opts = {}) {
+  const C = themeColors();
+  const DC = domainColors();
+  const d = data.daily;
+  const dv = data.derived;
+  const nI = opts.nowIdx;
+
+  const panels = [
+    {
+      title: "Suhu & Titik Embun",
+      tag: "THERMAL",
+      body: miniChart(d.temps, d.dewpoints, { color: DC.thermal.from, color2: DC.moisture.from, nowIdx: nI })
+    },
+    {
+      title: "Kelembapan Relatif",
+      tag: "MOISTURE",
+      body: miniChart(d.rH, null, { color: DC.moisture.from, nowIdx: nI })
+    },
+    {
+      title: "Tekanan MSL",
+      tag: "DYNAMIC",
+      body: pressureTendency(d.pressure, { height: 66, nowIdx: nI })
+    },
+    {
+      title: "Struktur Awan",
+      tag: "CLOUD",
+      body: cloudRibbon(d.cloudLow, d.cloudMid, d.cloudHigh, { height: 60 })
+    },
+    {
+      title: "Presipitasi",
+      tag: "PRECIP",
+      body: precipCloud(d.precip, d.cloudHigh, { height: 66, nowIdx: nI })
+    },
+    {
+      title: "Radiasi SW",
+      tag: "RADIATION",
+      body: radiation(d.sw, d.sw.map(() => dv.clearSkySW_wm2), d.elev, { height: 70, nowIdx: nI })
+    },
+    {
+      title: "Angin & Gust",
+      tag: "WIND",
+      body: windEnvelope(d.wind, d.windGusts, { height: 70, nowIdx: nI })
+    }
+  ];
+
+  return `<div style="display:flex;flex-direction:column;gap:6px">${
+    panels.map((p, i) => `
+      <div style="border-left:2px solid ${C.cyan};padding:10px 0 10px 12px;${i % 2 ? "background:rgba(255,255,255,.012);" : ""}border-radius:0 8px 8px 0;">
+        <div style="font-family:var(--font-mono);font-size:.58rem;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:${C.cyan};margin-bottom:6px;opacity:.85;display:flex;justify-content:space-between">
+          <span>${p.title}</span>
+          <span style="color:${C.muted};opacity:.6;font-size:.5rem">${p.tag}</span>
+        </div>
+        ${p.body}
+      </div>
+    `).join("")
+  }</div>`;
+}
+
+/* ============================================================
+ *  20. MINI CHART
+ * ============================================================ */
+function miniChart(a, b, opts = {}) {
+  const C = themeColors();
+  const color = opts.color || C.gold;
+  const color2 = opts.color2 || C.cyan;
+  const W = 300, H = 56, PAD = 8;
+  const n = a.length;
+
+  const all = [...a, ...(b || [])].filter(v => v != null);
+  if (!all.length) return "";
+
+  const mn = Math.min(...all), mx = Math.max(...all);
+  const rng = mx - mn || 1;
+  const xOf = i => PAD + (i / Math.max(1, n - 1)) * (W - PAD * 2);
+  const yOf = v => PAD + (1 - (v - mn) / rng) * (H - PAD * 2);
+
+  let bp = "";
+  if (b) {
+    bp = `<path d="${linePath(b, xOf, yOf)}" fill="none" stroke="${color2}" stroke-width="1.1" stroke-dasharray="3 3" opacity="0.65"/>`;
+  }
+
+  const nowIdx = (opts.nowIdx != null && opts.nowIdx >= 0 && opts.nowIdx < n && a[opts.nowIdx] != null)
+    ? opts.nowIdx
+    : null;
+
+  const curDot = nowIdx != null ? haloDot(xOf(nowIdx), yOf(a[nowIdx]), color) : "";
+  const nowLine = nowIdx != null
+    ? `<line x1="${xOf(nowIdx).toFixed(1)}" y1="${PAD - 2}" x2="${xOf(nowIdx).toFixed(1)}" y2="${H - PAD + 2}" stroke="${C.gold}" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.4"/>`
+    : "";
+
+  const uid = "m" + Math.random().toString(36).slice(2, 7);
+
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:${H}px">
+    <defs>
+      <linearGradient id="mF${uid}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.32"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    ${gridLines(W, H, PAD, 2)}
+    ${bp}
+    <path d="${areaPath(a, xOf, yOf, H - PAD)}" fill="url(#mF${uid})"/>
+    <path d="${linePath(a, xOf, yOf)}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linejoin="round"/>
+    ${nowLine}
+    ${curDot}
+  </svg>`;
+}
+
+/* ============================================================
+ *  21. WIND ROSE TOOLTIP
+ * ============================================================ */
+function attachWindRoseTooltip(container) {
+  const wrap = container.querySelector(".wr-wrap");
+  if (!wrap) return;
+  const oldTip = wrap.querySelector(".ck-tooltip");
+  if (oldTip) oldTip.remove();
+
+  let data;
+  try {
+    const raw = wrap.getAttribute("data-wr").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&");
+    data = JSON.parse(raw);
+  } catch (e) { return; }
+
+  const { grid, binLabels, binColors, sectorSpeeds, sectorNames, R, size, SECTORS, cx, cy } = data;
+  const svg = wrap.querySelector("svg");
+  if (!svg) return;
+
+  const tip = document.createElement("div");
+  tip.className = "ck-tooltip";
+  wrap.appendChild(tip);
+
+  const secA = 2 * Math.PI / SECTORS;
+
+  const handle = (e) => {
+    const rect = svg.getBoundingClientRect();
+    const sx = size / rect.width, sy = size / rect.height;
+    const mx = (e.clientX - rect.left) * sx;
+    const my = (e.clientY - rect.top) * sy;
+    const dx = mx - cx, dy = my - cy;
+    const r = Math.sqrt(dx * dx + dy * dy);
+    if (r > R + 14) { tip.classList.remove("show"); return; }
+    let ang = Math.atan2(dy, dx) + Math.PI / 2;
+    if (ang < 0) ang += 2 * Math.PI;
+    const secIdx = Math.round(ang / secA) % SECTORS;
+
+    const secPct = grid[secIdx];
+    const secTotal = secPct.reduce((a, b) => a + b, 0);
+    const avgSpeed = sectorSpeeds[secIdx];
+    const dirDeg = secIdx * 45;
+    const dirName = sectorNames[secIdx];
+
+    let rowsHTML = "";
+    secPct.forEach((v, i) => {
+      if (v > 0) rowsHTML += `<div class="ck-tt-row"><span><span style="display:inline-block;width:8px;height:8px;background:${binColors[i]};border-radius:2px;margin-right:5px;vertical-align:-1px"></span>${binLabels[i]}</span><span>${v.toFixed(1)}%</span></div>`;
+    });
+    if (!rowsHTML) rowsHTML = `<div class="ck-tt-row" style="color:var(--muted);font-size:.6rem"><span>—</span><span>—</span></div>`;
+
+    tip.innerHTML = `
+      <div class="ck-tt-time">${dirName} · ${dirDeg}°</div>
+      <div class="ck-tt-row"><span>Frekuensi</span><span>${secTotal.toFixed(1)}%</span></div>
+      <div class="ck-tt-row"><span>Rata-rata</span><span>${avgSpeed.toFixed(1)} km/j</span></div>
+      ${rowsHTML}
+    `;
+
+    const wrapRect = wrap.getBoundingClientRect();
+    tip.style.left = (e.clientX - wrapRect.left) + "px";
+    tip.style.top = (e.clientY - wrapRect.top - 10) + "px";
+    tip.classList.add("show");
+  };
+
+  const hide = () => tip.classList.remove("show");
+  svg.addEventListener("mousemove", handle);
+  svg.addEventListener("mouseleave", hide);
+  svg.addEventListener("touchmove", e => { if (e.touches[0]) handle(e.touches[0]); }, { passive: true });
+  svg.addEventListener("touchend", hide);
+}
+
+/* ============================================================
+ *  22. GENERIC TOOLTIP + HOVER SYNC
+ * ============================================================ */
+function attachTooltip(container, nSeries, formatter, opts = {}) {
+  if (!container) return;
+  container.classList.add("chart-hover-wrap");
+  container.style.position = "relative";
+  container.querySelectorAll(":scope > .ck-tooltip").forEach(el => el.remove());
+  container.querySelectorAll(":scope > .hover-guide").forEach(el => el.remove());
+
+  const svg = container.querySelector("svg");
+  if (!svg) return;
+
+  const PAD = 10;
+  const vbW = svg.viewBox.baseVal.width || 300;
+
+  const tip = document.createElement("div");
+  tip.className = "ck-tooltip";
+  container.appendChild(tip);
+
+  const guide = document.createElement("div");
+  guide.className = "hover-guide";
+  container.appendChild(guide);
+
+  const posFor = (idx) => {
+    const rect = svg.getBoundingClientRect();
+    const cRect = container.getBoundingClientRect();
+    const xVb = PAD + (idx / Math.max(1, nSeries - 1)) * (vbW - PAD * 2);
+    return xVb * (rect.width / vbW) + (rect.left - cRect.left);
+  };
+
+  const entry = {
+    el: container,
+    show(idx) {
+      if (idx == null) { guide.classList.remove("show"); return; }
+      guide.style.left = posFor(idx) + "px";
+      guide.classList.add("show");
+    },
+    showFull(idx) {
+      if (idx == null) { guide.classList.remove("show"); tip.classList.remove("show"); return; }
+      const leftPx = posFor(idx);
+      guide.style.left = leftPx + "px";
+      guide.classList.add("show");
+      const html = formatter(idx);
+      if (!html) { tip.classList.remove("show"); return; }
+      tip.innerHTML = html;
+      tip.style.left = leftPx + "px";
+      tip.style.top = "calc(50% - 4px)";
+      tip.classList.add("show");
+    },
+    hide() {
+      guide.classList.remove("show");
+      tip.classList.remove("show");
+    }
+  };
+  HoverSync.register(entry);
+
+  const show = (e) => {
+    const clientX = e.clientX != null ? e.clientX : (e.touches && e.touches[0] && e.touches[0].clientX);
+    if (clientX == null) return;
+    const rect = svg.getBoundingClientRect();
+    const relX = (clientX - rect.left) / rect.width;
+    let idx = Math.round(relX * (nSeries - 1));
+    idx = Math.max(0, Math.min(nSeries - 1, idx));
+    entry.showFull(idx);
+    HoverSync.fire(idx, container);
+  };
+
+  const hide = () => {
+    entry.hide();
+    HoverSync.clearAll();
+  };
+
+  svg.addEventListener("mousemove", show);
+  svg.addEventListener("touchmove", show, { passive: true });
+  svg.addEventListener("mouseleave", hide);
+  svg.addEventListener("touchend", hide);
+}
+
+function attachPsychroTooltip(container, data) {
+  const svg = container.querySelector("svg");
+  if (!svg) return;
+
+  container.querySelectorAll(":scope > .ck-tooltip").forEach(el => el.remove());
+
+  const tip = document.createElement("div");
+  tip.className = "ck-tooltip";
+  container.appendChild(tip);
+
+  const temps = data.daily.temps;
+  const dewpoints = data.daily.dewpoints;
+  const pressures = data.daily.pressure;
+
+  const W = 300, H = 160, PAD = 24;
+
+  const wArr = [];
+  for (let i = 0; i < temps.length; i++) {
+    const Td = dewpoints[i], P = pressures[i] || 1013;
+    if (Td == null) { wArr.push(null); continue; }
+    const e = 6.112 * Math.exp(17.67 * Td / (Td + 243.5));
+    wArr.push(622 * e / (P - e));
+  }
+  const vT = temps.filter(v => v != null);
+  const vW = wArr.filter(v => v != null);
+  if (!vT.length || !vW.length) return;
+
+  const tMin = Math.min(...vT) - 1, tMax = Math.max(...vT) + 1;
+  const wMax = Math.max(...vW, 5) * 1.15;
+
+  const pt = svg.createSVGPoint();
+
+  const handle = (e) => {
+    const clientX = e.clientX != null ? e.clientX : (e.touches && e.touches[0] && e.touches[0].clientX);
+    const clientY = e.clientY != null ? e.clientY : (e.touches && e.touches[0] && e.touches[0].clientY);
+    if (clientX == null || clientY == null) return;
+
+    pt.x = clientX; pt.y = clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+    const mouseT = tMin + ((svgP.x - PAD) / (W - PAD * 2)) * (tMax - tMin);
+    const mouseW = ((H - PAD - svgP.y) / (H - PAD * 2)) * wMax;
+
+    let bestIdx = -1, bestDist = Infinity;
+    for (let i = 0; i < temps.length; i++) {
+      if (temps[i] == null || wArr[i] == null) continue;
+      const dT = (temps[i] - mouseT) / (tMax - tMin);
+      const dW = (wArr[i] - mouseW) / wMax;
+      const d = dT * dT + dW * dW;
+      if (d < bestDist) { bestDist = d; bestIdx = i; }
+    }
+    if (bestIdx < 0 || bestDist > 0.03) { tip.classList.remove("show"); return; }
+
+    const T = temps[bestIdx];
+    const Td = dewpoints[bestIdx];
+    const w = wArr[bestIdx];
+    const dt = parseUtc(data.daily.startUtcHour);
+    const localH = toLocalHour(dt.getUTCHours() + bestIdx);
+
+    tip.innerHTML = `
+      <div class="ck-tt-time">${pad2(localH)}:00 WIB</div>
+      <div class="ck-tt-row"><span>T</span><span>${formatTemp(T, 1)}${tempUnitSymbol()}</span></div>
+      <div class="ck-tt-row"><span>Td</span><span>${formatTemp(Td, 1)}${tempUnitSymbol()}</span></div>
+      <div class="ck-tt-row"><span>w</span><span>${w.toFixed(2)} g/kg</span></div>
+    `;
+
+    const xVb = PAD + ((T - tMin) / (tMax - tMin)) * (W - PAD * 2);
+    const yVb = H - PAD - (w / wMax) * (H - PAD * 2);
+    const pt2 = svg.createSVGPoint();
+    pt2.x = xVb; pt2.y = yVb;
+    const screenP = pt2.matrixTransform(svg.getScreenCTM());
+    const cRect = container.getBoundingClientRect();
+
+    tip.style.left = (screenP.x - cRect.left) + "px";
+    tip.style.top = (screenP.y - cRect.top - 12) + "px";
+    tip.classList.add("show");
+  };
+
+  const hide = () => tip.classList.remove("show");
+  svg.addEventListener("mousemove", handle);
+  svg.addEventListener("touchmove", handle, { passive: true });
+  svg.addEventListener("mouseleave", hide);
+  svg.addEventListener("touchend", hide);
+}
+
+/* ============================================================
+ *  EXPORT PNG
+ * ============================================================ */
+async function toPng(target, filename, scale = 2) {
+  const svg = target.tagName === "svg" ? target : target.querySelector("svg");
+  if (!svg) throw new Error("SVG tidak ditemukan");
+  const clone = svg.cloneNode(true);
+  const bbox = svg.getBoundingClientRect();
+  const W = bbox.width || 300, H = bbox.height || 100;
+  clone.setAttribute("width", W);
+  clone.setAttribute("height", H);
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  const isLight = document.documentElement.getAttribute("data-theme") === "light";
+  const bg = isLight ? "#eef3ff" : "#04071a";
+  const bgRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  bgRect.setAttribute("width", "100%");
+  bgRect.setAttribute("height", "100%");
+  bgRect.setAttribute("fill", bg);
+  clone.insertBefore(bgRect, clone.firstChild);
+  const svgStr = new XMLSerializer().serializeToString(clone);
+  const blob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = await new Promise((res, rej) => {
+      const i = new Image();
+      i.onload = () => res(i);
+      i.onerror = () => rej(new Error("Gagal load SVG"));
+      i.src = url;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = W * scale;
+    canvas.height = H * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.drawImage(img, 0, 0, W, H);
+    await new Promise(resolve => {
+      canvas.toBlob(blob => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(a.href), 200);
+        resolve();
+      }, "image/png");
+    });
+  } finally { URL.revokeObjectURL(url); }
+}
+
+/* ============================================================
+ *  23. RENDER UI
+ * ============================================================ */
+function getWeatherIcon(cc, pr, opts = {}) {
+  const size = opts.size || 24;
+  if (pr > 0.1) return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 13v8M8 13v8M12 15v8" stroke="#67e8f9"/><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25" stroke="#cdd6f5"/></svg>`;
+  if (cc < 20) return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5" fill="#ffc266" stroke="none"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="#ffc266"/></svg>`;
+  if (cc < 60) return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" fill="#cdd6f5" opacity="0.85" stroke="#a5c4e8"/><circle cx="7" cy="7" r="3" fill="#ffc266" stroke="none" opacity="0.95"/></svg>`;
+  return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" fill="#8f99be" opacity="0.9" stroke="#cdd6f5"/></svg>`;
+}
+function getConditionText(cc, pr) {
+  if (pr > 0.1) return "Hujan Ringan";
+  if (cc < 20) return "Cerah";
+  if (cc < 60) return "Berawan Sebagian";
+  if (cc < 90) return "Berawan";
+  return "Mendung";
+}
+
+function buildChartSvg(temps, dewps, elevs, nowIdx) {
+  const W = 300, H = 96, PAD = 12;
+  const nT = temps.length; if (!nT) return "";
+  const all = temps.concat(dewps || []).filter(v => v != null);
+  if (!all.length) return "";
+  const minV = Math.min(...all), maxV = Math.max(...all);
+  const range = maxV - minV || 1;
+  const stepX = (W - PAD * 2) / Math.max(1, nT - 1);
+  const yOf = v => PAD + (1 - (v - minV) / range) * (H - PAD * 2);
+  const xOf = i => PAD + i * stepX;
+
+  let nightBand = "", sN = null;
+  for (let i = 0; i < nT; i++) {
+    const isNight = elevs && elevs[i] != null && elevs[i] < 0;
+    if (isNight && sN === null) sN = i;
+    if (!isNight && sN !== null) {
+      const x0 = xOf(sN), x1 = xOf(i);
+      nightBand += `<rect x="${x0.toFixed(1)}" y="${PAD}" width="${(x1 - x0).toFixed(1)}" height="${H - PAD * 2}" fill="#a78bfa" opacity="0.06"/>`;
+      sN = null;
+    }
+  }
+  if (sN !== null) {
+    const x0 = xOf(sN), x1 = xOf(nT - 1);
+    nightBand += `<rect x="${x0.toFixed(1)}" y="${PAD}" width="${(x1 - x0).toFixed(1)}" height="${H - PAD * 2}" fill="#a78bfa" opacity="0.06"/>`;
+  }
+
+  let tPath = "", tPoints = [];
+  for (let i = 0; i < nT; i++) {
+    const v = temps[i]; if (v == null) continue;
+    const x = xOf(i), y = yOf(v);
+    tPath += (tPath ? "L" : "M") + x.toFixed(1) + "," + y.toFixed(1);
+    tPoints.push({ x, y });
+  }
+  const tArea = tPoints.length ? `${tPath} L${tPoints[tPoints.length - 1].x.toFixed(1)},${H - PAD} L${tPoints[0].x.toFixed(1)},${H - PAD} Z` : "";
+  let tdPath = "";
+  for (let i = 0; i < nT; i++) {
+    const v = dewps ? dewps[i] : null; if (v == null) continue;
+    tdPath += (tdPath ? "L" : "M") + xOf(i).toFixed(1) + "," + yOf(v).toFixed(1);
+  }
+  let maxPt = tPoints[0] || { x: 0, y: 0 }, minPt = tPoints[0] || { x: 0, y: 0 };
+  tPoints.forEach(p => { if (p.y < maxPt.y) maxPt = p; if (p.y > minPt.y) minPt = p; });
+
+  const uid = "chart" + Math.random().toString(36).slice(2, 7);
+  const nowLine = (nowIdx != null && nowIdx >= 0 && nowIdx < nT)
+    ? `<line x1="${xOf(nowIdx).toFixed(1)}" y1="${PAD - 2}" x2="${xOf(nowIdx).toFixed(1)}" y2="${H - PAD + 2}" stroke="#ffc266" stroke-width="1" stroke-dasharray="2 3" opacity="0.7"/>`
+    : "";
+
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="fill${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffc266" stop-opacity="0.38"/><stop offset="100%" stop-color="#ffc266" stop-opacity="0"/></linearGradient>
+      <linearGradient id="line${uid}" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ffd99a"/><stop offset="55%" stop-color="#ffc266"/><stop offset="100%" stop-color="#f0abfc"/></linearGradient>
+    </defs>
+    ${gridLines(W, H, PAD, 3)}
+    ${nightBand}
+    ${tArea ? `<path d="${tArea}" fill="url(#fill${uid})"/>` : ""}
+    ${tdPath ? `<path d="${tdPath}" fill="none" stroke="#67e8f9" stroke-width="1.4" stroke-dasharray="3 3" stroke-linecap="round" opacity="0.8"/>` : ""}
+    ${tPath ? `<path d="${tPath}" fill="none" stroke="url(#line${uid})" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>` : ""}
+    ${nowLine}
+    <circle cx="${maxPt.x.toFixed(1)}" cy="${maxPt.y.toFixed(1)}" r="3.5" fill="#fb7185" stroke="#0a0e1c" stroke-width="1"/>
+    <circle cx="${minPt.x.toFixed(1)}" cy="${minPt.y.toFixed(1)}" r="3.5" fill="#67e8f9" stroke="#0a0e1c" stroke-width="1"/>
+  </svg>`;
+}
+
+function buildSparkline(values, color, nowIdx) {
+  const W = 120, H = 26, PAD = 3;
+  const v = values.filter(x => x != null);
+  if (!v.length) return "";
+  const mn = Math.min(...v), mx = Math.max(...v), rng = mx - mn || 1;
+  const n = values.length;
+  const stepX = (W - PAD * 2) / Math.max(1, n - 1);
+  const xOf = i => PAD + i * stepX;
+  const yOf = x => PAD + (1 - (x - mn) / rng) * (H - PAD * 2);
+
+  let path = "";
+  for (let i = 0; i < n; i++) {
+    const x = values[i]; if (x == null) continue;
+    path += (path ? "L" : "M") + xOf(i).toFixed(1) + "," + yOf(x).toFixed(1);
+  }
+
+  const lastX = xOf(n - 1);
+  const lastY = (values[n - 1] != null) ? yOf(values[n - 1]) : H / 2;
+
+  let marker = "";
+  if (nowIdx != null && nowIdx >= 0 && nowIdx < n && values[nowIdx] != null) {
+    const nx = xOf(nowIdx), ny = yOf(values[nowIdx]);
+    marker = `<circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="3.5" fill="${color}" opacity="0.25"/>
+              <circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="1.8" fill="${color}"/>`;
+  } else {
+    marker = `<circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="2.2" fill="${color}"/>`;
+  }
+
+  const uid = "sp" + Math.random().toString(36).slice(2, 7);
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs><linearGradient id="spF${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.30"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${path} L ${lastX.toFixed(1)} ${H} L ${PAD} ${H} Z" fill="url(#spF${uid})"/>
+    <path d="${path}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+    ${marker}
+  </svg>`;
+}
+
+let _lastMainTempC = null;
+function animateCounter(el, fromC, toC, dur = 700) {
+  const from = toDisplayTemp(fromC);
+  const to = toDisplayTemp(toC);
+  if (from == null || to == null) { el.textContent = formatTemp(toC, 1); return; }
+  const start = performance.now();
+  const step = (t) => {
+    const k = Math.min(1, (t - start) / dur);
+    const ease = 1 - Math.pow(1 - k, 3);
+    const v = from + (to - from) * ease;
+    el.textContent = v.toFixed(1);
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function renderUI(data, lat, lon, locationName) {
+  const c = data.current, d = data.derived, md = data.metadata;
+  const locNameEl = document.getElementById("loc-name");
+  const locCoordEl = document.getElementById("loc-coords");
+  if (locationName) {
+    locNameEl.textContent = locationName;
+    locNameEl.style.display = "";
+  } else {
+    locNameEl.style.display = "none";
+  }
+  locCoordEl.textContent = `${lat.toFixed(4)}°, ${lon.toFixed(4)}°`;
+
+  /* Hero temp with counter animation */
+  const tempEl = document.getElementById("main-temp");
+  if (_lastMainTempC != null && Math.abs(_lastMainTempC - c.temperature_c) > 0.01) {
+    animateCounter(tempEl, _lastMainTempC, c.temperature_c, 700);
+  } else {
+    tempEl.textContent = formatTemp(c.temperature_c, 1);
+  }
+  _lastMainTempC = c.temperature_c;
+  document.getElementById("main-unit").textContent = tempUnitSymbol();
+  document.getElementById("main-condition").textContent = getConditionText(c.cloud_cover_total_pct, c.precipitation_mm);
+
+  const heroBg = document.getElementById("hero-icon-bg");
+  if (heroBg) heroBg.innerHTML = getWeatherIcon(c.cloud_cover_total_pct || 0, c.precipitation_mm || 0, { size: 180 });
+
+  const dMax = data.daily && data.daily.max, dMin = data.daily && data.daily.min;
+  document.getElementById("temp-max").textContent = dMax != null ? formatTemp(dMax, 0) + "°" : "--°";
+  document.getElementById("temp-min").textContent = dMin != null ? formatTemp(dMin, 0) + "°" : "--°";
+
+  /* ============================================================
+   *  Hitung nowIdx dari waktu render aktual (timezone-agnostic)
+   * ============================================================ */
+  let nowIdx = null;
+  if (data.daily && data.daily.startUtcHour) {
+    const startUtc = parseUtc(data.daily.startUtcHour);
+    const nowUtc = new Date();
+    const hoursSince = (nowUtc.getTime() - startUtc.getTime()) / 3600000;
+    const idx = Math.round(hoursSince);
+    if (idx >= 0 && idx < data.daily.temps.length) nowIdx = idx;
+  }
+
+  const chartEl = document.getElementById("chart-container");
+  const rangeEl = document.getElementById("chart-range");
+  if (data.daily) {
+    const tConv = data.daily.temps.map(v => toDisplayTemp(v));
+    const dConv = data.daily.dewpoints.map(v => toDisplayTemp(v));
+    chartEl.innerHTML = buildChartSvg(tConv, dConv, data.daily.elev, nowIdx);
+    const cMax = toDisplayTemp(dMax), cMin = toDisplayTemp(dMin);
+    rangeEl.textContent = (cMax != null ? cMax.toFixed(0) : "--") + "° / " + (cMin != null ? cMin.toFixed(0) : "--") + "°";
+
+    attachTooltip(chartEl, data.daily.temps.length, i => {
+      const T = data.daily.temps[i], Td = data.daily.dewpoints[i];
+      if (T == null) return null;
+      const dt = parseUtc(data.daily.startUtcHour);
+      const lh = toLocalHour(dt.getUTCHours() + i);
+      return `<div class="ck-tt-time">${pad2(lh)}:00 WIB</div>
+        <div class="ck-tt-row"><span>T</span><span>${formatTemp(T, 1)}${tempUnitSymbol()}</span></div>
+        <div class="ck-tt-row"><span>Td</span><span>${formatTemp(Td, 1)}${tempUnitSymbol()}</span></div>`;
+    });
+  }
+
+  /* Hourly carousel */
+  const hc = document.getElementById("hourly-container");
+  hc.innerHTML = data.hourly.map(h => {
+    const dt = parseUtc(h.time);
+    const lh = toLocalHour(dt.getUTCHours());
+    const ts = pad2(lh) + ":00";
+    const icon = getWeatherIcon(h.cloud || 0, h.precip || 0, { size: 32 });
+    const tv = formatTemp(h.temp, 0);
+    return `<div class="hourly-card${h.isNow ? " now" : ""}"><div class="time">${ts}</div><div class="icon">${icon}</div><div class="temp">${tv !== "--" ? tv + "°" : "--"}</div></div>`;
+  }).join("");
+
+  document.getElementById("wind-speed").textContent = c.wind_speed_kmh != null ? c.wind_speed_kmh.toFixed(0) : "--";
+  document.getElementById("wind-dir").textContent = c.wind_direction_deg != null ? `${c.wind_direction_deg.toFixed(0)}° ${windDirectionName(c.wind_direction_deg)}` : "--";
+  document.getElementById("humidity").textContent = c.relative_humidity_pct != null ? c.relative_humidity_pct.toFixed(0) : "--";
+  document.getElementById("dewpoint").textContent = `Titik embun ${formatTemp(c.dewpoint_c, 1)}°`;
+  document.getElementById("pressure").textContent = c.pressure_hpa != null ? c.pressure_hpa.toFixed(0) : "--";
+  document.getElementById("pressure-msl").textContent = c.pressure_msl_hpa != null ? `MSL ${c.pressure_msl_hpa.toFixed(1)} hPa` : "MSL -- hPa";
+  document.getElementById("cloud-cover").textContent = c.cloud_cover_total_pct != null ? c.cloud_cover_total_pct.toFixed(0) : "--";
+  document.getElementById("precip").textContent = `Presipitasi ${c.precipitation_mm ? c.precipitation_mm.toFixed(1) : "0.0"} mm`;
+
+  const runH = pad2(md.run_hour_utc);
+  document.getElementById("sci-run").innerHTML = `RUN <span class="hl">${runH}Z</span>`;
+  document.getElementById("sci-lead").innerHTML = `T+<span class="hl">${pad2(md.lead_hours)}h</span>`;
+  document.getElementById("sci-orog").innerHTML = `OROG <span class="hl">${c.model_orography_m != null ? c.model_orography_m.toFixed(1) : "--"} m</span>`;
+  document.getElementById("sci-dh").innerHTML = `Δh <span class="hl">${c.height_delta_m != null ? c.height_delta_m.toFixed(1) : "--"} m</span>`;
+
+  document.getElementById("th-theta").textContent = d.theta_K.toFixed(1);
+  document.getElementById("th-thetae").textContent = d.thetaE_K.toFixed(1);
+  document.getElementById("th-w").textContent = d.mixingRatio_gkg.toFixed(1);
+  document.getElementById("th-tw").textContent = d.wetBulb_C.toFixed(1);
+  document.getElementById("th-dpd").textContent = d.DPD_K.toFixed(1);
+  document.getElementById("th-lcl").textContent = d.LCL_m.toFixed(0);
+  document.getElementById("th-wbgt").textContent = d.WBGT_C.toFixed(1);
+  document.getElementById("th-hi").textContent = d.heatIndex_C.toFixed(1);
+
+  const risks = [
+    riskConvection(d.thetaE_K, d.DPD_K),
+    riskFog(d.DPD_K, c.wind_speed_kmh || 0),
+    riskHeat(d.WBGT_C),
+    riskWind(c.wind_speed_kmh || 0),
+    riskRadiation(c.shortwave_radiation_wm2 || 0)
+  ];
+  const cls = { none: "risk-none", low: "risk-low", mild: "risk-mild", moderate: "risk-moderate", high: "risk-high" };
+  document.getElementById("risk-chips").innerHTML = risks.map(r => `<span class="risk-chip ${cls[r.level]}"><span class="dot"></span>${r.label}</span>`).join("");
+
+  const sw = c.shortwave_radiation_wm2 || 0;
+  const clr = d.clearSkySW_wm2 || 0;
+  const maxBar = Math.max(sw, clr, 100);
+  const pct = v => Math.min(100, (v / maxBar) * 100).toFixed(1) + "%";
+  document.getElementById("rad-bars").innerHTML = `
+    <div class="rad-row"><span class="rk">SW Terukur</span><div class="rad-bar-track"><div class="rad-bar-fill sw" style="width:${pct(sw)}"></div></div><span class="rv">${sw.toFixed(0)} W/m²</span></div>
+    <div class="rad-row"><span class="rk">SW Clear-Sky</span><div class="rad-bar-track"><div class="rad-bar-fill clear" style="width:${pct(clr)}"></div></div><span class="rv">${clr.toFixed(0)} W/m²</span></div>
+    <div class="rad-row"><span class="rk">Net SW</span><div class="rad-bar-track"><div class="rad-bar-fill net" style="width:${pct(sw)}"></div></div><span class="rv">${sw.toFixed(0)} W/m²</span></div>`;
+
+  const sp = data.daily;
+  const D = domainColors();
+  const sparks = [
+    { label: "T",    value: formatTemp(c.temperature_c, 1) + "°",  series: sp.temps.map(v => toDisplayTemp(v)), color: D.thermal.from },
+    { label: "Td",   value: formatTemp(c.dewpoint_c, 1) + "°",    series: sp.dewpoints.map(v => toDisplayTemp(v)), color: D.moisture.from },
+    { label: "RH",   value: (c.relative_humidity_pct || 0).toFixed(0) + "%", series: sp.rH, color: D.moisture.to },
+    { label: "Wind", value: (c.wind_speed_kmh || 0).toFixed(0) + " km/j",   series: sp.wind, color: D.wind.from }
+  ];
+  document.getElementById("spark-grid").innerHTML = sparks.map(s =>
+    `<div class="spark-cell"><div class="sl"><span>${s.label}</span><span class="sv">${s.value}</span></div>${buildSparkline(s.series, s.color, nowIdx)}</div>`
+  ).join("");
+
+  const unitS = tempUnitSymbol();
+  const details = [
+    { k: "Suhu Permukaan (Model)", v: c.surface_temperature_c != null ? formatTemp(c.surface_temperature_c, 2) + " " + unitS : "--" },
+    { k: "Titik Embun Permukaan", v: c.surface_dewpoint_c != null ? formatTemp(c.surface_dewpoint_c, 2) + " " + unitS : "--" },
+    { k: "Tekanan Permukaan", v: c.surface_pressure_hpa ? c.surface_pressure_hpa.toFixed(2) + " hPa" : "--" },
+    { k: "Tekanan Uap Air", v: c.vapour_pressure_hpa ? c.vapour_pressure_hpa.toFixed(2) + " hPa" : "--" },
+    { k: "Orografi Model", v: c.model_orography_m ? c.model_orography_m.toFixed(1) + " m" : "--" },
+    { k: "Delta Ketinggian", v: c.height_delta_m ? c.height_delta_m.toFixed(1) + " m" : "--" },
+    { k: "Hembusan Angin (Gust)", v: c.wind_gust_kmh ? c.wind_gust_kmh.toFixed(1) + " km/j" : "--" },
+    { k: "Awan Rendah", v: c.cloud_cover_low_pct != null ? c.cloud_cover_low_pct.toFixed(1) + " %" : "--" },
+    { k: "Awan Menengah", v: c.cloud_cover_mid_pct != null ? c.cloud_cover_mid_pct.toFixed(1) + " %" : "--" },
+    { k: "Awan Tinggi", v: c.cloud_cover_high_pct != null ? c.cloud_cover_high_pct.toFixed(1) + " %" : "--" },
+    { k: "Radiasi SW", v: c.shortwave_radiation_wm2 != null ? c.shortwave_radiation_wm2.toFixed(1) + " W/m²" : "--" },
+    { k: "Sumber Model", v: md.source }
+  ];
+  document.getElementById("detail-grid").innerHTML = details.map(x =>
+    `<div class="detail-row"><div class="k">${x.k}</div><div class="v">${x.v}</div></div>`
+  ).join("");
+
+  document.getElementById("btn-unit").textContent = unit === "F" ? "°F" : "°C";
+
+  /* ============================================================
+   *  CHARTS
+   * ============================================================ */
+  const n = data.daily.temps.length;
+  const hourLabel = i => {
+    const dt = parseUtc(data.daily.startUtcHour);
+    const localH = toLocalHour(dt.getUTCHours() + i);
+    return pad2(localH) + ":00";
+  };
+  const fmtT = v => v == null ? "--" : formatTemp(v, 1) + tempUnitSymbol();
+  const fmtN = (v, dg, u) => v == null ? "--" : v.toFixed(dg) + (u || "");
+
+  const mount = (id, svg, filename, tipFn) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = svg;
+    el.style.position = "relative";
+
+    if (tipFn) attachTooltip(el, n, tipFn);
+
+    if (!el.querySelector(".chart-export-btn")) {
+      const btn = document.createElement("button");
+      btn.className = "chart-export-btn";
+      btn.title = "Export PNG";
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+      btn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        try { await toPng(el, filename); showToast(`Tersimpan: ${filename}`, "ok"); }
+        catch (err) { showToast("Gagal export PNG", "err"); }
+      });
+      el.appendChild(btn);
+    }
+  };
+
+  /* Wind rose */
+  mount("chart-windrose",
+    windRose(data.daily.wind, data.daily.windDirs, {
+      size: 300,
+      currentDir: c.wind_direction_deg,
+      currentSpeed: c.wind_speed_kmh
+    }),
+    "wind-rose.png", null);
+  attachWindRoseTooltip(document.getElementById("chart-windrose"));
+
+  /* Radiation */
+  mount("chart-radiation",
+    radiation(data.daily.sw, data.daily.sw.map(() => d.clearSkySW_wm2), data.daily.elev, { nowIdx: nowIdx }),
+    "radiation.png",
+    i => `<div class="ck-tt-time">${hourLabel(i)}</div>
+          <div class="ck-tt-row"><span>SW</span><span>${fmtN(data.daily.sw[i], 0, " W/m²")}</span></div>
+          <div class="ck-tt-row"><span>Clear</span><span>${fmtN(d.clearSkySW_wm2, 0, " W/m²")}</span></div>`
+  );
+
+  /* Cloud */
+  mount("chart-cloud",
+    cloudRibbon(data.daily.cloudLow, data.daily.cloudMid, data.daily.cloudHigh),
+    "cloud.png",
+    i => `<div class="ck-tt-time">${hourLabel(i)}</div>
+          <div class="ck-tt-row"><span>Low</span><span>${fmtN(data.daily.cloudLow[i], 0, "%")}</span></div>
+          <div class="ck-tt-row"><span>Mid</span><span>${fmtN(data.daily.cloudMid[i], 0, "%")}</span></div>
+          <div class="ck-tt-row"><span>High</span><span>${fmtN(data.daily.cloudHigh[i], 0, "%")}</span></div>`
+  );
+
+  /* Precip */
+  mount("chart-precip",
+    precipCloud(data.daily.precip, data.daily.cloudHigh, { nowIdx: nowIdx }),
+    "precip.png",
+    i => `<div class="ck-tt-time">${hourLabel(i)}</div>
+          <div class="ck-tt-row"><span>Presip</span><span>${fmtN(data.daily.precip[i], 1, " mm")}</span></div>
+          <div class="ck-tt-row"><span>Awan tinggi</span><span>${fmtN(data.daily.cloudHigh[i], 0, "%")}</span></div>`
+  );
+
+  /* Heat gauges */
+  mount("chart-heat", heatGauges(d.WBGT_C, d.heatIndex_C, d.wetBulb_C), "heat.png", null);
+
+  /* Pressure */
+  mount("chart-pressure",
+    pressureTendency(data.daily.pressure, { nowIdx: nowIdx }),
+    "pressure.png",
+    i => `<div class="ck-tt-time">${hourLabel(i)}</div>
+          <div class="ck-tt-row"><span>MSL</span><span>${fmtN(data.daily.pressure[i], 1, " hPa")}</span></div>`
+  );
+
+  /* Sun path */
+  mount("chart-sunpath",
+    sunPath(data.daily.elev, { tzOffset: TZ_OFFSET_HOURS, nowIdx: nowIdx }),
+    "sun-path.png",
+    i => `<div class="ck-tt-time">${hourLabel(i)}</div>
+          <div class="ck-tt-row"><span>Elevasi</span><span>${fmtN(data.daily.elev[i], 1, "°")}</span></div>`
+  );
+
+  /* Wind envelope */
+  mount("chart-windenvelope",
+    windEnvelope(data.daily.wind, data.daily.windGusts, { nowIdx: nowIdx }),
+    "wind.png",
+    i => `<div class="ck-tt-time">${hourLabel(i)}</div>
+          <div class="ck-tt-row"><span>Angin</span><span>${fmtN(data.daily.wind[i], 1, " km/j")}</span></div>
+          <div class="ck-tt-row"><span>Gust</span><span>${fmtN(data.daily.windGusts[i], 1, " km/j")}</span></div>`
+  );
+
+  /* Psychrometric */
+  mount("chart-psychro",
+    psychrometric(data.daily.temps, data.daily.dewpoints, data.daily.pressure, { nowIdx: nowIdx }),
+    "psychro.png",
+    null
+  );
+  attachPsychroTooltip(document.getElementById("chart-psychro"), data);
+
+  /* Meteogram */
+  mount("chart-meteogram", meteogram(data, { nowIdx: nowIdx }), "meteogram.png", null);
+}
+
+/* Risk functions */
+function riskConvection(thetaE_K, DPD_K) {
+  if (thetaE_K >= 345 && DPD_K < 5) return { level: "high", label: "Konveksi Tinggi" };
+  if (thetaE_K >= 338 && DPD_K < 7) return { level: "moderate", label: "Konveksi Sedang" };
+  if (thetaE_K >= 332 || DPD_K < 5) return { level: "mild", label: "Konveksi Ringan" };
+  return { level: "low", label: "Konveksi Rendah" };
+}
+function riskFog(DPD_K, wind_kmh) {
+  if (DPD_K < 2 && wind_kmh < 6) return { level: "high", label: "Fog Tinggi" };
+  if (DPD_K < 4 && wind_kmh < 10) return { level: "moderate", label: "Fog Sedang" };
+  if (DPD_K < 6) return { level: "mild", label: "Fog Ringan" };
+  return { level: "none", label: "Fog Nihil" };
+}
+function riskHeat(WBGT) {
+  if (WBGT >= 32) return { level: "high", label: "Panas Berat" };
+  if (WBGT >= 28) return { level: "moderate", label: "Panas Sedang" };
+  if (WBGT >= 25) return { level: "mild", label: "Panas Ringan" };
+  return { level: "none", label: "Termal Aman" };
+}
+function riskWind(kmh) {
+  if (kmh >= 60) return { level: "high", label: "Angin Kencang" };
+  if (kmh >= 40) return { level: "moderate", label: "Angin Sedang" };
+  if (kmh >= 25) return { level: "mild", label: "Angin Ringan" };
+  return { level: "none", label: "Angin Tenang" };
+}
+function riskRadiation(sw) {
+  if (sw >= 800) return { level: "high", label: "UV Ekstrem" };
+  if (sw >= 600) return { level: "moderate", label: "Radiasi Tinggi" };
+  if (sw >= 300) return { level: "mild", label: "Radiasi Sedang" };
+  return { level: "none", label: "Radiasi Rendah" };
+}
+
+/* ============================================================
+ *  24. CSV + LOG
+ * ============================================================ */
+const CSV_FIELDS = ["timestamp_utc","lat","lon","target_height_m","temperature_c","dewpoint_c","relative_humidity_pct","vapour_pressure_hpa","pressure_hpa","surface_pressure_hpa","pressure_msl_hpa","wind_speed_kmh","wind_direction_deg","wind_gust_kmh","precipitation_mm","cloud_cover_total_pct","cloud_cover_low_pct","cloud_cover_mid_pct","cloud_cover_high_pct","shortwave_radiation_wm2","model_orography_m"];
+function appendLog(data, lat, lon, ht) {
+  const c = data.current;
+  let log = [];
+  try { log = JSON.parse(localStorage.getItem(LOG_KEY) || "[]"); } catch (_) {}
+  log.push({
+    timestamp_utc: new Date().toISOString(), lat, lon, target_height_m: ht,
+    temperature_c: c.temperature_c, dewpoint_c: c.dewpoint_c,
+    relative_humidity_pct: c.relative_humidity_pct, vapour_pressure_hpa: c.vapour_pressure_hpa,
+    pressure_hpa: c.pressure_hpa, surface_pressure_hpa: c.surface_pressure_hpa,
+    pressure_msl_hpa: c.pressure_msl_hpa, wind_speed_kmh: c.wind_speed_kmh,
+    wind_direction_deg: c.wind_direction_deg, wind_gust_kmh: c.wind_gust_kmh,
+    precipitation_mm: c.precipitation_mm, cloud_cover_total_pct: c.cloud_cover_total_pct,
+    cloud_cover_low_pct: c.cloud_cover_low_pct, cloud_cover_mid_pct: c.cloud_cover_mid_pct,
+    cloud_cover_high_pct: c.cloud_cover_high_pct, shortwave_radiation_wm2: c.shortwave_radiation_wm2,
+    model_orography_m: c.model_orography_m
+  });
+  if (log.length > 500) log = log.slice(-500);
+  localStorage.setItem(LOG_KEY, JSON.stringify(log));
+}
+function csvEscape(v) {
+  if (v == null) return "";
+  const s = String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function downloadCsv() {
+  let log = [];
+  try { log = JSON.parse(localStorage.getItem(LOG_KEY) || "[]"); } catch (_) {}
+  if (!log.length) { showToast("Belum ada data", "err"); return; }
+  const lines = [CSV_FIELDS.join(",")];
+  log.forEach(r => lines.push(CSV_FIELDS.map(f => csvEscape(r[f])).join(",")));
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "ecmwf_log.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  showToast(`${log.length} baris diekspor`, "ok");
+}
+
+/* ============================================================
+ *  25. UI
+ * ============================================================ */
+const elLoading = document.getElementById("loading");
+const elContent = document.getElementById("content");
+const elModal = document.getElementById("settings-modal");
+const elToast = document.getElementById("toast");
+function showToast(msg, cls) {
+  elToast.textContent = msg;
+  elToast.className = "status-toast " + (cls || "");
+  elToast.classList.add("show");
+  clearTimeout(elToast._timer);
+  elToast._timer = setTimeout(() => elToast.classList.remove("show"), 3500);
+}
+
+function getGreeting() {
+  const h = toLocalHour(new Date().getUTCHours());
+  if (h >= 4 && h < 11) return "Selamat Pagi";
+  if (h >= 11 && h < 15) return "Selamat Siang";
+  if (h >= 15 && h < 18) return "Selamat Sore";
+  return "Selamat Malam";
+}
+function updateGreeting() {
+  const el = document.getElementById("greeting");
+  if (el) el.textContent = getGreeting();
+}
+
+async function loadData() {
+  elLoading.classList.remove("hidden");
+  elContent.classList.add("hidden");
+  try {
+    const now = new Date();
+    const key = cacheKey(now);
+    let raw = cacheRead(key);
+    let origin = "cache-jam";
+
+    if (!raw) {
+      const netRaw = await fetchEcmwf(lastCoords.lat, lastCoords.lon);
+      if (netRaw) {
+        cacheWrite(key, netRaw);
+        raw = { raw: netRaw };
+        origin = "network";
+      } else {
+        const fb = cacheFindFresh();
+        if (fb) { raw = fb; origin = "cache-lama"; }
+      }
+    }
+
+    if (!raw) {
+      showToast("Tidak bisa ambil data & tidak ada cache", "err");
+      elLoading.innerHTML = `<span style="color:var(--rose)">Gagal memuat data.</span>`;
+      return;
+    }
+
+    const hgt = lastCoords.hgt || 0;
+    const data = parseAndExtrapolate(raw.raw, hgt, now, lastCoords.lat, lastCoords.lon);
+    const locationName = await reverseGeocode(lastCoords.lat, lastCoords.lon);
+
+    lastData = data;
+    lastLocationName = locationName;
+
+    renderUI(data, lastCoords.lat, lastCoords.lon, locationName);
+    appendLog(data, lastCoords.lat, lastCoords.lon, hgt);
+
+    elLoading.classList.add("hidden");
+    elContent.classList.remove("hidden");
+
+    const labels = { "network": "baru", "cache-jam": "cache", "cache-lama": "fallback" };
+    const locLabel = locationName ? locationName : `${lastCoords.lat.toFixed(3)}°, ${lastCoords.lon.toFixed(3)}°`;
+    showToast(`${locLabel} | ${hgt.toFixed(0)}m | ${labels[origin] || origin}`, "ok");
+  } catch (e) {
+    console.error(e);
+    showToast("Kesalahan: " + e.message, "err");
+    elLoading.innerHTML = `<span style="color:var(--rose)">Terjadi kesalahan.</span>`;
+  }
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem(THEME_KEY, theme);
+  const path = document.getElementById("theme-icon-path");
+  if (path) {
+    if (theme === "light") {
+      path.setAttribute("d", "M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z");
+    } else {
+      path.setAttribute("d", "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z");
+    }
+  }
+  if (lastData) renderUI(lastData, lastCoords.lat, lastCoords.lon, lastLocationName);
+}
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  if (saved === "light" || saved === "dark") applyTheme(saved);
+  else {
+    const light = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+    applyTheme(light ? "light" : "dark");
+  }
+}
+
+/* Events */
+document.getElementById("btn-refresh").addEventListener("click", loadData);
+document.getElementById("btn-csv").addEventListener("click", downloadCsv);
+document.getElementById("btn-unit").addEventListener("click", () => {
+  unit = unit === "C" ? "F" : "C";
+  localStorage.setItem(UNIT_KEY, unit);
+  if (lastData) renderUI(lastData, lastCoords.lat, lastCoords.lon, lastLocationName);
+  showToast(`Satuan: ${tempUnitSymbol()}`, "ok");
+});
+document.getElementById("btn-theme").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme") || "dark";
+  const next = cur === "light" ? "dark" : "light";
+  applyTheme(next);
+  showToast(next === "light" ? "Tema Terang" : "Tema Gelap", "ok");
+});
+document.getElementById("btn-settings").addEventListener("click", () => {
+  document.getElementById("input-lat").value = lastCoords.lat;
+  document.getElementById("input-lon").value = lastCoords.lon;
+  document.getElementById("input-hgt").value = lastCoords.hgt;
+  elModal.classList.add("active");
+});
+document.getElementById("btn-cancel-settings").addEventListener("click", () => elModal.classList.remove("active"));
+document.getElementById("btn-save-settings").addEventListener("click", () => {
+  const lat = parseFloat(document.getElementById("input-lat").value);
+  const lon = parseFloat(document.getElementById("input-lon").value);
+  const hgt = parseFloat(document.getElementById("input-hgt").value);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || !Number.isFinite(hgt)) {
+    showToast("Data tidak valid.", "err");
+    return;
+  }
+  lastCoords = { lat, lon, hgt };
+  elModal.classList.remove("active");
+  loadData();
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+  updateGreeting();
+  setInterval(updateGreeting, 60000);
+  loadData();
+});
+</script>
+</body>
+</html>
