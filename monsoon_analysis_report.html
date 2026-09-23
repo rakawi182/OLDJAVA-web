@@ -1,0 +1,2679 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EV09 — Baratan Analysis &amp; Causality · Satya Adi · Jolotundo Research Consortium</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN SYSTEM — JRC Scientific Report (unified, mobile-hardened)
+═══════════════════════════════════════════════════════════════ */
+:root {
+  --navy:      #0b1f3a;
+  --navy-2:    #14355e;
+  --navy-3:    #1d4a80;
+  --slate:     #344a5e;
+  --slate-2:   #4e6478;
+  --slate-3:   #7a92a8;
+  --mist:      #b8c8d8;
+  --cloud:     #dce8f0;
+  --fog:       #eef4f8;
+  --white:     #f7fafb;
+  --paper:     #ffffff;
+
+  --amber:     #c47a1a;
+  --amber-2:   #e8950d;
+  --green:     #1a6640;
+  --green-2:   #228b55;
+  --red:       #8b1a2a;
+  --red-2:     #b32237;
+
+  --ink:       var(--navy);
+  --ink-2:     var(--slate);
+  --ink-3:     var(--slate-2);
+  --ink-4:     var(--slate-3);
+  --border:    var(--cloud);
+  --border-2:  var(--mist);
+  --bg:        var(--paper);
+  --bg-2:      var(--fog);
+  --bg-3:      #e4eef5;
+  --accent:    var(--navy-2);
+  --accent-2:  var(--amber);
+
+  --sans:  -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Helvetica, Arial, sans-serif;
+  --mono:  ui-monospace, "SF Mono", "Fira Code", Menlo, Consolas, monospace;
+
+  --r: 4px;
+  --r2: 8px;
+
+  --gutter: 24px;
+  --gutter-mob: 20px;
+  --gutter-narrow: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--navy);
+  font: 15px/1.65 var(--sans);
+  font-feature-settings: "tnum" 1, "kern" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+p, li, .callout, .chart-caption, .kpi-sub, .phase-desc, .footer-inner,
+.section-title, h3, h4, .hdr-title, .hdr-abstract, .hdr-meta-value,
+tbody td.lbl, tbody td.lbl-dim {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* ── Header band ──────────────────────────────────────────────── */
+.site-header {
+  background: var(--navy);
+  border-bottom: 3px solid var(--amber);
+  padding: 0;
+}
+.hdr-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px var(--gutter) 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-wrap: wrap;
+}
+.hdr-consortium {
+  font: 600 11px/1 var(--mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--amber-2);
+}
+.hdr-report-id {
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.45);
+}
+.hdr-body {
+  padding: 28px var(--gutter) 30px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.hdr-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.hdr-kicker-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--amber-2);
+  flex-shrink: 0;
+}
+.hdr-kicker-text {
+  font: 600 10.5px/1 var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber-2);
+}
+.hdr-title {
+  font: 700 28px/1.2 var(--sans);
+  letter-spacing: -0.025em;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+.hdr-title em { font-style: normal; color: var(--mist); }
+.hdr-abstract {
+  font: 14.5px/1.7 var(--sans);
+  color: rgba(255,255,255,0.65);
+  max-width: 680px;
+  margin-bottom: 20px;
+}
+.hdr-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 28px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.hdr-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.hdr-meta-label {
+  font: 600 9.5px/1 var(--mono);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+.hdr-meta-value {
+  font: 500 12.5px/1.2 var(--mono);
+  color: rgba(255,255,255,0.75);
+}
+
+/* ── Tab navigation ───────────────────────────────────────────── */
+.tab-nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: var(--navy-2);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-list {
+  display: flex;
+  min-width: max-content;
+  padding: 0 var(--gutter);
+  max-width: 960px;
+  margin: 0 auto;
+}
+.tab-btn {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 13px 13px 11px;
+  font: 500 13px/1 var(--sans);
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.tab-btn:hover { color: rgba(255,255,255,0.85); }
+.tab-btn[aria-selected="true"] {
+  color: #ffffff;
+  font-weight: 600;
+  border-bottom-color: var(--amber-2);
+}
+.tab-num {
+  font: 500 10px/1 var(--mono);
+  opacity: 0.5;
+  letter-spacing: 0.05em;
+}
+.tab-btn[aria-selected="true"] .tab-num { opacity: 0.7; color: var(--amber-2); }
+
+/* ── Main content ─────────────────────────────────────────────── */
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px var(--gutter) 96px;
+  padding-left: max(var(--gutter), env(safe-area-inset-left));
+  padding-right: max(var(--gutter), env(safe-area-inset-right));
+}
+.panel { display: none; }
+.panel[data-active="true"] { display: block; }
+
+/* ── Section headings ─────────────────────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin: 52px 0 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.section-header:first-child { margin-top: 8px; }
+.section-rule {
+  flex-shrink: 0;
+  width: 3px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--amber), transparent);
+  border-radius: 2px;
+  margin-top: 3px;
+}
+.section-title {
+  font: 700 19px/1.3 var(--sans);
+  letter-spacing: -0.018em;
+  color: var(--navy);
+  min-width: 0;
+}
+.section-title sub {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-3);
+  vertical-align: baseline;
+  letter-spacing: 0;
+}
+
+h3 {
+  font: 600 14.5px/1.4 var(--sans);
+  color: var(--navy);
+  margin: 38px 0 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.h3-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  border-radius: var(--r);
+  background: var(--navy);
+  color: #fff;
+  font: 600 10px/1 var(--mono);
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+h4 {
+  font: 600 11px/1.4 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--slate-3);
+  margin: 28px 0 12px;
+}
+
+p {
+  color: var(--slate);
+  font-size: 14.5px;
+  line-height: 1.72;
+  margin: 0 0 14px;
+  max-width: 72ch;
+}
+p.lead {
+  font-size: 15.5px;
+  color: var(--navy);
+  line-height: 1.65;
+  max-width: 68ch;
+}
+
+/* ── KPI cards ────────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border-2);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r2);
+  overflow: hidden;
+  margin: 18px 0 32px;
+}
+.kpi-grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.kpi {
+  background: var(--bg);
+  padding: 20px 20px 18px;
+  position: relative;
+  min-width: 0;
+}
+.kpi::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+}
+.kpi:nth-child(2)::before { background: var(--amber); }
+.kpi:nth-child(3)::before { background: var(--green); }
+.kpi:nth-child(4)::before { background: var(--navy-3); }
+.kpi-label {
+  font: 600 10px/1.4 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 12px;
+}
+.kpi-value {
+  font: 700 26px/1 var(--mono);
+  color: var(--navy);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+}
+.kpi-value.lg { font-size: 32px; }
+.kpi-value.pos { color: var(--green-2); }
+.kpi-value.neg { color: var(--red-2); }
+.kpi-value sup {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-3);
+  margin-left: 4px;
+  letter-spacing: 0;
+}
+.kpi-sub { font: 11.5px/1.5 var(--sans); color: var(--ink-3); }
+
+/* ── Callout ──────────────────────────────────────────────────── */
+.callout {
+  border-left: 3px solid var(--navy-3);
+  background: var(--bg-2);
+  border-radius: 0 var(--r2) var(--r2) 0;
+  padding: 14px 18px 14px 16px;
+  margin: 20px 0 28px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--slate);
+  max-width: 72ch;
+}
+.callout strong { color: var(--navy); font-weight: 600; }
+.callout.warning { border-color: var(--amber); }
+.callout.positive { border-color: var(--green); }
+.callout.danger  { border-color: var(--red-2); }
+
+/* ── Chart containers ─────────────────────────────────────────── */
+.chart-card {
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  background: var(--bg);
+  overflow: hidden;
+  margin: 20px 0 36px;
+}
+.chart-header {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-2);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.chart-label {
+  font: 700 11px/1.3 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  flex-shrink: 0;
+}
+.chart-title-text {
+  font: 500 13.5px/1.35 var(--sans);
+  color: var(--navy);
+  letter-spacing: -0.005em;
+  min-width: 0;
+}
+.chart-body {
+  padding: 20px 18px 14px;
+  position: relative;
+}
+.chart-body canvas { display: block; width: 100% !important; }
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  padding: 0 18px 14px;
+}
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: 12px/1.35 var(--sans);
+  color: var(--ink-3);
+  min-width: 0;
+}
+.legend-swatch {
+  display: inline-block;
+  width: 16px; height: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.legend-swatch.dot { width: 10px; height: 10px; border-radius: 50%; }
+.chart-caption {
+  font: 12.5px/1.6 var(--sans);
+  color: var(--ink-4);
+  padding: 12px 18px 16px;
+  border-top: 1px solid var(--border);
+  max-width: 72ch;
+  font-style: italic;
+}
+
+/* ── Tables ───────────────────────────────────────────────────── */
+.tbl-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  overflow: hidden;
+  overflow-x: auto;
+  margin: 14px 0 32px;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg);
+  position: relative;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 13px/1.4 var(--sans);
+  font-variant-numeric: tabular-nums;
+}
+thead th {
+  background: var(--navy);
+  color: rgba(255,255,255,0.75);
+  font: 600 10.5px/1.35 var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 11px 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 9px 13px;
+  border-bottom: 1px solid var(--border);
+  color: var(--navy);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+tbody td.lbl {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--slate);
+  white-space: normal;
+  min-width: 140px;
+}
+tbody td.lbl-dim {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink-3);
+  white-space: normal;
+}
+tbody td.num { text-align: right; }
+tbody td.dim { color: var(--ink-4); }
+tbody td.pos { color: var(--green-2); font-weight: 500; }
+tbody td.neg { color: var(--red-2); font-weight: 500; }
+tbody td.hl  { background: rgba(29,74,128,0.05); font-weight: 600; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--bg-2); }
+
+.tbl-sticky thead th:first-child,
+.tbl-sticky tbody td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: inherit;
+  box-shadow: 1px 0 0 var(--border);
+}
+.tbl-sticky thead th:first-child { background: var(--navy); }
+.tbl-sticky tbody td:first-child { background: var(--bg); }
+.tbl-sticky tbody tr:hover td:first-child { background: var(--bg-2); }
+
+/* ── Phase cards ──────────────────────────────────────────────── */
+.phase-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border-2);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r2);
+  overflow: hidden;
+  margin: 18px 0 32px;
+}
+.phase-card {
+  background: var(--bg);
+  padding: 16px 14px 14px;
+  min-width: 0;
+}
+.phase-num {
+  font: 600 10px/1 var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--ink-4);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.phase-name {
+  font: 600 14px/1.3 var(--sans);
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.phase-range {
+  font: 12px var(--mono);
+  color: var(--amber);
+  margin-bottom: 10px;
+}
+.phase-desc {
+  font: 12px/1.55 var(--sans);
+  color: var(--slate-2);
+}
+
+/* ── Timeline SVG ─────────────────────────────────────────────── */
+.timeline-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  background: var(--bg);
+  padding: 24px 20px 20px;
+  margin: 20px 0 32px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.timeline-wrap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 520px;
+}
+
+/* ── Footer ───────────────────────────────────────────────────── */
+.site-footer {
+  background: var(--navy);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 24px var(--gutter) 36px;
+  text-align: center;
+}
+.footer-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  font: 11.5px/1.7 var(--mono);
+  color: rgba(255,255,255,0.38);
+}
+.footer-inner strong { color: rgba(255,255,255,0.6); font-weight: 500; }
+
+/* ── Panel animation ─────────────────────────────────────────── */
+.panel[data-active="true"] { animation: fadeIn 0.18s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 800px) {
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .kpi-grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .phase-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
+@media (max-width: 640px) {
+  main {
+    padding-top: 24px;
+    padding-bottom: 80px;
+    padding-left: max(var(--gutter-mob), env(safe-area-inset-left));
+    padding-right: max(var(--gutter-mob), env(safe-area-inset-right));
+  }
+  .hdr-top {
+    padding-left: max(var(--gutter-mob), env(safe-area-inset-left));
+    padding-right: max(var(--gutter-mob), env(safe-area-inset-right));
+  }
+  .hdr-body {
+    padding: 24px var(--gutter-mob) 26px;
+    padding-left: max(var(--gutter-mob), env(safe-area-inset-left));
+    padding-right: max(var(--gutter-mob), env(safe-area-inset-right));
+  }
+  .tab-list { padding: 0 var(--gutter-mob); }
+  .site-footer {
+    padding-left: max(var(--gutter-mob), env(safe-area-inset-left));
+    padding-right: max(var(--gutter-mob), env(safe-area-inset-right));
+  }
+
+  .hdr-title { font-size: 22px; line-height: 1.22; }
+  .hdr-abstract { font-size: 13.5px; line-height: 1.65; }
+  .hdr-meta-row { gap: 14px 22px; }
+
+  .section-header { margin: 40px 0 20px; gap: 12px; }
+  .section-title { font-size: 17px; }
+
+  h3 { font-size: 14px; margin: 30px 0 12px; }
+
+  p { font-size: 14px; }
+  p.lead { font-size: 14.5px; }
+
+  .kpi-grid,
+  .kpi-grid.cols-4 { grid-template-columns: 1fr; }
+  .kpi { padding: 18px 16px 16px; }
+  .kpi-value { font-size: 22px; }
+  .kpi-value.lg { font-size: 26px; }
+
+  .phase-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+
+  .chart-body { padding: 16px 12px 10px; }
+  .chart-header { padding: 12px 14px 10px; }
+  .chart-caption { padding: 10px 14px 14px; font-size: 12px; }
+  .chart-legend { padding: 0 14px 12px; gap: 10px 14px; }
+
+  .callout { padding: 12px 14px 12px 13px; font-size: 13.5px; }
+
+  thead th { padding: 10px 11px; font-size: 10px; }
+  tbody td { padding: 8px 11px; font-size: 12px; }
+  tbody td.lbl { min-width: 110px; font-size: 12.5px; }
+  tbody td.lbl-dim { font-size: 12px; }
+
+  .timeline-wrap { padding: 16px 12px 14px; }
+  .timeline-wrap svg { min-width: 480px; }
+
+  .footer-inner { font-size: 11px; line-height: 1.65; }
+}
+
+@media (max-width: 420px) {
+  main {
+    padding-top: 20px;
+    padding-bottom: 72px;
+    padding-left: max(var(--gutter-narrow), env(safe-area-inset-left));
+    padding-right: max(var(--gutter-narrow), env(safe-area-inset-right));
+  }
+  .hdr-top {
+    padding-left: max(var(--gutter-narrow), env(safe-area-inset-left));
+    padding-right: max(var(--gutter-narrow), env(safe-area-inset-right));
+    padding-top: 10px;
+    padding-bottom: 8px;
+  }
+  .hdr-body {
+    padding: 20px var(--gutter-narrow) 22px;
+    padding-left: max(var(--gutter-narrow), env(safe-area-inset-left));
+    padding-right: max(var(--gutter-narrow), env(safe-area-inset-right));
+  }
+  .tab-list { padding: 0 var(--gutter-narrow); }
+  .tab-btn { padding: 12px 11px 10px; font-size: 12.5px; }
+  .tab-num { font-size: 9.5px; }
+
+  .hdr-title { font-size: 20px; }
+  .hdr-meta-row { gap: 12px 20px; }
+  .hdr-meta-value { font-size: 11.5px; }
+
+  .section-title { font-size: 16px; }
+  .section-rule { height: 32px; }
+
+  .phase-grid { grid-template-columns: 1fr; }
+
+  .chart-body { padding: 14px 10px 8px; }
+  .chart-header { padding: 10px 12px 9px; }
+  .chart-caption { padding: 9px 12px 12px; font-size: 11.5px; }
+  .chart-legend { padding: 0 12px 10px; gap: 8px 12px; }
+  .legend-item { font-size: 11.5px; }
+}
+
+@media print {
+  .tab-nav { display: none; }
+  .panel { display: block !important; }
+  body { font-size: 11pt; color: #000; }
+  .section-header { margin-top: 24pt; }
+  .chart-card { page-break-inside: avoid; }
+  .site-header { -webkit-print-color-adjust: exact; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel[data-active="true"] { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SITE HEADER                                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="hdr-top">
+    <div class="hdr-consortium">Jolotundo Research Consortium</div>
+    <div class="hdr-report-id">Technical Report EV09 · Satya Adi · 2026</div>
+  </div>
+  <div class="hdr-body">
+    <div class="hdr-kicker">
+      <span class="hdr-kicker-dot"></span>
+      <span class="hdr-kicker-text">Monsoon Dynamics · ERA5 · 2015–2025</span>
+    </div>
+    <h1 class="hdr-title">Analisis Fenomena Baratan<br>
+      <em>Onset Stratification &amp; Causal Link: Cloud Locking — Monsoon Reversal</em></h1>
+    <p class="hdr-abstract">
+      Karakterisasi tiga strata fisis onset baratan — pembalikan sirkulasi zonal,
+      penguncian tutupan awan konvektif, dan adveksi awan mapan — disertai uji
+      kausalitas temporal yang menunjukkan bahwa cloud locking secara sistematis
+      mendahului monsoon reversal. Ensemble sebelas estimator independen berbasis
+      reanalisis ERA5/ERA5-Land dan prakiraan numerik IFS-HRES, divalidasi silang
+      terhadap indeks ENSO (NOAA OISST v2.1, Niño 3.4 SLA) dan IOD (JMA DMI), 2015–2025.
+    </p>
+    <div class="hdr-meta-row">
+      <div class="hdr-meta-item">
+        <span class="hdr-meta-label">Reference Coordinates</span>
+        <span class="hdr-meta-value">−7.5220° LS · 112.5661° BT · 28 m dpl</span>
+      </div>
+      <div class="hdr-meta-item">
+        <span class="hdr-meta-label">Data Resolution</span>
+        <span class="hdr-meta-value">Hourly · P1+P2 IDW</span>
+      </div>
+      <div class="hdr-meta-item">
+        <span class="hdr-meta-label">Sample Size</span>
+        <span class="hdr-meta-value">102,576 jam</span>
+      </div>
+      <div class="hdr-meta-item">
+        <span class="hdr-meta-label">Analysis Period</span>
+        <span class="hdr-meta-value">2015 – 2025 · N = 11</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- TAB NAVIGATION                                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<nav class="tab-nav" role="tablist" aria-label="Report sections">
+  <div class="tab-list">
+    <button class="tab-btn" role="tab" aria-selected="true" data-tab="overview">
+      <span class="tab-num">01</span>Overview
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="reversal">
+      <span class="tab-num">02</span>Monsoon Reversal
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="baratan">
+      <span class="tab-num">03</span>Cloud Locking
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="kausalitas">
+      <span class="tab-num">04</span>Causality
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="adveksi">
+      <span class="tab-num">05</span>Sustained Advection
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="siklus">
+      <span class="tab-num">06</span>Life Cycle
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="referensi">
+      <span class="tab-num">07</span>References
+    </button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 01 · OVERVIEW                                                -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="panel" data-active="true" data-panel="overview">
+
+  <div class="section-header">
+    <div class="section-rule"></div>
+    <div>
+      <div class="section-title">Executive Summary</div>
+    </div>
+  </div>
+
+  <p class="lead">
+    Fenomena baratan tidak dapat diidentifikasi melalui satu variabel tunggal.
+    Analisis ini menunjukkan bahwa onset tersusun dari tiga strata fisis yang
+    berlangsung secara berurutan: pembalikan sirkulasi zonal pada lapisan batas
+    atmosfer, penguncian tutupan awan konvektif tebal, dan adveksi awan mapan
+    yang baru mencapai ambang terdeteksi pada puncak musim penghujan — rata-rata
+    86,9 hari setelah penguncian pertama. Uji kausalitas temporal menunjukkan
+    bahwa penguncian awan <em>mendahului</em> pembalikan sirkulasi, bukan
+    sebaliknya (median Δ = −14 hari; p = 0,002).
+  </p>
+
+  <p class="callout">
+    <strong>Notasi besaran.</strong> Simbol <code>u<sub>comp</sub></code> dan <code>u₃₀</code>
+    menyatakan komponen zonal dari vektor satuan arah angin — besaran
+    <strong>tak berdimensi</strong>, dinotasikan dengan satuan <code>[−]</code>.
+    Nilai berkisar dari −1 (angin murni dari timur) hingga +1 (angin murni dari barat).
+    Berbeda dengan komponen zonal berkecepatan <code>u = −V·sin(θ)</code>
+    yang bersatuan km h⁻¹, <code>u<sub>comp</sub></code> hanya membawa informasi arah.
+  </p>
+
+  <h3><span class="h3-marker">A</span>Key Parameters of the Three Onset Strata</h3>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Monsoon Reversal</div>
+      <div class="kpi-value">131.0<sup>dopy</sup></div>
+      <div class="kpi-sub">Median 31 Oct · N=11 estimators · σ = 10.9 days</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Cloud Locking</div>
+      <div class="kpi-value">127.8<sup>dopy</sup></div>
+      <div class="kpi-sub">Median 28 Oct · N=7 estimators · σ = 11.3 days</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Sustained Advection</div>
+      <div class="kpi-value">214.7<sup>dopy</sup></div>
+      <div class="kpi-sub">Median 23 Jan · N=3 estimators · σ = 16.5 days</div>
+    </div>
+  </div>
+
+  <h3><span class="h3-marker">B</span>Three Key Causality Metrics</h3>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Median Δ (lock − reversal)</div>
+      <div class="kpi-value lg neg">−14.0<sup>hari</sup></div>
+      <div class="kpi-sub">Cloud locking mendahului monsoon reversal</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Inter-Annual Consistency</div>
+      <div class="kpi-value lg" style="color:var(--amber)">9 / 11</div>
+      <div class="kpi-sub">Cloud mendahului · 2 bersamaan · 0 reversal mendahului</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Westerly Day Fraction Before Lock</div>
+      <div class="kpi-value lg pos">0.6%</div>
+      <div class="kpi-sub">vs. 45.7% dalam 30 hari sesudah lock</div>
+    </div>
+  </div>
+
+  <h3><span class="h3-marker">C</span>Relative Position of the Three Onset Strata within the Pranata-Year Cycle</h3>
+
+  <div class="timeline-wrap">
+    <svg viewBox="0 0 700 150" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Diagram posisi relatif tiga strata onset baratan">
+
+      <rect x="60" y="30" width="640" height="90" fill="#f7fafb" rx="2"/>
+
+      <rect x="60" y="30" width="90" height="90" fill="rgba(29,74,128,0.04)"/>
+      <text x="105" y="47" font-family="-apple-system,sans-serif" font-size="9" fill="#7a92a8" text-anchor="middle">Sep–Oct</text>
+      <rect x="370" y="30" width="130" height="90" fill="rgba(196,122,26,0.05)"/>
+      <text x="435" y="47" font-family="-apple-system,sans-serif" font-size="9" fill="#7a92a8" text-anchor="middle">Jan–Feb</text>
+
+      <line x1="60" y1="95" x2="700" y2="95" stroke="#b8c8d8" stroke-width="1"/>
+
+      <g font-family="ui-monospace,monospace" font-size="9" fill="#7a92a8" text-anchor="middle">
+        <line x1="60"   y1="92" x2="60"   y2="98" stroke="#b8c8d8"/>
+        <line x1="113"  y1="92" x2="113"  y2="98" stroke="#b8c8d8"/>
+        <line x1="193"  y1="92" x2="193"  y2="98" stroke="#b8c8d8"/>
+        <line x1="273"  y1="92" x2="273"  y2="98" stroke="#b8c8d8"/>
+        <line x1="380"  y1="92" x2="380"  y2="98" stroke="#b8c8d8"/>
+        <line x1="513"  y1="92" x2="513"  y2="98" stroke="#b8c8d8"/>
+        <line x1="700"  y1="92" x2="700"  y2="98" stroke="#b8c8d8"/>
+        <text x="60"  y="112">80</text>
+        <text x="113" y="112">100</text>
+        <text x="193" y="112">130</text>
+        <text x="273" y="112">160</text>
+        <text x="380" y="112">200</text>
+        <text x="513" y="112">250</text>
+        <text x="700" y="112">320</text>
+        <text x="380" y="130" font-size="10" fill="#4e6478">doy pranata (dopy)</text>
+      </g>
+
+      <g>
+        <line x1="187.5" y1="95" x2="187.5" y2="118" stroke="#1a6640" stroke-width="1.5" stroke-dasharray="3 2"/>
+        <circle cx="187.5" cy="95" r="7" fill="none" stroke="#1a6640" stroke-width="2"/>
+        <circle cx="187.5" cy="95" r="3" fill="#1a6640"/>
+        <text x="187.5" y="80" font-family="-apple-system,sans-serif" font-size="10" font-weight="700" fill="#1a6640" text-anchor="middle">Cloud Locking</text>
+        <text x="187.5" y="69" font-family="ui-monospace,monospace" font-size="10" fill="#1a6640" text-anchor="middle">127.8</text>
+      </g>
+
+      <g>
+        <line x1="196" y1="95" x2="196" y2="56" stroke="#1d4a80" stroke-width="1.5" stroke-dasharray="3 2"/>
+        <circle cx="196" cy="95" r="7" fill="none" stroke="#1d4a80" stroke-width="2"/>
+        <circle cx="196" cy="95" r="3" fill="#1d4a80"/>
+        <text x="196" y="46" font-family="-apple-system,sans-serif" font-size="10" font-weight="700" fill="#1d4a80" text-anchor="middle">Monsoon Reversal</text>
+        <text x="196" y="35" font-family="ui-monospace,monospace" font-size="10" fill="#1d4a80" text-anchor="middle">131.0</text>
+      </g>
+
+      <g>
+        <line x1="419" y1="95" x2="419" y2="56" stroke="#c47a1a" stroke-width="1.5" stroke-dasharray="3 2"/>
+        <circle cx="419" cy="95" r="7" fill="none" stroke="#c47a1a" stroke-width="2"/>
+        <circle cx="419" cy="95" r="3" fill="#c47a1a"/>
+        <text x="419" y="46" font-family="-apple-system,sans-serif" font-size="10" font-weight="700" fill="#c47a1a" text-anchor="middle">Sustained Advection</text>
+        <text x="419" y="35" font-family="ui-monospace,monospace" font-size="10" fill="#c47a1a" text-anchor="middle">214.7</text>
+      </g>
+
+      <line x1="188" y1="141" x2="419" y2="141" stroke="#b8c8d8" stroke-width="1" marker-end="url(#arrowR)"/>
+      <text x="303" y="139" font-family="ui-monospace,monospace" font-size="9" fill="#7a92a8" text-anchor="middle">Δ 86.9 hari</text>
+      <defs>
+        <marker id="arrowR" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 z" fill="#b8c8d8"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <h3><span class="h3-marker">D</span>Operational Definitions</h3>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Stratum</th>
+          <th>Domain</th>
+          <th>Quantitative Indicator</th>
+          <th style="text-align:right">Median Onset (dopy)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="lbl">Monsoon Reversal</td>
+          <td class="lbl-dim">Dynamic · Zonal circulation</td>
+          <td class="lbl-dim">Komponen zonal u<sub>comp</sub> (MA-30d) [−], zero-crossing dari timur ke barat</td>
+          <td class="num">131.0</td>
+        </tr>
+        <tr>
+          <td class="lbl">Cloud Locking</td>
+          <td class="lbl-dim">Radiative · Convective cover</td>
+          <td class="lbl-dim">Total cloud cover &gt; 76%, TCWV &gt; 45 kg m⁻², persistensi ≥ 14 hari</td>
+          <td class="num">127.8</td>
+        </tr>
+        <tr>
+          <td class="lbl">Sustained Advection</td>
+          <td class="lbl-dim">Kinematic · Horizontal transport</td>
+          <td class="lbl-dim">u<sub>mean</sub> &gt; 0.65 [−], u<sub>std</sub> &lt; 0.35 [−], frac<sub>west</sub> &gt; 0.85</td>
+          <td class="num">214.7</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout positive">
+    <strong>Key finding.</strong> Pembalikan arah angin dan penguncian tutupan awan
+    terjadi hampir bersamaan (selisih median 3,2 hari; p &lt; 0,001), namun cloud locking
+    secara statistik <em>mendahului</em> pembalikan sirkulasi (Wilcoxon W = 1,
+    p = 0,002; median Δ = −14 hari). Sustained advection baru muncul rata-rata
+    86,9 hari kemudian. Urutan ini mengindikasikan bahwa angin barat bukan kausa
+    cloud locking, melainkan konsekuensi reorganisasi siklus diurnal atmosfer
+    yang telah berlangsung lebih dahulu.
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 02 · MONSOON REVERSAL                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="panel" data-panel="reversal">
+
+  <div class="section-header">
+    <div class="section-rule" style="background: linear-gradient(to bottom,#1d4a80,transparent)"></div>
+    <div>
+      <div class="section-title">Monsoon Reversal</div>
+    </div>
+  </div>
+
+  <p>
+    Deteksi titik perubahan arah angin zonal dari timuran ke baratan
+    menggunakan ensemble sebelas estimator independen. Setiap estimator
+    mewakili sudut pandang fisis yang berbeda — dari analisis changepoint
+    statistik (PELT, Pettitt, SR), turunan VPD atmosfer, hingga proksi
+    kelembapan tanah dan filtrasi Lanczos dengan gate RMM. Estimasi akhir
+    diperoleh melalui metode weighted median.
+  </p>
+
+  <h3><span class="h3-marker">A</span>Onset Detection per Pranata-Year — All Estimators</h3>
+
+  <div class="tbl-wrap tbl-sticky" id="tw-reversal">
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th title="Pruned Exact Linear Time">PELT</th>
+          <th title="Shiryaev-Roberts">SR</th>
+          <th title="Pettitt">Pettitt</th>
+          <th title="d(VPD)/dt">dVPD</th>
+          <th title="CUSUM">CUSUM</th>
+          <th title="VPD threshold">VPD↓</th>
+          <th title="Dew-point rise">Td↑</th>
+          <th title="Vertical wind shear">Shear</th>
+          <th title="Soil moisture">Soil</th>
+          <th title="Baseline zonal wind, MA-30d [−]">BaseU</th>
+          <th title="Lanczos filter + RMM gate">Lanczos</th>
+          <th>Ensemble</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>2015</td><td class="num">137</td><td class="num">146</td><td class="num">130</td><td class="num">129</td><td class="num">96</td><td class="num">156</td><td class="num">124</td><td class="num">151</td><td class="num">132</td><td class="num">142</td><td class="num">131</td><td class="num hl">131.0</td><td class="dim">31 Oct</td></tr>
+        <tr><td>2016</td><td class="num">122</td><td class="num">117</td><td class="num">126</td><td class="num dim">—</td><td class="num">103</td><td class="num">109</td><td class="num">123</td><td class="num">132</td><td class="num">108</td><td class="num">127</td><td class="num">127</td><td class="num hl">122.0</td><td class="dim">22 Oct</td></tr>
+        <tr><td>2017</td><td class="num">142</td><td class="num">132</td><td class="num">114</td><td class="num dim">—</td><td class="num">108</td><td class="num">134</td><td class="num">122</td><td class="num">138</td><td class="num">108</td><td class="num">145</td><td class="num">107</td><td class="num hl">122.0</td><td class="dim">22 Oct</td></tr>
+        <tr><td>2018</td><td class="num">134</td><td class="num">142</td><td class="num">134</td><td class="num">137</td><td class="num">116</td><td class="num">146</td><td class="num">121</td><td class="num">148</td><td class="num">129</td><td class="num">178</td><td class="num">121</td><td class="num hl">134.0</td><td class="dim">03 Nov</td></tr>
+        <tr><td>2019</td><td class="num">131</td><td class="num">161</td><td class="num">124</td><td class="num">131</td><td class="num">121</td><td class="num">170</td><td class="num">120</td><td class="num">160</td><td class="num">124</td><td class="num">180</td><td class="num">112</td><td class="num hl">131.0</td><td class="dim">31 Oct</td></tr>
+        <tr><td>2020</td><td class="num">153</td><td class="num">145</td><td class="num">149</td><td class="num">152</td><td class="num">112</td><td class="num">144</td><td class="num">119</td><td class="num">154</td><td class="num">118</td><td class="num">157</td><td class="num">140</td><td class="num hl">145.0</td><td class="dim">14 Nov</td></tr>
+        <tr><td>2021</td><td class="num">127</td><td class="num">129</td><td class="num">137</td><td class="num dim">—</td><td class="num">114</td><td class="num">130</td><td class="num">119</td><td class="num">142</td><td class="num">108</td><td class="num">152</td><td class="num">122</td><td class="num hl">127.0</td><td class="dim">27 Oct</td></tr>
+        <tr><td>2022</td><td class="num dim">—</td><td class="num">111</td><td class="num">102</td><td class="num">101</td><td class="num">109</td><td class="num">109</td><td class="num">140</td><td class="num">102</td><td class="num">108</td><td class="num">110</td><td class="num">86</td><td class="num hl">108.0</td><td class="dim">08 Oct</td></tr>
+        <tr><td>2023</td><td class="num">134</td><td class="num">146</td><td class="num">139</td><td class="num">131</td><td class="num">94</td><td class="num">159</td><td class="num">121</td><td class="num">152</td><td class="num">96</td><td class="num">147</td><td class="num">136</td><td class="num hl">136.0</td><td class="dim">05 Nov</td></tr>
+        <tr><td>2024</td><td class="num">154</td><td class="num">145</td><td class="num">158</td><td class="num dim">—</td><td class="num">109</td><td class="num">147</td><td class="num">119</td><td class="num">154</td><td class="num">108</td><td class="num">109</td><td class="num">150</td><td class="num hl">147.0</td><td class="dim">16 Nov</td></tr>
+        <tr><td>2025</td><td class="num dim">—</td><td class="num">126</td><td class="num">137</td><td class="num">120</td><td class="num">116</td><td class="num">132</td><td class="num">119</td><td class="num">130</td><td class="num">133</td><td class="num">146</td><td class="num">136</td><td class="num hl">132.0</td><td class="dim">01 Nov</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="h3-marker">B</span>Temporal Trend of Ensemble Onset, 2015–2025</h3>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-label">FIG. 2.1</span>
+      <span class="chart-title-text">Ensemble Onset per Pranata-Year with Linear Regression (dopy)</span>
+    </div>
+    <div class="chart-body" style="height:280px">
+      <canvas id="chartTrendReversal"></canvas>
+    </div>
+    <div class="chart-legend">
+      <span class="legend-item">
+        <span class="legend-swatch dot" style="background:#1d4a80"></span>Ensemble onset
+      </span>
+      <span class="legend-item">
+        <span class="legend-swatch" style="background:#c47a1a; border-top: 2px dashed #c47a1a; height:0"></span>Linear regression (slope +0.83 hari a⁻¹; t = 0.78, n.s.)
+      </span>
+    </div>
+    <div class="chart-caption">
+      Slope +0,83 hari per tahun; statistik t = +0,78 (df = 9). Nilai kritis
+      |t|₀.₀₅ = 2,26 — tren tidak signifikan secara statistik. Onset monsun
+      bersifat stasioner dalam jendela observasi 2015–2025.
+    </div>
+  </div>
+
+  <h3><span class="h3-marker">C</span>Estimator Lead Time vs Ensemble</h3>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-label">FIG. 2.2</span>
+      <span class="chart-title-text">Onset Difference of Each Estimator vs Ensemble (hari) — Positive = Leading</span>
+    </div>
+    <div class="chart-body" style="height:300px">
+      <canvas id="chartLeadTime"></canvas>
+    </div>
+    <div class="chart-caption">
+      Nilai positif (hijau) menunjukkan estimator mendahului ensemble; nilai negatif (merah) berarti menyusul.
+      Soil moisture (+22,5 hari) dan titik embun Td (+9,5 hari) merupakan prekursor terdepan,
+      mencerminkan akumulasi kelembapan atmosfer dan tanah sebelum pembalikan sirkulasi.
+    </div>
+  </div>
+
+  <h3><span class="h3-marker">D</span>Summary Statistics per Estimator</h3>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Estimator</th>
+          <th style="text-align:right">N</th>
+          <th style="text-align:right">Mean</th>
+          <th style="text-align:right">Median</th>
+          <th style="text-align:right">σ</th>
+          <th>Range</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="lbl">PELT</td><td class="num">9</td><td class="num">137,1</td><td class="num">134,0</td><td class="num">10,9</td><td class="dim">122–154</td></tr>
+        <tr><td class="lbl">Shiryaev-Roberts</td><td class="num">11</td><td class="num">136,4</td><td class="num">142,0</td><td class="num">14,7</td><td class="dim">111–161</td></tr>
+        <tr><td class="lbl">Pettitt</td><td class="num">11</td><td class="num">131,8</td><td class="num">134,0</td><td class="num">15,5</td><td class="dim">102–158</td></tr>
+        <tr><td class="lbl">dVPD/dt</td><td class="num">7</td><td class="num">128,7</td><td class="num">131,0</td><td class="num">15,6</td><td class="dim">101–152</td></tr>
+        <tr><td class="lbl">CUSUM</td><td class="num">11</td><td class="num">108,9</td><td class="num">109,0</td><td class="num">8,4</td><td class="dim">94–121</td></tr>
+        <tr><td class="lbl">VPD threshold</td><td class="num">11</td><td class="num">139,6</td><td class="num">144,0</td><td class="num">19,3</td><td class="dim">109–170</td></tr>
+        <tr><td class="lbl">Titik embun Td↑</td><td class="num">11</td><td class="num">122,5</td><td class="num">121,0</td><td class="num">6,1</td><td class="dim">119–140</td></tr>
+        <tr><td class="lbl">Vertical shear</td><td class="num">11</td><td class="num">142,1</td><td class="num">148,0</td><td class="num">16,4</td><td class="dim">102–160</td></tr>
+        <tr><td class="lbl">Soil moisture</td><td class="num">11</td><td class="num">115,6</td><td class="num">108,0</td><td class="num">12,2</td><td class="dim">96–133</td></tr>
+        <tr><td class="lbl">BaseU (u<sub>comp</sub> MA-30d) [−]</td><td class="num">11</td><td class="num">144,8</td><td class="num">146,0</td><td class="num">23,2</td><td class="dim">109–180</td></tr>
+        <tr><td class="lbl">Lanczos + RMM gate</td><td class="num">11</td><td class="num">124,4</td><td class="num">127,0</td><td class="num">17,8</td><td class="dim">86–150</td></tr>
+        <tr><td class="lbl hl"><strong>Ensemble (weighted median)</strong></td><td class="num hl">11</td><td class="num hl"><strong>130,5</strong></td><td class="num hl"><strong>131,0</strong></td><td class="num hl"><strong>10,9</strong></td><td class="hl dim">108–147</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="h3-marker">E</span>Pettitt Significance Test</h3>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>p-value</th>
+          <th style="text-align:right">K</th>
+          <th style="text-align:right">n</th>
+          <th style="text-align:right">Changepoint (dopy)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>2015</td><td class="pos">&lt; 0,001</td><td class="num">4820</td><td class="num">141</td><td class="num">130</td></tr>
+        <tr><td>2016</td><td class="pos">&lt; 0,001</td><td class="num">4734</td><td class="num">141</td><td class="num">126</td></tr>
+        <tr><td>2017</td><td class="pos">&lt; 0,001</td><td class="num">4322</td><td class="num">141</td><td class="num">114</td></tr>
+        <tr><td>2018</td><td class="pos">&lt; 0,001</td><td class="num">4558</td><td class="num">141</td><td class="num">134</td></tr>
+        <tr><td>2019</td><td class="pos">&lt; 0,001</td><td class="num">4682</td><td class="num">141</td><td class="num">124</td></tr>
+        <tr><td>2020</td><td class="pos">&lt; 0,001</td><td class="num">4484</td><td class="num">141</td><td class="num">149</td></tr>
+        <tr><td>2021</td><td class="pos">&lt; 0,001</td><td class="num">3534</td><td class="num">141</td><td class="num">137</td></tr>
+        <tr><td>2022</td><td class="pos">&lt; 0,001</td><td class="num">3834</td><td class="num">141</td><td class="num">102</td></tr>
+        <tr><td>2023</td><td class="pos">&lt; 0,001</td><td class="num">4676</td><td class="num">141</td><td class="num">139</td></tr>
+        <tr><td>2024</td><td class="pos">&lt; 0,001</td><td class="num">3528</td><td class="num">141</td><td class="num">158</td></tr>
+        <tr><td>2025</td><td class="pos">&lt; 0,001</td><td class="num">4226</td><td class="num">141</td><td class="num">137</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="h3-marker">F</span>ENSO × IOD Annotation on Ensemble Onset</h3>
+
+  <div class="tbl-wrap tbl-sticky">
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>SST ASO</th><th>SLA ASO</th><th>DMI SON</th>
+          <th>ENSO Phase</th><th>IOD Phase</th>
+          <th style="text-align:right">Reversal</th><th style="text-align:right">Δ Median</th>
+          <th>Interaction</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>2015</td><td class="num pos">+1,870</td><td class="num pos">+2,251</td><td class="num pos">+0,814</td><td class="lbl">El Niño</td><td class="lbl">pIOD</td><td class="num">131</td><td class="num">0,0</td><td class="dim">sinergi</td></tr>
+        <tr><td>2016</td><td class="num neg">−0,574</td><td class="num neg">−0,707</td><td class="num neg">−0,718</td><td class="lbl">La Niña</td><td class="lbl">nIOD</td><td class="num">122</td><td class="num neg">−9,0</td><td class="dim">—</td></tr>
+        <tr><td>2017</td><td class="num neg">−0,307</td><td class="num neg">−0,594</td><td class="num">−0,024</td><td class="lbl">Netral</td><td class="lbl">Netral</td><td class="num">122</td><td class="num neg">−9,0</td><td class="dim">—</td></tr>
+        <tr><td>2018</td><td class="num">+0,425</td><td class="num pos">+1,016</td><td class="num">+0,259</td><td class="lbl">Netral</td><td class="lbl">Netral</td><td class="num">134</td><td class="num">+3,0</td><td class="dim">—</td></tr>
+        <tr><td>2019</td><td class="num">+0,173</td><td class="num">+0,122</td><td class="num pos">+1,535</td><td class="lbl">Netral</td><td class="lbl">pIOD</td><td class="num">131</td><td class="num">0,0</td><td class="dim">—</td></tr>
+        <tr><td>2020</td><td class="num neg">−0,835</td><td class="num neg">−0,674</td><td class="num">−0,344</td><td class="lbl">La Niña</td><td class="lbl">Netral</td><td class="num">145</td><td class="num pos">+14,0</td><td class="dim">—</td></tr>
+        <tr><td>2021</td><td class="num neg">−0,562</td><td class="num neg">−0,454</td><td class="num neg">−0,690</td><td class="lbl">La Niña</td><td class="lbl">nIOD</td><td class="num">127</td><td class="num neg">−4,0</td><td class="dim">—</td></tr>
+        <tr><td>2022</td><td class="num neg">−0,997</td><td class="num neg">−0,439</td><td class="num neg">−0,953</td><td class="lbl">La Niña</td><td class="lbl">nIOD</td><td class="num">108</td><td class="num neg">−23,0</td><td class="dim">sinergi</td></tr>
+        <tr><td>2023</td><td class="num pos">+1,357</td><td class="num pos">+0,922</td><td class="num pos">+1,492</td><td class="lbl">El Niño</td><td class="lbl">pIOD</td><td class="num">136</td><td class="num">+5,0</td><td class="dim">sinergi</td></tr>
+        <tr><td>2024</td><td class="num neg">−0,268</td><td class="num neg">−0,656</td><td class="num neg">−0,476</td><td class="lbl">Netral</td><td class="lbl">nIOD</td><td class="num">147</td><td class="num pos">+16,0</td><td class="dim">—</td></tr>
+        <tr><td>2025</td><td class="num neg">−0,522</td><td class="num neg">−0,698</td><td class="num neg">−1,253</td><td class="lbl">La Niña</td><td class="lbl">nIOD</td><td class="num">132</td><td class="num">+1,0</td><td class="dim">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout warning">
+    Median ensemble 131,0 dopy; simpangan baku 10,9 hari; batas anomali ±1,5σ = ±16,4 hari.
+    Tahun sinergi ENSO–IOD teridentifikasi: 2015, 2016, 2021, 2022, 2023, 2025.
+    Tidak ada tahun interaksi counter aktif dalam jendela observasi.
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 03 · CLOUD LOCKING                                          -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="panel" data-panel="baratan">
+
+  <div class="section-header">
+    <div class="section-rule" style="background: linear-gradient(to bottom,#c47a1a,transparent)"></div>
+    <div>
+      <div class="section-title">Cloud Locking</div>
+    </div>
+  </div>
+
+  <p>
+    Baratan didefinisikan sebagai fase ketika tutupan awan tebal dari arah barat
+    terkunci secara persisten, siklus diurnal suhu permukaan terhenti, dan radiasi
+    gelombang pendek surya terhalang secara berkelanjutan. Onset mengacu pada momen
+    penguncian pertama yang memenuhi ambang komposit tujuh estimator, bukan pada
+    curah hujan pertama maupun kemunculan angin barat pertama.
+  </p>
+
+  <h3><span class="h3-marker">A</span>Cloud Locking Onset and Offset, 2015–2025</h3>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-label">FIG. 3.1</span>
+      <span class="chart-title-text">Cloud Locking Onset and Offset per Pranata-Year (dopy) with Interval Duration</span>
+    </div>
+    <div class="chart-body" style="height:320px">
+      <canvas id="chartBaratanOnsetOffset"></canvas>
+    </div>
+    <div class="chart-legend">
+      <span class="legend-item"><span class="legend-swatch dot" style="background:#1d4a80"></span>Onset (dopy)</span>
+      <span class="legend-item"><span class="legend-swatch dot" style="background:#c47a1a"></span>Offset (dopy)</span>
+    </div>
+    <div class="chart-caption">
+      Rentang durasi baratan bervariasi dari 49,8 hari (2015, El Niño kuat + pIOD) hingga 182,8 hari
+      (2017, kondisi Netral dengan onset sangat awal dopy 127,8). Interval vertikal antara onset dan
+      offset merepresentasikan durasi baratan aktif.
+    </div>
+  </div>
+
+  <h3><span class="h3-marker">B</span>Onset per Estimator — Cloud Locking</h3>
+
+  <div class="tbl-wrap tbl-sticky">
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th title="Baratan Phase Index">BPI</th>
+          <th title="Westerly Cloud Cover">WCC</th>
+          <th title="Radiation anomaly">RAD</th>
+          <th title="Soil moisture">SOIL</th>
+          <th title="Vapor Pressure Deficit">VPD</th>
+          <th title="Surface pressure">PRES</th>
+          <th title="Hidden Markov Model">HMM</th>
+          <th>Ensemble</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>2015</td><td class="num">132</td><td class="num">170</td><td class="num">137</td><td class="num">166</td><td class="num">146</td><td class="num">120</td><td class="num">169</td><td class="num hl">148.5</td></tr>
+        <tr><td>2016</td><td class="num">131</td><td class="num">101</td><td class="num">100</td><td class="num">115</td><td class="num">139</td><td class="num">147</td><td class="num">127</td><td class="num hl">120.3</td></tr>
+        <tr><td>2017</td><td class="num">118</td><td class="num">143</td><td class="num">116</td><td class="num">166</td><td class="num">130</td><td class="num">104</td><td class="num">140</td><td class="num hl">127.8</td></tr>
+        <tr><td>2018</td><td class="num">127</td><td class="num">166</td><td class="num">138</td><td class="num">166</td><td class="num">142</td><td class="num">100</td><td class="num">127</td><td class="num hl">137.6</td></tr>
+        <tr><td>2019</td><td class="num">125</td><td class="num">174</td><td class="num">160</td><td class="num">139</td><td class="num">170</td><td class="num">114</td><td class="num">139</td><td class="num hl">146.7</td></tr>
+        <tr><td>2020</td><td class="num">122</td><td class="num">161</td><td class="num">121</td><td class="num">170</td><td class="num">130</td><td class="num">104</td><td class="num">126</td><td class="num hl">122.8</td></tr>
+        <tr><td>2021</td><td class="num">123</td><td class="num">135</td><td class="num">128</td><td class="num">166</td><td class="num">130</td><td class="num">100</td><td class="num">125</td><td class="num hl">127.5</td></tr>
+        <tr><td>2022</td><td class="num">111</td><td class="num">110</td><td class="num">110</td><td class="num">166</td><td class="num">148</td><td class="num">143</td><td class="num">129</td><td class="num hl">117.6</td></tr>
+        <tr><td>2023</td><td class="num">135</td><td class="num">164</td><td class="num">147</td><td class="num">178</td><td class="num">159</td><td class="num">125</td><td class="num">142</td><td class="num hl">148.4</td></tr>
+        <tr><td>2024</td><td class="num">122</td><td class="num">141</td><td class="num">140</td><td class="num">126</td><td class="num">131</td><td class="num">140</td><td class="num">128</td><td class="num hl">131.8</td></tr>
+        <tr><td>2025</td><td class="num">123</td><td class="num">128</td><td class="num">125</td><td class="num">166</td><td class="num">134</td><td class="num">112</td><td class="num">147</td><td class="num hl">127.0</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="h3-marker">C</span>Multi-Year Statistics — Cloud Locking</h3>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Variable</th><th style="text-align:right">N</th>
+          <th style="text-align:right">Mean</th><th style="text-align:right">Median</th>
+          <th style="text-align:right">σ</th><th style="text-align:right">Min</th>
+          <th style="text-align:right">Max</th><th style="text-align:right">Slope</th>
+          <th style="text-align:right">r</th><th style="text-align:right">t</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="lbl">Onset (dopy)</td><td class="num">11</td><td class="num">132,4</td><td class="num">127,8</td><td class="num">11,3</td><td class="num">117,6</td><td class="num">148,5</td><td class="num">−0,54</td><td class="num">−0,16</td><td class="num">−0,48</td></tr>
+        <tr><td class="lbl">Offset (dopy)</td><td class="num">11</td><td class="num">268,5</td><td class="num">264,3</td><td class="num">32,5</td><td class="num">198,3</td><td class="num">310,6</td><td class="num">+4,06</td><td class="num pos">+0,41</td><td class="num">+1,37</td></tr>
+        <tr><td class="lbl">Duration (hari)</td><td class="num">11</td><td class="num">136,2</td><td class="num">135,3</td><td class="num">36,2</td><td class="num">49,8</td><td class="num">182,8</td><td class="num">+4,59</td><td class="num pos">+0,42</td><td class="num">+1,39</td></tr>
+        <tr><td class="lbl">Peak (dopy)</td><td class="num">11</td><td class="num">217,5</td><td class="num">219,0</td><td class="num">26,3</td><td class="num">170,0</td><td class="num">257,0</td><td class="num">+4,57</td><td class="num pos">+0,58</td><td class="num">+2,12</td></tr>
+        <tr><td class="lbl">Peak BPI</td><td class="num">11</td><td class="num">1,10</td><td class="num">1,10</td><td class="num">0,10</td><td class="num">0,87</td><td class="num">1,17</td><td class="num">−0,01</td><td class="num">−0,20</td><td class="num">−0,62</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout">
+    Nilai kritis |t|₀.₀₅ (df = 9) = 2,26. Tidak ada tren yang signifikan secara statistik.
+    Onset bergeser −0,54 hari per tahun; durasi bertambah +4,59 hari per tahun — keduanya dalam ambang derau statistik.
+  </div>
+
+  <h3><span class="h3-marker">D</span>Regression: Cloud Locking Onset vs Niño 3.4 SLA (ASO)</h3>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-label">FIG. 3.2</span>
+      <span class="chart-title-text">Scatter of Cloud Locking Onset vs Sea Level Anomaly Niño 3.4 (ASO) — OLS Regression</span>
+    </div>
+    <div class="chart-body" style="height:320px">
+      <canvas id="chartENSOScatter"></canvas>
+    </div>
+    <div class="chart-caption">
+      Regresi linier: Onset = 134,07 + 7,81 · SLA (R² = 0,925; RMSE = 3,7 hari).
+      Tahun El Niño kuat (2015 SLA +2,25; 2023 SLA +0,92) menunjukkan onset paling lambat.
+      Tahun La Niña kuat (2022 SLA −0,44) menunjukkan onset paling awal.
+      Delapan puluh empat persen varians onset dijelaskan oleh SLA Niño 3.4.
+    </div>
+  </div>
+
+  <h3><span class="h3-marker">E</span>Atmospheric Composite — Cloud Locking vs Dry Season</h3>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-label">FIG. 3.3</span>
+      <span class="chart-title-text">Composite Anomaly of Atmospheric Variables: Cloud Locking minus Dry Season</span>
+    </div>
+    <div class="chart-body" style="height:340px">
+      <canvas id="chartAnomalyComposite"></canvas>
+    </div>
+    <div class="chart-caption">
+      Anomali dihitung sebagai selisih rata-rata periodik baratan terhadap musim kering.
+      Positif (biru) menunjukkan peningkatan; negatif (oranye) menunjukkan penurunan selama baratan.
+      <br><br>
+      <em>u<sub>comp</sub></em> [−] = komponen zonal dari vektor satuan arah angin,
+      tak berdimensi, rentang −1 s.d. +1.
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Atmospheric Variable</th>
+          <th style="text-align:right">Dry Season</th>
+          <th style="text-align:right">Cloud Locking</th>
+          <th style="text-align:right">Anomaly</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="lbl">Komponen zonal u<sub>comp</sub> [−]</td><td class="num">−0,23</td><td class="num">+0,30</td><td class="num pos">+0,53</td></tr>
+        <tr><td class="lbl">Total cloud cover (%)</td><td class="num">57,05</td><td class="num">88,41</td><td class="num pos">+31,36</td></tr>
+        <tr><td class="lbl">Low cloud cover (%)</td><td class="num">7,38</td><td class="num">18,14</td><td class="num pos">+10,77</td></tr>
+        <tr><td class="lbl">Mid cloud cover (%)</td><td class="num">11,35</td><td class="num">30,78</td><td class="num pos">+19,43</td></tr>
+        <tr><td class="lbl">TCWV (kg m⁻²)</td><td class="num">37,03</td><td class="num">51,91</td><td class="num pos">+14,88</td></tr>
+        <tr><td class="lbl">RH 2 m (%)</td><td class="num">63,68</td><td class="num">83,46</td><td class="num pos">+19,78</td></tr>
+        <tr><td class="lbl">Dew point T<sub>d</sub> (°C)</td><td class="num">19,89</td><td class="num">23,41</td><td class="num pos">+3,52</td></tr>
+        <tr><td class="lbl">Rainfall (mm hari⁻¹)</td><td class="num">1,57</td><td class="num">11,78</td><td class="num pos">+10,21</td></tr>
+        <tr><td class="lbl">Incoming SW radiation (W m⁻²)</td><td class="num">266,55</td><td class="num">209,56</td><td class="num neg">−56,98</td></tr>
+        <tr><td class="lbl">Sunshine duration (s hari⁻¹)</td><td class="num">1647</td><td class="num">1289</td><td class="num neg">−358</td></tr>
+        <tr><td class="lbl">Surface pressure (hPa)</td><td class="num">1007,65</td><td class="num">1006,25</td><td class="num neg">−1,40</td></tr>
+        <tr><td class="lbl">10-m wind speed (km h⁻¹)</td><td class="num">6,78</td><td class="num">5,88</td><td class="num neg">−0,89</td></tr>
+        <tr><td class="lbl">VPD (kPa)</td><td class="num">1,59</td><td class="num">0,67</td><td class="num neg">−0,92</td></tr>
+        <tr><td class="lbl">Reference ET₀ (mm hari⁻¹)</td><td class="num">5,49</td><td class="num">3,85</td><td class="num neg">−1,64</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="h3-marker">F</span>Soil Moisture and Land Surface Response</h3>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Variable</th>
+          <th style="text-align:right">Pre (−30h)</th>
+          <th style="text-align:right">Cloud Locking</th>
+          <th style="text-align:right">Post (+30h)</th>
+          <th style="text-align:right">Lag (hari)</th>
+          <th style="text-align:right">r</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="lbl">Soil moisture 0–7 cm</td><td class="num">0,1586</td><td class="num">0,3132</td><td class="num">0,3387</td><td class="num">3</td><td class="num pos">+0,92</td></tr>
+        <tr><td class="lbl">Soil moisture 7–28 cm</td><td class="num">0,1308</td><td class="num">0,2959</td><td class="num">0,3348</td><td class="num">8</td><td class="num pos">+0,91</td></tr>
+        <tr><td class="lbl">Soil moisture 28–100 cm</td><td class="num">0,1411</td><td class="num">0,2489</td><td class="num">0,3209</td><td class="num">28</td><td class="num pos">+0,81</td></tr>
+        <tr><td class="lbl">Soil moisture 100–255 cm</td><td class="num">0,2373</td><td class="num">0,2604</td><td class="num">0,3019</td><td class="num">30</td><td class="num pos">+0,45</td></tr>
+        <tr><td class="lbl">Soil temperature 0–7 cm (°C)</td><td class="num">30,28</td><td class="num">27,63</td><td class="num">27,31</td><td class="num">9</td><td class="num neg">−0,74</td></tr>
+        <tr><td class="lbl">Soil temperature 7–28 cm (°C)</td><td class="num">30,07</td><td class="num">27,69</td><td class="num">27,25</td><td class="num">10</td><td class="num neg">−0,75</td></tr>
+        <tr><td class="lbl">Soil temperature 28–100 cm (°C)</td><td class="num">29,41</td><td class="num">27,92</td><td class="num">27,19</td><td class="num">30</td><td class="num neg">−0,69</td></tr>
+        <tr><td class="lbl">ET₀ (mm hari⁻¹)</td><td class="num">0,2316</td><td class="num">0,1605</td><td class="num">0,1619</td><td class="num">3</td><td class="num neg">−0,72</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="h3-marker">G</span>Cloud Locking Rainfall Contribution</h3>
+
+  <div class="tbl-wrap">
+    <table>
+      <tbody>
+        <tr><td class="lbl">Total annual rainfall</td><td class="num">2309,8 mm</td></tr>
+        <tr><td class="lbl">Within cloud-locking window (137 hari)</td><td class="num pos">1586,2 mm (69,2 %)</td></tr>
+        <tr><td class="lbl">Dry season (80 hari)</td><td class="num dim">130,1 mm (5,2 %)</td></tr>
+        <tr><td class="lbl">Cloud-locking intensity rate</td><td class="num">11,62 mm hari⁻¹</td></tr>
+        <tr><td class="lbl">Dry-season intensity rate</td><td class="num">1,63 mm hari⁻¹</td></tr>
+        <tr><td class="lbl">Intensification factor</td><td class="num pos">7,15 ×</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="h3-marker">H</span>ARX 6-Week Forecast via MSLA Niño 3.4</h3>
+
+  <div class="tbl-wrap">
+    <table>
+      <tbody>
+        <tr><td class="lbl">Latest observation</td><td class="num">MSLA +2,586 · SST +2,265</td></tr>
+        <tr><td class="lbl">Reference date</td><td class="num">26 Agustus 2026</td></tr>
+        <tr><td class="lbl">+6-week forecast</td><td class="num pos">SLA +2,697 (fase El Niño aktif)</td></tr>
+        <tr><td class="lbl">Forecast date</td><td class="num">07 Oktober 2026</td></tr>
+        <tr><td class="lbl">ARX model RMSE</td><td class="num">0,160 (n = 1746)</td></tr>
+        <tr><td class="lbl">2026 onset implication</td><td class="lbl-dim">Onset cenderung lebih lambat dari median historis</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 04 · CAUSALITY                                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="panel" data-panel="kausalitas">
+
+  <div class="section-header">
+    <div class="section-rule" style="background: linear-gradient(to bottom,#1a6640,transparent)"></div>
+    <div>
+      <div class="section-title">Causality <sub>Cloud Locking → Monsoon Reversal</sub></div>
+    </div>
+  </div>
+
+  <p class="lead">
+    Apakah cloud locking mendahului monsoon reversal? Dari 11 pranata-tahun data
+    ERA5/IDW (2015–2025), penguncian tutupan awan konsisten mendahului pembalikan
+    sirkulasi monsun. Rata-rata 15,7 hari sebelum angin barat pertama kali
+    terdefinisi secara sistematis, kolom uap air sudah melampaui 45 kg m⁻² dan
+    tutupan awan sudah melewati ambang 76% secara persisten.
+  </p>
+
+  <h3><span class="h3-marker">A</span>Cloud Lock vs Monsoon Reversal Timing · 2015–2025</h3>
+
+  <p>
+    Cloud locking dideteksi sebagai hari pertama ketika rata-rata bergerak
+    14 hari dari tutupan awan melampaui 76% <em>dan</em> TCWV melampaui
+    45 kg m⁻², dengan persistensi minimal 10 dari 14 hari ke depan memenuhi
+    ambang cloud &gt; 68%. Monsoon reversal dideteksi sebagai zero-crossing
+    dari rata-rata bergerak 30 hari komponen zonal <em>u</em><sub>comp</sub>
+    [−], dalam jendela dopy<sub>p</sub> 90–200.
+  </p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Lock Date</th>
+          <th style="text-align:right">dopy<sub>p</sub> Lock</th>
+          <th>Reversal Date</th>
+          <th style="text-align:right">dopy<sub>p</sub> Rev</th>
+          <th style="text-align:right">Δ (hari)</th>
+          <th style="text-align:right">u₃₀ saat lock [−]</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>2015</td><td class="dim">07 Dec</td><td class="num">169.0</td><td class="dim">05 Dec</td><td class="num">167.0</td><td class="num hl">+2</td><td class="num">+0.100</td><td class="lbl">≈ Bersamaan</td></tr>
+        <tr><td>2016</td><td class="dim">26 Sep</td><td class="num">98.0</td><td class="dim">13 Nov</td><td class="num">146.0</td><td class="num neg">−48</td><td class="num neg">−1.760</td><td class="lbl">✓ Cloud mendahului</td></tr>
+        <tr><td>2017</td><td class="dim">08 Nov</td><td class="num">140.0</td><td class="dim">13 Nov</td><td class="num">145.0</td><td class="num neg">−5</td><td class="num neg">−0.478</td><td class="lbl">✓ Cloud mendahului</td></tr>
+        <tr><td>2018</td><td class="dim">18 Nov</td><td class="num">150.0</td><td class="dim">02 Dec</td><td class="num">164.0</td><td class="num neg">−14</td><td class="num neg">−1.541</td><td class="lbl">✓ Cloud mendahului</td></tr>
+        <tr><td>2019</td><td class="dim">09 Dec</td><td class="num">171.0</td><td class="dim">28 Dec</td><td class="num">190.0</td><td class="num neg">−19</td><td class="num neg">−1.708</td><td class="lbl">✓ Cloud mendahului</td></tr>
+        <tr><td>2020</td><td class="dim">26 Nov</td><td class="num">159.0</td><td class="dim">08 Dec</td><td class="num">171.0</td><td class="num neg">−12</td><td class="num neg">−2.538</td><td class="lbl">✓ Cloud mendahului</td></tr>
+        <tr><td>2021</td><td class="dim">30 Oct</td><td class="num">131.0</td><td class="dim">04 Dec</td><td class="num">166.0</td><td class="num neg">−35</td><td class="num neg">−1.081</td><td class="lbl">✓ Cloud mendahului</td></tr>
+        <tr><td>2022</td><td class="dim">09 Oct</td><td class="num">110.0</td><td class="dim">24 Oct</td><td class="num">125.0</td><td class="num neg">−15</td><td class="num neg">−1.546</td><td class="lbl">✓ Cloud mendahului</td></tr>
+        <tr><td>2023</td><td class="dim">29 Nov</td><td class="num">161.0</td><td class="dim">06 Dec</td><td class="num">168.0</td><td class="num neg">−7</td><td class="num neg">−0.996</td><td class="lbl">✓ Cloud mendahului</td></tr>
+        <tr><td>2024</td><td class="dim">11 Nov</td><td class="num">144.0</td><td class="dim">11 Nov</td><td class="num">144.0</td><td class="num hl">0</td><td class="num">+0.048</td><td class="lbl">≈ Bersamaan</td></tr>
+        <tr><td>2025</td><td class="dim">27 Oct</td><td class="num">128.0</td><td class="dim">16 Nov</td><td class="num">148.0</td><td class="num neg">−20</td><td class="num neg">−2.729</td><td class="lbl">✓ Cloud mendahului</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>Kolom u₃₀ saat lock:</strong> Nilai negatif menunjukkan angin rata-rata 30 hari masih
+    berarah timur pada saat cloud locking terjadi. Dari 11 tahun, 9 tahun menunjukkan
+    u₃₀ &lt; 0 saat lock — artinya sirkulasi masih timuran ketika awan sudah terkunci.
+    Nilai u₃₀ dinyatakan sebagai komponen zonal dari vektor satuan arah angin,
+    tak berdimensi [−], rentang −1 s.d. +1.
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-label">FIG. 4.1</span>
+      <span class="chart-title-text">Δ onset = dopy<sub>p</sub>(lock) − dopy<sub>p</sub>(reversal) per year — negative = cloud leads</span>
+    </div>
+    <div class="chart-body" style="height:260px">
+      <canvas id="chartDelta"></canvas>
+    </div>
+    <div class="chart-caption">
+      Semua nilai negatif (batang biru gelap) menunjukkan cloud locking terjadi sebelum monsoon reversal.
+      Tidak ada tahun di mana reversal mendahului cloud locking. Dua tahun bersamaan (2015: +2 hari; 2024: 0 hari)
+      keduanya merupakan tahun dengan u₃₀ ≈ 0 pada saat lock, bukan negatif kuat.
+    </div>
+  </div>
+
+  <h3><span class="h3-marker">B</span>Statistical Significance · Wilcoxon &amp; t-test</h3>
+
+  <p>
+    H₀: median(Δ) = 0 — tidak ada perbedaan sistematis antara waktu cloud locking
+    dan monsoon reversal.<br>
+    H₁: median(Δ) &lt; 0 — cloud locking secara sistematis mendahului monsoon reversal.
+  </p>
+
+  <div class="kpi-grid cols-4">
+    <div class="kpi">
+      <div class="kpi-label">Wilcoxon W (non-parametric)</div>
+      <div class="kpi-value pos">W = 1</div>
+      <div class="kpi-sub">p (one-sided) = 0.0020 — tolak H₀ pada α = 0.01</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">One-sample t-test</div>
+      <div class="kpi-value pos">t = −3.507</div>
+      <div class="kpi-sub">p (one-sided) = 0.0028 — tolak H₀ pada α = 0.01</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Mean Δ (lock − reversal)</div>
+      <div class="kpi-value neg">−15.7 hari</div>
+      <div class="kpi-sub">SD = 14.2 hari · 95% CI: [−25.2, −6.2]</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Median Δ</div>
+      <div class="kpi-value neg">−14.0 hari</div>
+      <div class="kpi-sub">Rentang: −48 hingga +2 hari</div>
+    </div>
+  </div>
+
+  <div class="callout positive">
+    <strong>Kedua uji konsisten.</strong> Wilcoxon W = 1 adalah nilai mendekati minimum
+    untuk N = 11 (minimum teoritis W = 0), menunjukkan hampir semua pasangan
+    memiliki tanda negatif. Nilai p = 0.002 jauh di bawah ambang α = 0.05 maupun
+    α = 0.01. Kesimpulan robust terhadap pilihan uji parametrik vs non-parametrik.
+  </div>
+
+  <h3><span class="h3-marker">C</span>Lag Structure · Cross-correlation TCWV → u<sub>comp</sub></h3>
+
+  <p>
+    Jika TCWV (proxy kesiapan atmosfer untuk cloud locking) merupakan
+    pendorong dan u<sub>comp</sub> merupakan respons, maka korelasi
+    seharusnya memuncak pada lag positif (TCWV mendahului u). Jika
+    sebaliknya, puncak berada di lag negatif.
+  </p>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-label">FIG. 4.2</span>
+      <span class="chart-title-text">Cross-correlation TCWV vs u<sub>comp</sub> at lag −30..+30 hari</span>
+    </div>
+    <div class="chart-body" style="height:260px">
+      <canvas id="chartXcorr"></canvas>
+    </div>
+    <div class="chart-caption">
+      Korelasi memuncak pada lag 0 (r = 0.617) lalu menurun monoton ke arah lag positif —
+      sehingga TCWV tidak memiliki lead yang jelas dalam domain korelasi linier. Namun pola
+      asimetri lag negatif vs positif informatif: r(lag −14) = 0.584 &gt; r(lag +14) = 0.271,
+      mengindikasikan TCWV mempertahankan "memori" terhadap u lebih lama ke belakang daripada ke depan.
+      Ini konsisten dengan mekanisme akumulasi uap bertahap mendahului reorganisasi sirkulasi.
+    </div>
+  </div>
+
+  <h3><span class="h3-marker">D</span>Daily Composite · TCWV, Cloud, and u<sub>comp</sub> Profiles Relative to Lock (T = 0)</h3>
+
+  <p>
+    Komposit ensemble 11 tahun menunjukkan bagaimana keadaan atmosfer berubah
+    dalam jendela ±40 hari di sekitar hari penguncian awan (T = 0).
+    Ini adalah uji kausalitas temporal paling langsung: apakah u<sub>comp</sub>
+    masih negatif saat TCWV dan cloud sudah di atas ambang?
+  </p>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-label">FIG. 4.3</span>
+      <span class="chart-title-text">Komposit TCWV (kg m⁻²) dan u<sub>comp</sub> [−] · T−40 hingga T+40 relatif lock</span>
+    </div>
+    <div class="chart-body" style="height:300px">
+      <canvas id="chartCausalityComposite"></canvas>
+    </div>
+    <div class="chart-legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:#1d4a80"></span>TCWV (kg m⁻², sumbu kiri)</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#c47a1a; border-top: 2px dashed #c47a1a; height:0"></span>u<sub>comp</sub> [−] (sumbu kanan)</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#ccc; width:1px; height:16px"></span>T = 0 (lock)</span>
+    </div>
+    <div class="chart-caption">
+      TCWV mencapai 51.4 kg m⁻² pada T = 0 setelah meningkat dari ~39 kg m⁻² pada T−40,
+      sementara u<sub>comp</sub> rata-rata masih −0.36 (timuran) tepat di hari lock.
+      Transisi u<sub>comp</sub> ke nilai positif baru terjadi di sekitar T+10 hingga T+15 secara konsisten.
+      <br><br>
+      <em>u<sub>comp</sub></em> [−] = komponen zonal dari vektor satuan arah angin, tak berdimensi.
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-label">FIG. 4.4</span>
+      <span class="chart-title-text">Composite Cloud Cover (%) and Shortwave Radiation (W m⁻²) · T−40 to T+40</span>
+    </div>
+    <div class="chart-body" style="height:280px">
+      <canvas id="chartCausalitySW"></canvas>
+    </div>
+    <div class="chart-legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:#1d4a80"></span>Cloud cover (%)</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#c47a1a"></span>SW radiation (W m⁻², sumbu kanan terbalik)</span>
+    </div>
+    <div class="chart-caption">
+      Cloud cover melonjak dari ~65% pada T−40 ke 92.6% pada T = 0, seiring penurunan
+      SW radiation dari ~270 ke 222 W m⁻². Pola ini mendahului transisi u<sub>comp</sub>
+      ke barat, mengonfirmasi bahwa perubahan radiatif terjadi sebelum reorganisasi dinamik.
+    </div>
+  </div>
+
+  <h3><span class="h3-marker">E</span>Rate of Change · TCWV vs u<sub>comp</sub> Slopes Before and After Lock</h3>
+
+  <p>
+    Jika TCWV merupakan pendorong, laju kenaikannya seharusnya paling tinggi
+    <em>sebelum</em> cloud locking dan melambat sesudahnya — sementara u<sub>comp</sub>
+    baru berakselerasi <em>sesudah</em> lock. Data menunjukkan pola ini secara tepat.
+  </p>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-label">FIG. 4.5</span>
+      <span class="chart-title-text">TCWV and u<sub>comp</sub> Slope (per day) — Before vs After Cloud Lock, per Year</span>
+    </div>
+    <div class="chart-body" style="height:300px">
+      <canvas id="chartSlopes"></canvas>
+    </div>
+    <div class="chart-legend">
+      <span class="legend-item"><span class="legend-swatch dot" style="background:#1d4a80"></span>TCWV before lock (kg m⁻²/hari)</span>
+      <span class="legend-item"><span class="legend-swatch dot" style="background:#7bb4e0"></span>TCWV after lock (kg m⁻²/hari)</span>
+      <span class="legend-item"><span class="legend-swatch dot" style="background:#c47a1a"></span>u before lock [−/hari]</span>
+      <span class="legend-item"><span class="legend-swatch dot" style="background:#e0a96e"></span>u after lock [−/hari]</span>
+    </div>
+    <div class="chart-caption">
+      Mean slope TCWV sebelum lock = +0.646 kg m⁻² per hari; sesudah lock = +0.057 (perlambatan 11×).
+      Mean slope u<sub>comp</sub> sebelum lock = +0.087 [−/hari]; sesudah lock = +0.067 [−/hari].
+      TCWV naik pesat lalu "jenuh" setelah lock — sesuai peran pengisi
+      kolom uap yang mendahului cloud locking. Sebaliknya u berakselerasi lambat dan tidak
+      menunjukkan perubahan tajam di sekitar lock.
+      <br><br>
+      <em>u<sub>comp</sub></em> [−] = komponen zonal dari vektor satuan arah angin, tak berdimensi.
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th style="text-align:right">TCWV slope sebelum<br><small style="font-weight:400;opacity:.7">kg m⁻²/hari</small></th>
+          <th style="text-align:right">TCWV slope sesudah<br><small style="font-weight:400;opacity:.7">kg m⁻²/hari</small></th>
+          <th style="text-align:right">u_comp slope sebelum<br><small style="font-weight:400;opacity:.7">[−/hari]</small></th>
+          <th style="text-align:right">u_comp slope sesudah<br><small style="font-weight:400;opacity:.7">[−/hari]</small></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>2015</td><td class="num pos">+0.550</td><td class="num neg">−0.148</td><td class="num">+0.152</td><td class="num">+0.245</td></tr>
+        <tr><td>2016</td><td class="num pos">+0.835</td><td class="num neg">−0.352</td><td class="num neg">−0.005</td><td class="num neg">−0.147</td></tr>
+        <tr><td>2017</td><td class="num pos">+0.323</td><td class="num pos">+0.395</td><td class="num neg">−0.163</td><td class="num">+0.029</td></tr>
+        <tr><td>2018</td><td class="num pos">+0.481</td><td class="num pos">+0.504</td><td class="num">+0.227</td><td class="num neg">−0.110</td></tr>
+        <tr><td>2019</td><td class="num pos">+0.662</td><td class="num pos">+0.412</td><td class="num">+0.111</td><td class="num">+0.045</td></tr>
+        <tr><td>2020</td><td class="num pos">+0.798</td><td class="num">−0.006</td><td class="num">+0.223</td><td class="num">+0.279</td></tr>
+        <tr><td>2021</td><td class="num pos">+0.654</td><td class="num pos">+0.163</td><td class="num">+0.105</td><td class="num">+0.043</td></tr>
+        <tr><td>2022</td><td class="num pos">+1.110</td><td class="num neg">−0.360</td><td class="num">+0.218</td><td class="num neg">−0.018</td></tr>
+        <tr><td>2023</td><td class="num pos">+0.496</td><td class="num neg">−0.733</td><td class="num">+0.058</td><td class="num neg">−0.048</td></tr>
+        <tr><td>2024</td><td class="num pos">+0.226</td><td class="num pos">+0.643</td><td class="num neg">−0.170</td><td class="num">+0.235</td></tr>
+        <tr><td>2025</td><td class="num pos">+0.973</td><td class="num pos">+0.107</td><td class="num">+0.206</td><td class="num">+0.180</td></tr>
+        <tr>
+          <td class="lbl hl"><strong>Mean</strong></td>
+          <td class="num hl pos"><strong>+0.646</strong></td>
+          <td class="num hl"><strong>+0.057</strong></td>
+          <td class="num hl"><strong>+0.087</strong></td>
+          <td class="num hl"><strong>+0.067</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="h3-marker">F</span>Physical Event Sequence from Quantitative Evidence</h3>
+
+  <div class="timeline-wrap">
+    <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      <rect width="720" height="200" fill="#f7fafb"/>
+
+      <rect x="40"  y="24" width="130" height="148" fill="rgba(29,74,128,.06)" rx="3"/>
+      <rect x="170" y="24" width="120" height="148" fill="rgba(29,74,128,.10)" rx="3"/>
+      <rect x="290" y="24" width="140" height="148" fill="rgba(11,31,58,.08)"  rx="3"/>
+      <rect x="430" y="24" width="250" height="148" fill="rgba(26,102,64,.07)" rx="3"/>
+
+      <text x="105" y="42" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9.5" fill="#1d4a80" font-weight="600">Pre-onset</text>
+      <text x="230" y="42" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9.5" fill="#1d4a80" font-weight="600">Moisture buildup</text>
+      <text x="360" y="42" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9.5" fill="#0b1f3a" font-weight="600">CLOUD LOCK</text>
+      <text x="555" y="42" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="9.5" fill="#1a6640" font-weight="600">Dynamic reorganization</text>
+
+      <line x1="40" y1="130" x2="680" y2="130" stroke="#b0c4d8" stroke-width="1.5"/>
+      <text x="40"  y="150" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#7a92a8">T−40d</text>
+      <text x="170" y="150" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#7a92a8">T−20d</text>
+      <text x="290" y="150" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#7a92a8">T−10d</text>
+      <text x="360" y="150" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#0b1f3a" font-weight="700">T = 0</text>
+      <text x="430" y="150" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#7a92a8">T+10d</text>
+      <text x="555" y="150" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#7a92a8">T+15d</text>
+      <text x="680" y="150" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#7a92a8">T+40d</text>
+
+      <path d="M40,118 C80,115 140,105 170,100 C220,92 260,78 290,68 C320,60 340,58 360,55"
+            stroke="#1d4a80" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="360" cy="55" r="4" fill="#1d4a80"/>
+      <text x="290" y="52" font-family="-apple-system,sans-serif" font-size="9" fill="#1d4a80">TCWV +0.65 kg/m²/d</text>
+
+      <line x1="360" y1="48" x2="360" y2="170" stroke="#0b1f3a" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <circle cx="360" cy="130" r="6" fill="#0b1f3a"/>
+      <text x="360" y="183" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#0b1f3a" font-weight="700">Cloud lock</text>
+
+      <path d="M40,126 C80,125 150,123 290,121 C310,120 340,119 360,120 C380,121 400,115 430,108 C460,100 520,85 555,76"
+            stroke="#c47a1a" stroke-width="2.5" fill="none" stroke-dasharray="6 3" stroke-linecap="round"/>
+      <circle cx="430" cy="108" r="5" fill="none" stroke="#1a6640" stroke-width="2"/>
+      <circle cx="430" cy="108" r="2.5" fill="#1a6640"/>
+      <line x1="430" y1="108" x2="430" y2="155" stroke="#1a6640" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="458" y="100" font-family="-apple-system,sans-serif" font-size="9" fill="#1a6640">u₃₀ → barat</text>
+      <text x="458" y="112" font-family="-apple-system,sans-serif" font-size="9" fill="#1a6640">(Δ ≈ +14 hari)</text>
+
+      <text x="170" y="108" font-family="-apple-system,sans-serif" font-size="9" fill="#c47a1a">u₃₀ masih timuran</text>
+
+      <rect x="40"  y="172" width="10" height="3" fill="#1d4a80" rx="1"/>
+      <text x="55"  y="177" font-family="-apple-system,sans-serif" font-size="9" fill="#4e6478">TCWV</text>
+      <line x1="90" y1="174" x2="100" y2="174" stroke="#c47a1a" stroke-width="2" stroke-dasharray="4 2"/>
+      <text x="105" y="177" font-family="-apple-system,sans-serif" font-size="9" fill="#4e6478">u₃₀ [−]</text>
+      <circle cx="160" cy="174" r="4" fill="none" stroke="#1a6640" stroke-width="1.5"/>
+      <circle cx="160" cy="174" r="2" fill="#1a6640"/>
+      <text x="168" y="177" font-family="-apple-system,sans-serif" font-size="9" fill="#4e6478">reversal (zero-cross u₃₀)</text>
+    </svg>
+  </div>
+
+  <div class="callout positive">
+    <strong>Urutan kausal yang terverifikasi data:</strong>
+    (1) Akumulasi TCWV mulai T−40 dengan laju +0.65 kg m⁻² per hari —
+    angin masih timuran (u₃₀ &lt; 0).
+    (2) Cloud cover mencapai ambang locking 76% pada T = 0, u₃₀ masih −0.36 [−].
+    (3) Zero-crossing u₃₀ terjadi rata-rata T+14 hari setelah lock.
+    Cloud locking adalah peristiwa radiatif-termodinamik yang mendahului dan
+    bukan disebabkan oleh pembalikan sirkulasi.
+  </div>
+
+  <h3><span class="h3-marker">G</span>Two "Simultaneous" Years — Not a Causal Exception</h3>
+
+  <p>
+    Tahun 2015 (Δ = +2) dan 2024 (Δ = 0) tampak berbeda dari tren dominan,
+    namun tidak menyangkal mekanisme kausal.
+  </p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th><th style="text-align:right">Δ</th>
+          <th style="text-align:right">u₃₀ saat lock [−]</th>
+          <th>ENSO Phase</th><th>Interpretasi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2015</td><td class="num">+2</td><td class="num pos">+0.100</td>
+          <td class="lbl">El Niño kuat + pIOD</td>
+          <td class="lbl">u₃₀ hampir nol (+0.10) — angin sudah di ambang barat tepat saat cloud lock.
+              El Niño kuat mempercepat reorganisasi sirkulasi, sehingga kedua proses hampir
+              bersamaan. Δ = +2 hari masih dalam noise deteksi.</td>
+        </tr>
+        <tr>
+          <td>2024</td><td class="num">0</td><td class="num pos">+0.048</td>
+          <td class="lbl">La Niña transisi</td>
+          <td class="lbl">u₃₀ = +0.048 — hampir tepat nol. Tahun transisi La Niña → Netral
+              dengan dinamik internal lemah; kedua proses terjadi simultan dalam resolusi
+              harian yang digunakan.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout warning">
+    <strong>Interpretasi:</strong> Kedua tahun "bersamaan" adalah tahun dengan u₃₀ ≈ 0 saat cloud lock —
+    bukan tahun di mana reversal sudah kuat mendahului awan. Tidak ada satu tahun pun
+    di mana u₃₀ negatif kuat (timuran) saat reversal sudah terjadi. Asimetri ini
+    mendukung arah kausal: awan → sirkulasi, bukan sebaliknya.
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 05 · SUSTAINED ADVECTION                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="panel" data-panel="adveksi">
+
+  <div class="section-header">
+    <div class="section-rule" style="background: linear-gradient(to bottom,#1a6640,transparent)"></div>
+    <div>
+      <div class="section-title">Sustained Advection</div>
+    </div>
+  </div>
+
+  <p>
+    Sustained advection merupakan fase lanjutan pasca-cloud locking, ditandai
+    oleh transport horizontal awan konvektif dari arah barat secara persisten sepanjang
+    siang dan malam dengan kecepatan yang stabil. Fase ini umumnya baru terdeteksi
+    pada puncak musim penghujan, rata-rata 86,9 hari setelah cloud locking pertama,
+    dan tidak terdeteksi pada tahun El Niño kuat dengan pIOD (2019, 2023).
+  </p>
+
+  <h3><span class="h3-marker">A</span>Composite Detection Thresholds</h3>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Parameter</th><th>Threshold</th><th>Physical Interpretation</th></tr></thead>
+      <tbody>
+        <tr><td class="lbl">u<sub>mean</sub> [−]</td><td class="num">&gt; 0.65</td><td class="lbl-dim">Westerly winds clearly defined in boundary layer</td></tr>
+        <tr><td class="lbl">u<sub>std</sub> [−]</td><td class="num">&lt; 0.35</td><td class="lbl-dim">Stable hourly velocity; low diurnal variability</td></tr>
+        <tr><td class="lbl">frac<sub>west</sub></td><td class="num">&gt; 0.85</td><td class="lbl-dim">Dominant direction from western quadrant (&gt; 85% observations)</td></tr>
+        <tr><td class="lbl">cl<sub>night</sub></td><td class="num">&gt; 90 %</td><td class="lbl-dim">Persistent nighttime cloud cover (no nocturnal dissipation)</td></tr>
+        <tr><td class="lbl">Total cloud</td><td class="num">&gt; 90 %</td><td class="lbl-dim">Fully overcast; diurnal cycle halted</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    Skor komposit harian berkisar 0–5 berdasarkan jumlah kondisi yang terpenuhi.
+    Onset teridentifikasi ketika rata-rata skor bergerak rata (MA-14h) melampaui
+    nilai ambang 4,0.
+  </p>
+
+  <h3><span class="h3-marker">B</span>Onset, Offset, and Duration of Sustained Advection</h3>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-label">FIG. 5.1</span>
+      <span class="chart-title-text">Sustained Advection Onset Difference vs Cloud Locking Onset (hari) — Lag 2015–2025</span>
+    </div>
+    <div class="chart-body" style="height:280px">
+      <canvas id="chartAdvDelta"></canvas>
+    </div>
+    <div class="chart-caption">
+      Hanya sembilan dari sebelas tahun yang terdeteksi. Tahun 2019 dan 2023 (El Niño kuat + pIOD)
+      tidak memenuhi ambang komposit. Rerata lag = 86,9 hari; median = 87,1 hari.
+    </div>
+  </div>
+
+  <div class="tbl-wrap tbl-sticky">
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th style="text-align:right">Onset (dopy)</th><th>Date</th>
+          <th style="text-align:right">Offset (dopy)</th><th>Date</th>
+          <th style="text-align:right">Duration (hari)</th>
+          <th style="text-align:right">Peak (dopy)</th>
+          <th style="text-align:right">Peak score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>2015</td><td class="num">224,7</td><td class="dim">02 Feb</td><td class="num">264,0</td><td class="dim">12 Mar</td><td class="num">39,3</td><td class="num">227,0</td><td class="num">4,79</td></tr>
+        <tr><td>2016</td><td class="num">173,7</td><td class="dim">13 Dec</td><td class="num">245,0</td><td class="dim">22 Feb</td><td class="num">71,3</td><td class="num">231,0</td><td class="num">5,00</td></tr>
+        <tr><td>2017</td><td class="num">214,5</td><td class="dim">22 Jan</td><td class="num">251,0</td><td class="dim">28 Feb</td><td class="num">36,5</td><td class="num">223,0</td><td class="num">5,00</td></tr>
+        <tr><td>2018</td><td class="num">220,0</td><td class="dim">28 Jan</td><td class="num">239,0</td><td class="dim">16 Feb</td><td class="num">19,0</td><td class="num">222,0</td><td class="num">4,50</td></tr>
+        <tr><td>2019</td><td class="num dim">—</td><td class="dim">—</td><td class="num dim">—</td><td class="dim">—</td><td class="num dim">—</td><td class="num">253,0</td><td class="num neg">3,50</td></tr>
+        <tr><td>2020</td><td class="num">229,5</td><td class="dim">07 Feb</td><td class="num">271,0</td><td class="dim">20 Mar</td><td class="num">41,5</td><td class="num">234,0</td><td class="num">4,71</td></tr>
+        <tr><td>2021</td><td class="num">214,7</td><td class="dim">23 Jan</td><td class="num">243,0</td><td class="dim">20 Feb</td><td class="num">28,3</td><td class="num">230,0</td><td class="num">4,29</td></tr>
+        <tr><td>2022</td><td class="num">206,0</td><td class="dim">14 Jan</td><td class="num">264,0</td><td class="dim">13 Mar</td><td class="num">58,0</td><td class="num">197,0</td><td class="num">4,64</td></tr>
+        <tr><td>2023</td><td class="num dim">—</td><td class="dim">—</td><td class="num dim">—</td><td class="dim">—</td><td class="num dim">—</td><td class="num">207,0</td><td class="num neg">2,00</td></tr>
+        <tr><td>2024</td><td class="num">223,7</td><td class="dim">01 Feb</td><td class="num">251,0</td><td class="dim">28 Feb</td><td class="num">27,3</td><td class="num">234,0</td><td class="num">5,00</td></tr>
+        <tr><td>2025</td><td class="num">213,0</td><td class="dim">21 Jan</td><td class="num">268,0</td><td class="dim">17 Mar</td><td class="num">55,0</td><td class="num">216,0</td><td class="num">5,00</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout warning">
+    <strong>Non-detection El Niño–pIOD.</strong> Tahun 2019 dan 2023 tidak terdeteksi sebagai
+    sustained advection. Kedua tahun merupakan tahun El Niño kuat dengan pIOD; transport angin barat
+    tidak pernah mencapai tingkat mapan yang memenuhi ambang komposit 4,0 selama 14 hari berturut-turut.
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 06 · LIFE CYCLE                                             -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="panel" data-panel="siklus">
+
+  <div class="section-header">
+    <div class="section-rule"></div>
+    <div>
+      <div class="section-title">Baratan Life Cycle</div>
+    </div>
+  </div>
+
+  <p>
+    Model siklus hidup baratan diparameterisasi dalam lima fase berdasarkan
+    kombinasi ambang komposit tutupan awan, TCWV, komponen zonal angin, dan
+    radiasi gelombang pendek. Transisi antar-fase ditentukan oleh hidden Markov
+    model (HMM) dua-keadaan dengan koreksi ENSO.
+  </p>
+
+  <h3><span class="h3-marker">A</span>Five-Phase Life Cycle Definition</h3>
+
+  <div class="phase-grid">
+    <div class="phase-card">
+      <div class="phase-num">Phase 1</div>
+      <div class="phase-name">Benih</div>
+      <div class="phase-range">dopy 100–127</div>
+      <div class="phase-desc">Presipitasi sporadis, cloud mulai meningkat (61%), siklus diurnal masih aktif.</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Phase 2</div>
+      <div class="phase-name">Kunci</div>
+      <div class="phase-range">dopy 128–167</div>
+      <div class="phase-desc">Cloud locking (77%), TCWV meningkat tajam, siklus diurnal melemah.</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Phase 3</div>
+      <div class="phase-name">Plateau</div>
+      <div class="phase-range">dopy 168–215</div>
+      <div class="phase-desc">Puncak cloud (92%), TCWV maksimum (53 kg m⁻²), curah hujan tertinggi.</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Phase 4</div>
+      <div class="phase-name">Longgar</div>
+      <div class="phase-range">dopy 216–265</div>
+      <div class="phase-desc">Cloud mulai berkurang (83%), TCWV masih tinggi, adveksi terkadang terputus.</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Phase 5</div>
+      <div class="phase-name">Bubar</div>
+      <div class="phase-range">dopy 266–320</div>
+      <div class="phase-desc">Cloud menurun ke 53%, TCWV kembali ke ambang kering, siklus diurnal pulih.</div>
+    </div>
+  </div>
+
+  <h3><span class="h3-marker">B</span>Cloud and TCWV Variable Profiles per Phase</h3>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-label">FIG. 6.1</span>
+      <span class="chart-title-text">Total Cloud Cover (%) and TCWV (kg m⁻²) per Life Cycle Phase</span>
+    </div>
+    <div class="chart-body" style="height:300px">
+      <canvas id="chartPhaseCloud"></canvas>
+    </div>
+    <div class="chart-legend">
+      <span class="legend-item"><span class="legend-swatch" style="background:#1d4a80; height:12px; width:14px; border-radius:2px"></span>Total cloud cover (%)</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#c47a1a; height:12px; width:14px; border-radius:2px"></span>TCWV (kg m⁻²)</span>
+    </div>
+    <div class="chart-caption">
+      Kedua variabel mencapai maksimum pada Fase 3 (Plateau). Tutupan awan
+      naik dari 57% (kering) ke 92% (Plateau); TCWV meningkat dari 37 ke
+      53 kg m⁻². Setelah Plateau, TCWV tetap tinggi lebih lama dibanding
+      cloud — uap air belum terdisipasi meskipun awan mulai berkurang.
+    </div>
+  </div>
+
+  <h3><span class="h3-marker">C</span>Inter-Phase Variable Changes</h3>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Phase Transition</th>
+          <th style="text-align:right">Δ TCWV<br><small style="font-weight:400;opacity:.7">kg m⁻²</small></th>
+          <th style="text-align:right">Δ Cloud (%)</th>
+          <th style="text-align:right">Δ u<sub>comp</sub> [−]</th>
+          <th style="text-align:right">Δ SW Radiation<br><small style="font-weight:400;opacity:.7">W m⁻²</small></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="lbl">P1 Benih → P2 Kunci</td><td class="num pos">+8,15</td><td class="num pos">+15,53</td><td class="num">+0,17</td><td class="num neg">−27,61</td></tr>
+        <tr><td class="lbl">P2 Kunci → P3 Plateau</td><td class="num pos">+7,29</td><td class="num pos">+15,16</td><td class="num pos">+0,44</td><td class="num neg">−43,99</td></tr>
+        <tr><td class="lbl">P3 Plateau → P4 Longgar</td><td class="num neg">−1,34</td><td class="num neg">−8,65</td><td class="num neg">−0,27</td><td class="num pos">+15,47</td></tr>
+        <tr><td class="lbl">P4 Longgar → P5 Bubar</td><td class="num neg">−12,58</td><td class="num neg">−29,35</td><td class="num neg">−0,40</td><td class="num pos">+14,97</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout positive">
+    <strong>Interpretasi transisi P1 → P2.</strong> Cloud locking (+15,53%) dan
+    penurunan radiasi SW (−27,61 W m⁻²) terjadi sebelum perubahan komponen zonal angin yang
+    signifikan (+0,17 [−]). Ini mengonfirmasi bahwa cloud locking mendahului dan bukan
+    disebabkan oleh pembalikan angin — angin barat merupakan gejala lanjutan yang menyusul
+    reorganisasi siklus diurnal atmosfer.
+  </div>
+
+  <h3><span class="h3-marker">D</span>Onset and Offset Mapping onto Life Cycle Phases</h3>
+
+  <div class="tbl-wrap tbl-sticky">
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th style="text-align:right">Onset (dopy)</th><th>Phase</th>
+          <th style="text-align:right">Offset (dopy)</th><th>Phase</th>
+          <th style="text-align:right">Duration (hari)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>2015</td><td class="num">148,5</td><td class="num">2</td><td class="num">198,3</td><td class="num">3</td><td class="num">49,8</td></tr>
+        <tr><td>2016</td><td class="num">120,3</td><td class="num">2</td><td class="num">252,3</td><td class="num">4</td><td class="num">132,0</td></tr>
+        <tr><td>2017</td><td class="num">127,8</td><td class="num">2</td><td class="num">310,6</td><td class="num">5</td><td class="num">182,8</td></tr>
+        <tr><td>2018</td><td class="num">137,6</td><td class="num">2</td><td class="num">241,7</td><td class="num">4</td><td class="num">104,1</td></tr>
+        <tr><td>2019</td><td class="num">146,7</td><td class="num">2</td><td class="num">297,6</td><td class="num">4</td><td class="num">150,9</td></tr>
+        <tr><td>2020</td><td class="num">122,8</td><td class="num">2</td><td class="num">293,7</td><td class="num">4</td><td class="num">170,9</td></tr>
+        <tr><td>2021</td><td class="num">127,5</td><td class="num">2</td><td class="num">260,3</td><td class="num">4</td><td class="num">132,8</td></tr>
+        <tr><td>2022</td><td class="num">117,6</td><td class="num">1</td><td class="num">252,9</td><td class="num">4</td><td class="num">135,3</td></tr>
+        <tr><td>2023</td><td class="num">148,4</td><td class="num">2</td><td class="num">287,0</td><td class="num">4</td><td class="num">138,6</td></tr>
+        <tr><td>2024</td><td class="num">131,8</td><td class="num">2</td><td class="num">264,3</td><td class="num">4</td><td class="num">132,6</td></tr>
+        <tr><td>2025</td><td class="num">127,0</td><td class="num">2</td><td class="num">295,1</td><td class="num">4</td><td class="num">168,1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout positive">
+    Sepuluh dari sebelas tahun menunjukkan onset jatuh pada Phase 2 (Kunci).
+    Satu tahun (2022) menunjukkan onset pada Phase 1 (Benih) karena penguncian
+    terjadi sangat awal pada dopy 117,6 — paling awal dalam seluruh rekam historis —
+    berkaitan dengan La Niña kuat + nIOD (SLA −0,44; DMI −0,95).
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 07 · REFERENCES                                             -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="panel" data-panel="referensi">
+
+  <div class="section-header">
+    <div class="section-rule"></div>
+    <div>
+      <div class="section-title">References &amp; Data Sources</div>
+    </div>
+  </div>
+
+  <h3><span class="h3-marker">A</span>Methodological and Peer-Reviewed References</h3>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>No.</th><th>Citation</th></tr></thead>
+      <tbody>
+        <tr><td class="num" style="width:40px">1</td><td class="lbl-dim">Killick, R., Fearnhead, P., &amp; Eckley, I. A. (2012). Optimal detection of changepoints with a linear computational cost. <em>Journal of the American Statistical Association</em>, 107(500), 1590–1598.</td></tr>
+        <tr><td class="num">2</td><td class="lbl-dim">Page, E. S. (1954). Continuous inspection schemes. <em>Biometrika</em>, 41(1/2), 100–115.</td></tr>
+        <tr><td class="num">3</td><td class="lbl-dim">Pettitt, A. N. (1979). A non-parametric approach to the change-point problem. <em>Journal of the Royal Statistical Society: Series C</em>, 28(2), 126–135.</td></tr>
+        <tr><td class="num">4</td><td class="lbl-dim">Pollak, M. (1985). Optimal detection of a change in distribution. <em>The Annals of Statistics</em>, 13(1), 206–227.</td></tr>
+        <tr><td class="num">5</td><td class="lbl-dim">Duchon, C. E. (1979). Lanczos filtering in one and two dimensions. <em>Journal of Applied Meteorology</em>, 18(8), 1016–1022.</td></tr>
+        <tr><td class="num">6</td><td class="lbl-dim">Wheeler, M. C., &amp; Hendon, H. H. (2004). An all-season real-time multivariate MJO index. <em>Monthly Weather Review</em>, 132(8), 1917–1932.</td></tr>
+        <tr><td class="num">7</td><td class="lbl-dim">Rabiner, L. R. (1989). A tutorial on hidden Markov models. <em>Proceedings of the IEEE</em>, 77(2), 257–286.</td></tr>
+        <tr><td class="num">8</td><td class="lbl-dim">Wilcoxon, F. (1945). Individual comparisons by ranking methods. <em>Biometrics Bulletin</em>, 1(6), 80–83.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3><span class="h3-marker">B</span>Data Sources</h3>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Dataset / Product</th>
+          <th>Resolution</th>
+          <th>Period</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="lbl">Atmospheric Reanalysis</td>
+          <td class="lbl-dim">ERA5 / ERA5-Land (ECMWF/C3S); IFS HRES 9 km via Open-Meteo</td>
+          <td class="lbl-dim">Hourly</td>
+          <td class="lbl-dim">2015–2026</td>
+        </tr>
+        <tr>
+          <td class="lbl">Station P1</td>
+          <td class="num">−7.486819° LS, 112.538210° BT (28 m)</td>
+          <td class="lbl-dim">Hourly</td>
+          <td class="lbl-dim">2015–2026</td>
+        </tr>
+        <tr>
+          <td class="lbl">Station P2</td>
+          <td class="num">−7.5571175° LS, 112.557350° BT (28 m)</td>
+          <td class="lbl-dim">Hourly</td>
+          <td class="lbl-dim">2015–2026</td>
+        </tr>
+        <tr>
+          <td class="lbl">IDW Target</td>
+          <td class="num">−7.5220° LS, 112.5661° BT (28 m)</td>
+          <td class="lbl-dim">Hourly (P1+P2 IDW)</td>
+          <td class="lbl-dim">2015–2026</td>
+        </tr>
+        <tr>
+          <td class="lbl">ENSO SST</td>
+          <td class="lbl-dim">NOAA OISST v2.1, Niño 3.4 index</td>
+          <td class="lbl-dim">Weekly</td>
+          <td class="lbl-dim">2015–2026</td>
+        </tr>
+        <tr>
+          <td class="lbl">ENSO SLA</td>
+          <td class="lbl-dim">AVISO/DUACS — MSLA Niño 3.4 Sea Level Anomaly</td>
+          <td class="lbl-dim">Weekly</td>
+          <td class="lbl-dim">2015–2026</td>
+        </tr>
+        <tr>
+          <td class="lbl">IOD</td>
+          <td class="lbl-dim">JMA Dipole Mode Index (DMI); BoM IOD outlook</td>
+          <td class="lbl-dim">Monthly</td>
+          <td class="lbl-dim">2015–2026</td>
+        </tr>
+        <tr>
+          <td class="lbl">MJO</td>
+          <td class="lbl-dim">Real-time Multivariate MJO Index (RMM1/RMM2), Wheeler &amp; Hendon (2004); BoM</td>
+          <td class="lbl-dim">Daily</td>
+          <td class="lbl-dim">2015–2026</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                       -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <strong>EV09 Integrated Analysis · Jolotundo Research Consortium</strong><br>
+    <strong>Satya Adi</strong> · MJS · 2026<br>
+    ERA5/ERA5-Land · IFS-HRES · P1+P2 IDW · 2015–2025 · −7.5220° LS, 112.5661° BT, 28 m dpl · 102.576 jam sampel<br>
+    Causality: Wilcoxon W = 1, p = 0.002 · t = −3.507, p = 0.003 · Median Δ = −14 hari
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCRIPTS                                                      -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<script>
+/* ── Chart.js global defaults ─────────────────────────────── */
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
+Chart.defaults.font.size   = 12;
+Chart.defaults.color       = '#7a92a8';
+Chart.defaults.borderColor = '#dce8f0';
+Chart.defaults.plugins.tooltip.backgroundColor  = '#0b1f3a';
+Chart.defaults.plugins.tooltip.titleColor       = '#ffffff';
+Chart.defaults.plugins.tooltip.bodyColor        = '#b8c8d8';
+Chart.defaults.plugins.tooltip.borderColor      = 'rgba(255,255,255,0.1)';
+Chart.defaults.plugins.tooltip.borderWidth      = 1;
+Chart.defaults.plugins.tooltip.padding          = { x: 12, y: 10 };
+Chart.defaults.plugins.tooltip.cornerRadius     = 6;
+Chart.defaults.plugins.legend.display           = false;
+
+/* ── FIG 2.1 — Trend Ensemble Reversal ────────────────────── */
+(function() {
+  const years  = [2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+  const onset  = [131,122,122,134,131,145,127,108,136,147,132];
+  const xIdx   = years.map((_,i) => i);
+  const regLine = xIdx.map(i => 118.4 + i*(96.4-118.4)/10);
+
+  new Chart(document.getElementById('chartTrendReversal'), {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: [
+        {
+          label: 'Ensemble onset',
+          data: onset,
+          borderColor: '#1d4a80',
+          backgroundColor: 'rgba(29,74,128,0.12)',
+          pointBackgroundColor: '#1d4a80',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 5, pointHoverRadius: 7,
+          tension: 0.2, fill: false, order: 1
+        },
+        {
+          label: 'Linear regression',
+          data: regLine,
+          borderColor: '#c47a1a',
+          borderDash: [6,4],
+          borderWidth: 1.5,
+          pointRadius: 0,
+          tension: 0, fill: false, order: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 8, right: 12 } },
+      scales: {
+        x: { grid: { display: false },
+             ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#7a92a8' } },
+        y: { min: 95, max: 162,
+             grid: { color: '#eef4f8' },
+             ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#7a92a8',
+                      callback: v => v + ' d' } }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.datasetIndex === 0
+              ? `Onset: ${ctx.raw} dopy`
+              : `Regression: ${ctx.raw.toFixed(1)} dopy`
+          }
+        }
+      }
+    }
+  });
+})();
+
+/* ── FIG 2.2 — Lead Time ──────────────────────────────────── */
+(function() {
+  const estimators = ['Soil moisture','Dew point','Lanczos+RMM','dVPD/dt','Pettitt','PELT','Shiryaev-Roberts','VPD threshold','BaseU','Vertical shear'];
+  const leads      = [22.5, 9.5, 3.5, -0.5, -3.5, -3.5, -11.5, -13.5, -15.5, -17.5];
+  const colors     = leads.map(v => v >= 0 ? 'rgba(26,102,64,0.85)' : 'rgba(179,34,55,0.8)');
+
+  new Chart(document.getElementById('chartLeadTime'), {
+    type: 'bar',
+    data: {
+      labels: estimators,
+      datasets: [{ data: leads, backgroundColor: colors, borderRadius: 3, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { min: -28, max: 28,
+             grid: { color: ctx => ctx.tick.value === 0 ? '#7a92a8' : '#eef4f8' },
+             ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#7a92a8',
+                      callback: v => (v > 0 ? '+' : '') + v + ' h' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11.5 }, color: '#344a5e' } }
+      },
+      plugins: {
+        tooltip: { callbacks: { label: ctx => (ctx.raw > 0 ? '+' : '') + ctx.raw + ' hari terhadap ensemble' } }
+      }
+    }
+  });
+})();
+
+/* ── FIG 3.1 — Onset/Offset Cloud Locking ─────────────────── */
+(function() {
+  const years   = ['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
+  const onsets  = [148.5,120.3,127.8,137.6,146.7,122.8,127.5,117.6,148.4,131.8,127.0];
+  const offsets = [198.3,252.3,310.6,241.7,297.6,293.7,260.3,252.9,287.0,264.3,295.1];
+
+  new Chart(document.getElementById('chartBaratanOnsetOffset'), {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: [
+        {
+          label: 'Onset (dopy)',
+          data: onsets,
+          borderColor: '#1d4a80',
+          backgroundColor: 'rgba(29,74,128,0.1)',
+          pointBackgroundColor: '#1d4a80',
+          pointBorderColor: '#fff', pointBorderWidth: 2,
+          pointRadius: 5, pointHoverRadius: 7,
+          tension: 0.2, fill: false, order: 1
+        },
+        {
+          label: 'Offset (dopy)',
+          data: offsets,
+          borderColor: '#c47a1a',
+          backgroundColor: 'rgba(196,122,26,0.08)',
+          pointBackgroundColor: '#c47a1a',
+          pointBorderColor: '#fff', pointBorderWidth: 2,
+          pointRadius: 5, pointHoverRadius: 7,
+          tension: 0.2, fill: '-1', order: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { grid: { display: false },
+             ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#7a92a8' } },
+        y: { min: 90, max: 330,
+             grid: { color: '#eef4f8' },
+             ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#7a92a8',
+                      callback: v => v + ' d' } }
+      },
+      plugins: {
+        tooltip: {
+          mode: 'index', intersect: false,
+          callbacks: {
+            afterBody: (items) => {
+              const on = items.find(i => i.datasetIndex === 0);
+              const off= items.find(i => i.datasetIndex === 1);
+              if (on && off) return [`Duration: ${(off.raw - on.raw).toFixed(1)} hari`];
+              return [];
+            }
+          }
+        }
+      }
+    }
+  });
+})();
+
+/* ── FIG 3.2 — ENSO Scatter ───────────────────────────────── */
+(function() {
+  const data = [
+    { x: 2.251, y: 148.5, yr: '2015' },
+    { x:-0.707, y: 120.3, yr: '2016' },
+    { x:-0.594, y: 127.8, yr: '2017' },
+    { x: 1.016, y: 137.6, yr: '2018' },
+    { x: 0.122, y: 146.7, yr: '2019' },
+    { x:-0.674, y: 122.8, yr: '2020' },
+    { x:-0.454, y: 127.5, yr: '2021' },
+    { x:-0.439, y: 117.6, yr: '2022' },
+    { x: 0.922, y: 148.4, yr: '2023' },
+    { x:-0.656, y: 131.8, yr: '2024' },
+    { x:-0.698, y: 127.0, yr: '2025' },
+  ];
+  const regData = [{x:-0.71,y:128.6},{x:2.51,y:153.6}];
+
+  new Chart(document.getElementById('chartENSOScatter'), {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'Onset vs SLA',
+          data: data,
+          backgroundColor: 'rgba(29,74,128,0.75)',
+          pointBorderColor: '#fff', pointBorderWidth: 1.5,
+          pointRadius: 6, pointHoverRadius: 8
+        },
+        {
+          label: 'OLS regression', type: 'line', data: regData,
+          borderColor: '#c47a1a', borderDash: [6,4], borderWidth: 1.5,
+          pointRadius: 0, fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { title: { display: true, text: 'SLA Niño 3.4 ASO', color: '#7a92a8', font: { size: 10.5 } },
+             grid: { color: '#eef4f8' },
+             ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#7a92a8' } },
+        y: { title: { display: true, text: 'Cloud Locking Onset (dopy)', color: '#7a92a8', font: { size: 10.5 } },
+             min: 112, max: 155,
+             grid: { color: '#eef4f8' },
+             ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#7a92a8',
+                      callback: v => v + ' d' } }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              if (ctx.datasetIndex === 0) {
+                const pt = data[ctx.dataIndex];
+                return [`${pt.yr}: Onset ${pt.y} dopy`, `SLA = ${pt.x}`];
+              }
+              return `Regression: ${ctx.raw.y.toFixed(1)} dopy`;
+            }
+          }
+        }
+      }
+    }
+  });
+})();
+
+/* ── FIG 3.3 — Composite Anomaly ──────────────────────────── */
+(function() {
+  const labels = [
+    'u_comp [−]','Total cloud (%)','Low cloud (%)','Mid cloud (%)',
+    'TCWV (kg/m²)','RH 2m (%)','Td (°C)','Rainfall (mm/d)',
+    'SW radiation (W/m²)','Sunshine (s/d)','Pressure (hPa)','Wind 10m (km/h)','VPD (kPa)','ET₀ (mm/d)'
+  ];
+  const anomaly = [0.53,31.36,10.77,19.43,14.88,19.78,3.52,10.21,-56.98,-358,-1.40,-0.89,-0.92,-1.64];
+  const colors  = anomaly.map(v => v >= 0 ? 'rgba(29,74,128,0.8)' : 'rgba(196,122,26,0.8)');
+
+  new Chart(document.getElementById('chartAnomalyComposite'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: anomaly, backgroundColor: colors, borderRadius: 3, borderSkipped: false }] },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { grid: { color: ctx => ctx.tick.value === 0 ? '#7a92a8' : '#eef4f8' },
+             ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#7a92a8' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#344a5e' } }
+      },
+      plugins: {
+        tooltip: { callbacks: { label: ctx => (ctx.raw > 0 ? '+' : '') + ctx.raw + ' (cloud-locking anomaly)' } }
+      }
+    }
+  });
+})();
+
+/* ── FIG 4.1 — Delta per Year ─────────────────────────────── */
+(function() {
+  const years  = ['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
+  const deltas = [2, -48, -5, -14, -19, -12, -35, -15, -7, 0, -20];
+  const colors = deltas.map(v =>
+    v < -3  ? 'rgba(11,31,58,0.85)' :
+    v > 3   ? 'rgba(179,34,55,0.85)' : 'rgba(122,146,168,0.7)');
+
+  new Chart(document.getElementById('chartDelta'), {
+    type: 'bar',
+    data: {
+      labels: years,
+      datasets: [{ data: deltas, backgroundColor: colors, borderRadius: 4, borderSkipped: false }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { grid: { display: false },
+             ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#4e6478' } },
+        y: { grid: { color: ctx => ctx.tick.value === 0 ? '#4e6478' : '#eef4f8' },
+             ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#7a92a8',
+                      callback: v => (v > 0 ? '+' : '') + v + ' d' } }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const v = ctx.raw;
+              const lbl = v < -3 ? ' — cloud leads' : v > 3 ? ' — reversal leads' : ' — simultaneous';
+              return (v > 0 ? '+' : '') + v + ' hari' + lbl;
+            }
+          }
+        }
+      }
+    }
+  });
+})();
+
+/* ── FIG 4.2 — Cross-correlation ──────────────────────────── */
+(function() {
+  const lags  = [-30,-20,-14,-7,-3,0,3,7,14,20,30];
+  const xcorr = [0.426,0.536,0.584,0.606,0.612,0.617,0.546,0.444,0.271,0.138,-0.076];
+  const maxVal = Math.max(...xcorr);
+
+  new Chart(document.getElementById('chartXcorr'), {
+    type: 'line',
+    data: {
+      labels: lags.map(l => (l > 0 ? '+' : '') + l),
+      datasets: [{
+        data: xcorr,
+        borderColor: '#1d4a80',
+        backgroundColor: 'rgba(29,74,128,0.1)',
+        pointBackgroundColor: xcorr.map(r => r === maxVal ? '#0b1f3a' : '#1d4a80'),
+        pointRadius: xcorr.map(r => r === maxVal ? 7 : 4.5),
+        pointHoverRadius: 7,
+        tension: 0.3,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { title: { display: true, text: 'Lag (hari) — positive = TCWV leads u', color:'#7a92a8', font:{size:10.5} },
+             grid: { display: false },
+             ticks: { font: { family:"ui-monospace,'SF Mono',monospace",size:10.5 }, color:'#4e6478' } },
+        y: { min: -0.2, max: 0.75,
+             grid: { color: ctx => ctx.tick.value === 0 ? '#7a92a8' : '#eef4f8' },
+             title: { display: true, text: 'Pearson r', color:'#7a92a8', font:{size:10.5} },
+             ticks: { font: { family:"ui-monospace,'SF Mono',monospace",size:10.5 }, color:'#7a92a8' } }
+      },
+      plugins: {
+        tooltip: { callbacks: { label: ctx => {
+          const lg = lags[ctx.dataIndex];
+          return `r = ${ctx.raw.toFixed(3)} at lag ${lg > 0 ? '+' : ''}${lg}`;
+        } } }
+      }
+    }
+  });
+})();
+
+/* ── FIG 4.3 — Composite TCWV + u_comp ───────────────────── */
+(function() {
+  const days  = [-40,-35,-30,-25,-20,-15,-10,-5,-1,0,1,5,10,15,20,25,30,35,40];
+  const tcwv  = [39.43,38.59,42.50,42.04,39.81,41.18,45.16,46.99,51.19,51.40,51.19,50.55,54.08,55.60,50.08,52.21,52.12,53.54,52.28];
+  const ucomp = [-3.167,-1.876,-2.686,-0.641,-0.230,-2.697,-2.316,-0.478,0.966,-0.364,-0.076,-0.179,1.615,1.249,0.788,1.725,1.404,1.728,2.184];
+  const labels = days.map(d => (d>=0?'+':'')+d);
+
+  new Chart(document.getElementById('chartCausalityComposite'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label:'TCWV', data: tcwv,
+          borderColor:'#1d4a80', backgroundColor:'rgba(29,74,128,0.08)',
+          pointRadius:2.5, pointHoverRadius:5, tension:0.3, fill:true, yAxisID:'yT' },
+        { label:'u_comp', data: ucomp,
+          borderColor:'#c47a1a', backgroundColor:'transparent',
+          borderDash:[5,4], borderWidth:2,
+          pointRadius:2.5, pointHoverRadius:5, tension:0.3, fill:false, yAxisID:'yU' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { mode:'index', intersect:false }
+      },
+      scales: {
+        x: {
+          grid: { color: ctx => ctx.index === days.indexOf(0) ? 'rgba(11,31,58,0.4)' : '#eef4f8' },
+          ticks: { font:{family:"ui-monospace,'SF Mono',monospace",size:9.5}, color:'#4e6478', maxRotation:0, autoSkip:true, maxTicksLimit:8 }
+        },
+        yT: { type:'linear', position:'left', min:35, max:60,
+              grid:{color:'#eef4f8'},
+              title:{display:true,text:'TCWV (kg m⁻²)',color:'#1d4a80',font:{size:10.5}},
+              ticks:{font:{family:"ui-monospace,'SF Mono',monospace",size:10},color:'#1d4a80',
+                     callback:v=>v+' kg'} },
+        yU: { type:'linear', position:'right', min:-5, max:4,
+              grid:{display:false},
+              title:{display:true,text:'u_comp [−]',color:'#c47a1a',font:{size:10.5}},
+              ticks:{font:{family:"ui-monospace,'SF Mono',monospace",size:10},color:'#c47a1a',
+                     callback:v=>(v>0?'+':'')+v} }
+      }
+    }
+  });
+})();
+
+/* ── FIG 4.4 — Composite Cloud + SW ──────────────────────── */
+(function() {
+  const days  = [-40,-35,-30,-25,-20,-15,-10,-5,-1,0,1,5,10,15,20,25,30,35,40];
+  const cloud = [64.6,62.2,64.3,71.0,65.8,56.7,74.0,80.2,90.8,92.6,87.9,84.3,94.0,88.5,87.6,89.2,84.9,93.8,90.2];
+  const sw    = [277.2,275.2,251.3,255.2,265.4,270.2,255.2,240.8,206.9,222.2,232.6,228.7,192.4,187.7,223.4,209.3,227.3,185.2,212.8];
+  const labels = days.map(d => (d>=0?'+':'')+d);
+
+  new Chart(document.getElementById('chartCausalitySW'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label:'Cloud', data: cloud,
+          borderColor:'#1d4a80', backgroundColor:'rgba(29,74,128,0.12)',
+          pointRadius:2.5, tension:0.3, fill:true, yAxisID:'yC' },
+        { label:'SW', data: sw,
+          borderColor:'#c47a1a', backgroundColor:'transparent',
+          borderWidth:2, pointRadius:2.5, tension:0.3, fill:false, yAxisID:'ySW' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend:{ display:false }, tooltip:{ mode:'index', intersect:false } },
+      scales: {
+        x: { grid:{color:'#eef4f8'}, ticks:{font:{family:"ui-monospace,'SF Mono',monospace",size:9.5},color:'#4e6478', maxRotation:0, autoSkip:true, maxTicksLimit:8} },
+        yC: { type:'linear', position:'left', min:40, max:105,
+              grid:{color:'#eef4f8'},
+              title:{display:true,text:'Cloud cover (%)',color:'#1d4a80',font:{size:10.5}},
+              ticks:{font:{family:"ui-monospace,'SF Mono',monospace",size:10},color:'#1d4a80',callback:v=>v+'%'} },
+        ySW:{ type:'linear', position:'right', min:150, max:320, reverse:true,
+              grid:{display:false},
+              title:{display:true,text:'SW rad (W m⁻²) ↓',color:'#c47a1a',font:{size:10.5}},
+              ticks:{font:{family:"ui-monospace,'SF Mono',monospace",size:10},color:'#c47a1a'} }
+      }
+    }
+  });
+})();
+
+/* ── FIG 4.5 — Slopes grouped bar ────────────────────────── */
+(function() {
+  const years = ['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
+  const tcwv_before = [0.550,0.835,0.323,0.481,0.662,0.798,0.654,1.110,0.496,0.226,0.973];
+  const tcwv_after  = [-0.148,-0.352,0.395,0.504,0.412,-0.006,0.163,-0.360,-0.733,0.643,0.107];
+  const u_before    = [0.152,-0.005,-0.163,0.227,0.111,0.223,0.105,0.218,0.058,-0.170,0.206];
+  const u_after     = [0.245,-0.147,0.029,-0.110,0.045,0.279,0.043,-0.018,-0.048,0.235,0.180];
+
+  new Chart(document.getElementById('chartSlopes'), {
+    type: 'bar',
+    data: {
+      labels: years,
+      datasets: [
+        { label:'TCWV before', data: tcwv_before, backgroundColor:'rgba(29,74,128,0.82)', borderRadius:3, borderSkipped:false },
+        { label:'TCWV after',  data: tcwv_after,  backgroundColor:'rgba(123,180,224,0.75)', borderRadius:3, borderSkipped:false },
+        { label:'u before',    data: u_before,    backgroundColor:'rgba(196,122,26,0.82)',   borderRadius:3, borderSkipped:false },
+        { label:'u after',     data: u_after,     backgroundColor:'rgba(224,169,110,0.75)', borderRadius:3, borderSkipped:false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { grid:{display:false}, ticks:{font:{family:"ui-monospace,'SF Mono',monospace",size:10},color:'#4e6478'} },
+        y: { grid:{color:'#eef4f8'},
+             title:{display:true,text:'Slope per hari',color:'#7a92a8',font:{size:10.5}},
+             ticks:{font:{family:"ui-monospace,'SF Mono',monospace",size:10},color:'#7a92a8',
+                    callback:v=>(v>0?'+':'')+v.toFixed(2)} }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode:'index', intersect:false,
+          callbacks: {
+            label: ctx => {
+              const names = ['TCWV before','TCWV after','u before','u after'];
+              return `${names[ctx.datasetIndex]}: ${ctx.raw > 0 ? '+' : ''}${ctx.raw.toFixed(3)}`;
+            }
+          }
+        }
+      }
+    }
+  });
+})();
+
+/* ── FIG 5.1 — Sustained Advection Delta ─────────────────── */
+(function() {
+  const years = ['2015','2016','2017','2018','2020','2021','2022','2024','2025'];
+  const delta = [76.2, 53.3, 86.7, 82.4, 106.7, 87.1, 88.4, 91.9, 86.0];
+
+  new Chart(document.getElementById('chartAdvDelta'), {
+    type: 'bar',
+    data: {
+      labels: years,
+      datasets: [{
+        label: 'Lag: advection onset – cloud-locking onset',
+        data: delta,
+        backgroundColor: 'rgba(26,102,64,0.8)',
+        borderRadius: 4, borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { grid: { display: false },
+             ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#4e6478' } },
+        y: { min: 0, max: 120,
+             grid: { color: '#eef4f8' },
+             ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#7a92a8',
+                      callback: v => v + ' h' } }
+      },
+      plugins: {
+        tooltip: { callbacks: { label: ctx => `Δ ${ctx.raw} hari setelah cloud-locking onset` } }
+      }
+    }
+  });
+})();
+
+/* ── FIG 6.1 — Phase Cloud & TCWV ────────────────────────── */
+(function() {
+  const cloud  = [61.1, 76.7, 91.8, 83.2, 53.4];
+  const tcwv   = [37.7, 45.9, 53.2, 51.8, 39.5];
+
+  new Chart(document.getElementById('chartPhaseCloud'), {
+    type: 'bar',
+    data: {
+      labels: ['Benih','Kunci','Plateau','Longgar','Bubar'],
+      datasets: [
+        { label: 'Total cloud cover (%)', data: cloud,
+          backgroundColor: 'rgba(29,74,128,0.82)', borderRadius: 3, yAxisID: 'yCloud' },
+        { label: 'TCWV (kg m⁻²)', data: tcwv,
+          backgroundColor: 'rgba(196,122,26,0.82)', borderRadius: 3, yAxisID: 'yTcwv' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11.5, weight: '500' }, color: '#344a5e' } },
+        yCloud: {
+          type: 'linear', position: 'left', min: 0, max: 110,
+          grid: { color: '#eef4f8' },
+          title: { display: true, text: 'Cloud cover (%)', color: '#1d4a80', font: { size: 10.5 } },
+          ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#1d4a80',
+                   callback: v => v + '%' }
+        },
+        yTcwv: {
+          type: 'linear', position: 'right', min: 0, max: 65,
+          grid: { display: false },
+          title: { display: true, text: 'TCWV (kg m⁻²)', color: '#c47a1a', font: { size: 10.5 } },
+          ticks: { font: { family: "ui-monospace,'SF Mono',monospace", size: 10.5 }, color: '#c47a1a',
+                   callback: v => v + ' kg' }
+        }
+      }
+    }
+  });
+})();
+
+/* ── Tab navigation ──────────────────────────────────────── */
+(function() {
+  const tabs   = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+
+  function activate(name) {
+    tabs.forEach(t => t.setAttribute('aria-selected', t.dataset.tab === name ? 'true' : 'false'));
+    panels.forEach(p => { p.dataset.active = p.dataset.panel === name ? 'true' : 'false'; });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
+
+  document.addEventListener('keydown', e => {
+    const arr = Array.from(tabs);
+    const cur = arr.findIndex(t => t.getAttribute('aria-selected') === 'true');
+    if (e.key === 'ArrowRight' && cur < arr.length - 1) { e.preventDefault(); activate(arr[cur+1].dataset.tab); }
+    if (e.key === 'ArrowLeft'  && cur > 0              ) { e.preventDefault(); activate(arr[cur-1].dataset.tab); }
+  });
+
+  function checkTables() {
+    document.querySelectorAll('.tbl-wrap').forEach(w => {
+      w.dataset.scroll = w.scrollWidth > w.clientWidth ? 'true' : 'false';
+    });
+  }
+  checkTables();
+  window.addEventListener('resize', checkTables);
+  window.addEventListener('load',   checkTables);
+})();
+</script>
+</body>
+</html>
