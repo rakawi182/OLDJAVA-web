@@ -1888,20 +1888,43 @@ function ensoDeltaForDopyRange(dopyS,dopyE,phase){
   return result;
 }
 
-function iodDeltaForDopyRange(dopyS,dopyE,iodPhase,ensoPhase){
-  if(iodPhase!=="pIOD" && iodPhase!=="nIOD") return [0,0,0,0,0,0];
-  const sinergis = ((ensoPhase==="ELNINO" && iodPhase==="pIOD") ||
-                    (ensoPhase==="LANINA" && iodPhase==="nIOD"));
-  const bobot = sinergis ? _BOBOT_IOD_KOMBINASI : _BOBOT_IOD_STANDALONE;
+function iodDeltaForDopyRange(dopyS, dopyE, iodPhase, ensoPhase){
+  if(iodPhase !== "pIOD" && iodPhase !== "nIOD") return [0,0,0,0,0,0];
   const tbl = IOD_DELTA[iodPhase];
   if(!tbl) return [0,0,0,0,0,0];
-  const wr=_weightedDopyOverlap(dopyS,dopyE);
+
+  const wr = _weightedDopyOverlap(dopyS, dopyE);
   if(!wr) return [0,0,0,0,0,0];
-  const {wn,wkeys}=wr;
-  const result=[];
-  for(let fi=0;fi<6;fi++){
-    let s=0; for(const no of wkeys) s+=wn[no]*tbl[no][fi];
-    result.push(bobot*s);
+  const {wn, wkeys} = wr;
+
+  // Filter: hanya mangsa dengan minimal satu komponen IOD tak-nol
+  // (mangsa 3–5 = SON-aktif; mangsa lain diabaikan total).
+  const contributing = {};
+  for(const no of wkeys){
+    const row = tbl[no];
+    if(row && row.some(x => Math.abs(x) > 1e-9)){
+      contributing[no] = wn[no];
+    }
+  }
+
+  // SON gate: memerlukan tumpang-tindih ≥ 15 hari dengan mangsa IOD-aktif
+  const contribTotal = Object.values(contributing).reduce((a,b) => a+b, 0);
+  const residualDays = contribTotal * (dopyE - dopyS);
+  if(residualDays < 15.0 || contribTotal === 0) return [0,0,0,0,0,0];
+
+  // Renormalisasi bobot hanya atas mangsa kontributor
+  const wnFiltered = {};
+  for(const no in contributing) wnFiltered[no] = contributing[no] / contribTotal;
+
+  const sinergis = ((ensoPhase === "ELNINO" && iodPhase === "pIOD") ||
+                    (ensoPhase === "LANINA" && iodPhase === "nIOD"));
+  const bobot = sinergis ? _BOBOT_IOD_KOMBINASI : _BOBOT_IOD_STANDALONE;
+
+  const result = [];
+  for(let fi = 0; fi < 6; fi++){
+    let s = 0;
+    for(const no in wnFiltered) s += wnFiltered[no] * tbl[no][fi];
+    result.push(bobot * s);
   }
   return result;
 }
