@@ -160,6 +160,210 @@ body{
   }
 }
 
+
+/* === Batch 1: Tipografi Berjenjang === */
+.main h1{
+  letter-spacing:1px;
+  text-shadow:0 0 24px rgba(212,184,150,0.22);
+}
+.main h2{
+  border-left:3px solid var(--accent);
+  padding-left:10px;
+  border-bottom:1px solid var(--border);
+}
+.metric-value{
+  font-size:1.15rem !important;
+  font-weight:700 !important;
+  color:var(--accent) !important;
+  letter-spacing:0.5px;
+}
+.kv .v{
+  color:var(--fg);
+  font-weight:600;
+}
+
+/* === Batch 1: Corner Brackets (HUD) === */
+.card-hud{
+  background-image:
+    linear-gradient(var(--accent),var(--accent)),
+    linear-gradient(var(--accent),var(--accent)),
+    linear-gradient(var(--accent),var(--accent)),
+    linear-gradient(var(--accent),var(--accent)),
+    linear-gradient(var(--accent),var(--accent)),
+    linear-gradient(var(--accent),var(--accent)),
+    linear-gradient(var(--accent),var(--accent)),
+    linear-gradient(var(--accent),var(--accent));
+  background-size:
+    14px 2px, 2px 14px,
+    14px 2px, 2px 14px,
+    14px 2px, 2px 14px,
+    14px 2px, 2px 14px;
+  background-position:
+    top left, top left,
+    top right, top right,
+    bottom left, bottom left,
+    bottom right, bottom right;
+  background-repeat:no-repeat;
+}
+
+/* === Batch 1: Page Transition === */
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+#main > *{
+  animation:fadeInUp .25s ease-out both;
+}
+@media (prefers-reduced-motion: reduce){
+  #main > *{animation:none}
+}
+
+
+/* === Fix: tabel bisa scroll horizontal (v2) === */
+.tbl-wrap{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  margin:0 -4px;
+  padding:0 4px;
+}
+.tbl-wrap table.data{
+  min-width:max-content;
+}
+table.data th,
+table.data td{
+  white-space:nowrap;
+}
+
+
+/* === Batch 2: Accent dinamis per halaman === */
+body[data-page="rasi"]{--accent:#d4b896}
+body[data-page="realtime"]{--accent:#4fd1c5}
+body[data-page="konversi"]{--accent:#4fd1c5}
+body[data-page="offset"]{--accent:#4fd1c5}
+body[data-page="wuku"]{--accent:#e8a468}
+body[data-page="prasasti"]{--accent:#e8a468}
+body[data-page="damais"]{--accent:#7ee787}
+body[data-page="zodiak"]{--accent:#b29cff}
+
+/* === Batch 2: Pulse TU-PA-A === */
+@keyframes tpa-pulse{
+  0%,100%{filter:drop-shadow(0 0 1px currentColor)}
+  50%{filter:drop-shadow(0 0 8px currentColor)}
+}
+.tpa-active{
+  display:inline-block;
+  animation:tpa-pulse 2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce){
+  .tpa-active{animation:none}
+}
+
+
+/* === Batch 3: Grid Blueprint === */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  background-image:
+    linear-gradient(rgba(212,184,150,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212,184,150,0.035) 1px, transparent 1px);
+  background-size:40px 40px,40px 40px;
+}
+.layout{position:relative;z-index:1}
+
+/* === Batch 3: Flash angka Real-time === */
+@keyframes rt-flash{
+  0%{box-shadow:0 0 0 0 rgba(79,209,197,0.5)}
+  60%{box-shadow:0 0 0 14px rgba(79,209,197,0)}
+  100%{box-shadow:0 0 0 0 rgba(79,209,197,0)}
+}
+.rt-flash{
+  animation:rt-flash .7s ease-out;
+  border-radius:12px;
+}
+
+/* === Batch 3: Boot Spinner === */
+.boot-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:80px 20px;
+}
+.boot-spinner{
+  width:60px;height:60px;position:relative;
+}
+.boot-spinner::before,
+.boot-spinner::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  border:2px solid transparent;
+}
+.boot-spinner::before{
+  border-top-color:var(--accent);
+  border-right-color:var(--accent);
+  animation:spin-cw 1.2s linear infinite;
+  box-shadow:0 0 12px rgba(212,184,150,0.35);
+}
+.boot-spinner::after{
+  inset:10px;
+  border-bottom-color:#4fd1c5;
+  border-left-color:#4fd1c5;
+  animation:spin-ccw .9s linear infinite;
+}
+@keyframes spin-cw{ to{ transform:rotate(360deg) } }
+@keyframes spin-ccw{ to{ transform:rotate(-360deg) } }
+.boot-label{
+  margin-top:20px;
+  font-size:0.8rem;
+  letter-spacing:1px;
+  color:var(--accent);
+}
+.boot-hint{
+  margin-top:6px;
+  font-size:0.7rem;
+  color:var(--dim);
+}
+@media (prefers-reduced-motion: reduce){
+  .boot-spinner::before,
+  .boot-spinner::after{animation:none}
+}
+
+/* Inline spinner (navigate) */
+.inline-spin{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 20px;gap:14px}
+.inline-spin .ring{width:32px;height:32px;position:relative}
+.inline-spin .ring::before,.inline-spin .ring::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid transparent}
+.inline-spin .ring::before{border-top-color:var(--accent);border-right-color:var(--accent);animation:spin-cw .9s linear infinite}
+.inline-spin .ring::after{inset:7px;border-bottom-color:#4fd1c5;border-left-color:#4fd1c5;animation:spin-ccw .7s linear infinite}
+.inline-spin .label{font-size:0.75rem;letter-spacing:1px;color:var(--dim)}
+@keyframes spin-cw{to{transform:rotate(360deg)}}
+@keyframes spin-ccw{to{transform:rotate(-360deg)}}
+
+
+/* === Rāśi Chakra Tooltip === */
+#rc-tooltip{
+  position:fixed;
+  display:none;
+  z-index:9999;
+  background:rgba(20,24,34,0.96);
+  color:var(--fg);
+  border:1px solid var(--accent);
+  border-radius:8px;
+  padding:8px 12px;
+  font-size:0.78rem;
+  line-height:1.4;
+  max-width:240px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.6),0 0 12px rgba(212,184,150,0.15);
+  pointer-events:none;
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+  letter-spacing:0.2px;
+}
+
 </style>
 </head><body>
 <div class="layout">
@@ -175,6 +379,7 @@ body{
 <button data-page="zodiak">📈 Analisis Sistem Zodiak</button>
 <button data-page="konversi">🔄 Konversi Waktu</button>
 <button data-page="offset">⏱️ Offset Waktu</button>
+<button data-page="rasi">☸️ Rāśi Chakra</button>
 </nav>
 <div class="sidebar-footer">
 <div>PAWITRA &bull; <span id="sf-date"></span></div>
@@ -185,7 +390,7 @@ body{
 <div>📍 <span id="sf-loc"></span></div>
 </div>
 </aside>
-<main class="main" id="main"><div class="spinner">Memuat modul astronomi...</div></main>
+<main class="main" id="main"><div class="boot-wrap"><div class="boot-spinner"></div><div class="boot-label">MEMUAT MODUL ASTRONOMI</div><div class="boot-hint">VSOP87D &middot; ELP2000-82B</div></div></main>
 <nav class="nav-bottom" id="nav-bottom">
 <button data-page="beranda"><span style="font-size:1.15rem;line-height:1">🏠</span><span>Beranda</span></button>
 <button data-page="realtime"><span style="font-size:1.15rem;line-height:1">🌞</span><span>Real-time</span></button>
@@ -196,6 +401,7 @@ body{
 <button data-page="zodiak"><span style="font-size:1.15rem;line-height:1">📈</span><span>Zodiak</span></button>
 <button data-page="konversi"><span style="font-size:1.15rem;line-height:1">🔄</span><span>Konversi</span></button>
 <button data-page="offset"><span style="font-size:1.15rem;line-height:1">⏱️</span><span>Offset</span></button>
+<button data-page="rasi"><span style="font-size:1.15rem;line-height:1">☸️</span><span>Chakra</span></button>
 </nav>
 
 </div>
@@ -12182,10 +12388,65 @@ App.loadDamaisValidation = function(){
   try { return JSON.parse(el.textContent); } catch(e){ return null; }
 };
 App.esc = function(x){ return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); };
+
+App.clearRT = function(){
+  if(App._rtTimers){ for(var i=0;i<App._rtTimers.length;i++) clearInterval(App._rtTimers[i]); App._rtTimers = null; }
+};
+
+App._BULAN_ID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+App.tpaDisplay = function(ka, wi){
+  var e = App.engines;
+  var tpaActive = wi && wi.is_tu_pa_a;
+  if(tpaActive){
+    return '<span class="tpa-active" style="color:var(--accent);font-weight:600">TU-PA-\u0100</span>'
+         + ' <span style="color:var(--accent);font-size:0.75rem">(hari ini)</span>';
+  }
+  try{
+    var next = e.wukuEng.find_next_tu_pa_a(ka, null, 'gregorian');
+    if(!next || !next.date) return '<span style="color:var(--dim)">\u2014</span>';
+    var y = next.date[0], m = next.date[1], d = next.date[2];
+    var tglStr = d + ' ' + App._BULAN_ID[m-1] + ' ' + y;
+    var hari = next.days_until;
+    return '<span style="color:var(--fg)">' + tglStr + '</span>'
+         + ' <span style="color:var(--dim);font-size:0.75rem">(' + hari + ' hari lagi)</span>';
+  } catch(err){
+    return '<span style="color:var(--dim)">\u2014</span>';
+  }
+};
+
+
+App.getPanchangaAt = function(year, month, day, hourFloat){
+  var e = App.engines;
+  var hh = Math.floor(hourFloat);
+  var mm = Math.floor((hourFloat - hh) * 60);
+  var ss = Math.floor(((hourFloat - hh) * 60 - mm) * 60);
+  var jd_utc = e.ts.wib_to_jd_utc(year, month, day, hh, mm, ss);
+  var jd_tt = e.ts.wib_to_jd_tt_extended(year, month, day, hh, mm, ss);
+  var ka = e.wukuEng.date_to_ka(year, month, day);
+  var ay = e.astro.calculate_ayanamsa_precise(jd_tt);
+  var sd = e.astro.calculate_sun_position_ultra(jd_tt);
+  var md = e.astro.calculate_moon_position_ultra(jd_tt, sd.longitude_deg);
+  var sn = ((sd.longitude_deg - ay) % 360 + 360) % 360;
+  var mn = ((md.longitude - ay) % 360 + 360) % 360;
+  var elong = ((md.longitude - sd.longitude_deg) % 360 + 360) % 360;
+  var tithi_abs = Math.floor(elong / 12);
+  var tithi_num = (tithi_abs % 15) + 1;
+  var paksa = tithi_abs < 15 ? 'Sukla' : 'Krsna';
+  return {
+    date: {year: year, month: month, day: day, hour: hh, minute: mm, second: ss},
+    jd_utc: jd_utc, jd_tt: jd_tt, ka: ka, ayanamsa: ay,
+    sun_nirayana: sn, moon_nirayana: mn,
+    sun_sayana: sd.longitude_deg, moon_sayana: md.longitude,
+    tithi: {paksa: paksa, tithi: tithi_num, elongation: elong}
+  };
+};
+
 App.navigate = function(page) {
+  if(App.clearRT) App.clearRT();
+  document.body.setAttribute('data-page', page);
   document.querySelectorAll('.nav button, .nav-bottom button').forEach(function(b){ b.classList.toggle('active', b.dataset.page === page); });
   var m = document.getElementById('main');
-  m.innerHTML = '<div class="spinner">Menghitung...</div>';
+  m.innerHTML = '<div class="inline-spin"><div class="ring"></div><div class="label">MENGHITUNG</div></div>';
   setTimeout(function() {
     try {
       var fn = App['render_' + page];
@@ -12256,9 +12517,14 @@ App.render_beranda = function(main) {
   var e = App.engines;
 
   var h = '';
+  h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">';
+  h += '<div style="flex:1;min-width:200px">';
   h += '<h1>🏛️ OSS ΩLDJAVA-astro</h1>';
   h += '<p class="caption">Sistem Astronomi Arkeologi Jawa Kuno — Jolotundo Obsv</p>';
   h += '<div style="margin:8px 0"><span class="badge">OSS.Ω</span></div>';
+  h += '</div>';
+  h += '<button class="primary" id="bdr-refresh" style="margin:0;flex-shrink:0">🔄 Refresh</button>';
+  h += '</div>';
 
   h += '<h2>📜 Swasti Śakawarsātīta</h2>';
   h += '<div class="grid2">';
@@ -12339,86 +12605,119 @@ App.render_beranda = function(main) {
   h += '</div>';
 
   main.innerHTML = h;
+  var bdr = document.getElementById('bdr-refresh');
+  if(bdr) bdr.onclick = function(){ App.navigate('beranda'); };
 };
 
 // ============================================================================
 // 2. REAL-TIME
 // ============================================================================
 App.render_realtime = function(main) {
-  var p = App.getTodayPanchanga();
+  App.clearRT();
   var e = App.engines;
-  var t = p.date;
-  var transformer = e.astro.transformer;
-  var jd_utc = p.jd_utc;
-  var sun_aa = transformer.equatorial_to_altaz(p.sun.ra_deg, p.sun.dec_deg, jd_utc,
-      e.astro.lat, e.astro.lon, e.astro.pressure, e.astro.temperature, 0.728);
-  var moon_aa = transformer.equatorial_to_altaz(p.moon.ra, p.moon.dec, jd_utc,
-      e.astro.lat, e.astro.lon, e.astro.pressure, e.astro.temperature, 0.728);
-  var sr = p.sunrise;
+  function pad(n){ n=Math.floor(n); return n<10?'0'+n:''+n; }
 
-  var h = '<h1>🌞 Real-time Astronomy</h1>';
-  h += '<p class="caption">Berdasarkan waktu sistem lokal (WIB)</p>';
-  h += '<div class="card" style="border-left:4px solid var(--accent)">' +
-       App.kv([['🕐 Waktu', t.year + '-' + String(t.month).padStart(2,'0') + '-' + String(t.day).padStart(2,'0') + ' ' +
-       String(t.hour).padStart(2,'0') + ':' + String(t.minute).padStart(2,'0') + ':' + String(t.second).padStart(2,'0') + ' WIB']]) + '</div>';
+  main.innerHTML =
+    '<h1>🌞 Real-time Astronomy</h1>'
+    +'<p class="caption">Berdasarkan waktu sistem lokal (WIB)</p>'
+    +'<div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-left:4px solid var(--accent)">'
+    +  '<div><b style="color:var(--accent)">🕐 Waktu:</b> <span id="rt-clock" style="font-family:\'Courier New\',monospace;color:var(--fg)">--:--:--</span> WIB</div>'
+    +  '<button class="primary" id="rt-refresh" style="margin:0">🔄 Refresh</button>'
+    +'</div>'
+    +'<div id="rt-astro"></div>';
 
-  h += '<div class="grid4" style="margin-top:12px">';
-  h += App.metric('KA', App.formatKA(p.ka));
-  h += App.metric('Wuku', p.wuku.wuku_name + ' (#' + p.wuku.wuku_number + ')');
-  h += App.metric('Wara Triple', p.wuku.wara_triple);
-  h += App.metric('TU-PA-Ā', p.wuku.is_tu_pa_a ? '✅ YA' : '❌ TIDAK');
-  h += '</div>';
-
-  h += '<h2>☀️ Matahari</h2>' + App.card('', App.kv([
-    ['Altitude', App.num(sun_aa.altitude_apparent, 2) + '°'],
-    ['Azimuth', App.num(sun_aa.azimuth, 2) + '°'],
-    ['RA', App.num(p.sun.ra_deg, 4) + '°'],
-    ['Dec', App.num(p.sun.dec_deg, 4) + '°'],
-    ['Bujur tropical', App.num(p.sun.longitude_deg, 6) + '°'],
-    ['Jarak', App.num(p.sun.radius_au, 8) + ' AU']
-  ]));
-
-  h += '<h2>🌙 Bulan</h2>' + App.card('', App.kv([
-    ['Altitude', App.num(moon_aa.altitude_apparent, 2) + '°'],
-    ['Azimuth', App.num(moon_aa.azimuth, 2) + '°'],
-    ['RA', App.num(p.moon.ra, 4) + '°'],
-    ['Dec', App.num(p.moon.dec, 4) + '°'],
-    ['Fase', p.moon.illumination !== null ? App.num(p.moon.illumination, 1) + '%' : '—'],
-    ['Jarak', App.num(p.moon.distance_km, 0) + ' km']
-  ]));
-
-  if (sr && sr.sunrise) {
-    h += '<h2>🌅 Waktu Matahari</h2>' + App.card('', App.kv([
-      ['Terbit', sr.sunrise.wib],
-      ['Transit', sr.transit.wib],
-      ['Terbenam', sr.sunset.wib],
-      ['Panjang siang', App.num(sr.day_length, 2) + ' jam']
-    ]));
+  var clockEl = document.getElementById('rt-clock');
+  function updateClock(){
+    var t = App.nowWIB();
+    clockEl.textContent = t.year + '-' + pad(t.month) + '-' + pad(t.day) + ' ' + pad(t.hour) + ':' + pad(t.minute) + ':' + pad(t.second);
   }
 
-  var mr = p.moon.times;
-  if (mr && !mr.error) {
-    h += '<h2>🌙 Waktu Bulan</h2>' + App.card('', App.kv([
-      ['Terbit', mr.moonrise ? mr.moonrise.wib : '--:--:--'],
-      ['Transit', mr.transit ? mr.transit.wib : '--:--:--'],
-      ['Terbenam', mr.moonset ? mr.moonset.wib : '--:--:--']
+  function renderAstro(){
+    var container = document.getElementById('rt-astro');
+    if(!container) return;
+    var p = App.getTodayPanchanga();
+    var t = p.date;
+    var transformer = e.astro.transformer;
+    var jd_utc = p.jd_utc;
+    var sun_aa = transformer.equatorial_to_altaz(p.sun.ra_deg, p.sun.dec_deg, jd_utc,
+        e.astro.lat, e.astro.lon, e.astro.pressure, e.astro.temperature, 0.728);
+    var moon_aa = transformer.equatorial_to_altaz(p.moon.ra, p.moon.dec, jd_utc,
+        e.astro.lat, e.astro.lon, e.astro.pressure, e.astro.temperature, 0.728);
+    var sr = p.sunrise;
+
+    var h = '<div class="grid4" style="margin-top:12px">';
+    h += App.metric('KA', App.formatKA(p.ka));
+    h += App.metric('Wuku', p.wuku.wuku_name + ' (#' + p.wuku.wuku_number + ')');
+    h += App.metric('Wara Triple', p.wuku.wara_triple);
+    h += App.metric('TU-PA-Ā', App.tpaDisplay(p.ka, p.wuku));
+    h += '</div>';
+
+    h += '<h2>☀️ Matahari</h2>' + App.card('', App.kv([
+      ['Altitude', App.num(sun_aa.altitude_apparent, 2) + '°'],
+      ['Azimuth', App.num(sun_aa.azimuth, 2) + '°'],
+      ['RA', App.num(p.sun.ra_deg, 4) + '°'],
+      ['Dec', App.num(p.sun.dec_deg, 4) + '°'],
+      ['Bujur tropical', App.num(p.sun.longitude_deg, 6) + '°'],
+      ['Jarak', App.num(p.sun.radius_au, 8) + ' AU']
     ]));
+
+    h += '<h2>🌙 Bulan</h2>' + App.card('', App.kv([
+      ['Altitude', App.num(moon_aa.altitude_apparent, 2) + '°'],
+      ['Azimuth', App.num(moon_aa.azimuth, 2) + '°'],
+      ['RA', App.num(p.moon.ra, 4) + '°'],
+      ['Dec', App.num(p.moon.dec, 4) + '°'],
+      ['Fase', p.moon.illumination !== null ? App.num(p.moon.illumination, 1) + '%' : '—'],
+      ['Jarak', App.num(p.moon.distance_km, 0) + ' km']
+    ]));
+
+    if (sr && sr.sunrise) {
+      h += '<h2>🌅 Waktu Matahari</h2>' + App.card('', App.kv([
+        ['Terbit', sr.sunrise.wib],
+        ['Transit', sr.transit.wib],
+        ['Terbenam', sr.sunset.wib],
+        ['Panjang siang', App.num(sr.day_length, 2) + ' jam']
+      ]));
+    }
+
+    var mr = p.moon.times;
+    if (mr && !mr.error) {
+      h += '<h2>🌙 Waktu Bulan</h2>' + App.card('', App.kv([
+        ['Terbit', mr.moonrise ? mr.moonrise.wib : '--:--:--'],
+        ['Transit', mr.transit ? mr.transit.wib : '--:--:--'],
+        ['Terbenam', mr.moonset ? mr.moonset.wib : '--:--:--']
+      ]));
+    }
+
+    var ep = e.wukuEng.get_detailed_wuku_epoch_info(p.ka);
+    h += '<div class="card"><h3>📆 Detail Wuku & Wara</h3>' + App.kv([
+      ['Hari dalam Wuku', p.wuku.day_in_wuku + '/7'],
+      ['Sadwara', p.wuku.sadwara_full + ' (' + p.wuku.sadwara + ')'],
+      ['Pancawara', p.wuku.pancawara_full + ' (' + p.wuku.pancawara + ')'],
+      ['Saptawara', p.wuku.saptawara_full + ' (' + p.wuku.saptawara + ')'],
+      ['Wara Triple', p.wuku.wara_triple_full],
+      ['Sejak epoch', ep.days_since_epoch.toLocaleString('id-ID') + ' (' + ep.direction + ')'],
+      ['Siklus', '#' + ep.cycle_number + ', hari ' + ep.day_in_cycle + '/210'],
+      ['Progres siklus', App.num(ep.progress_percent, 2) + '%'],
+      ['TU-PA-Ā berikutnya', ep.days_to_next_tu_pa_a + ' hari']
+    ]) + '</div>';
+
+    container.innerHTML = h;
+    container.classList.remove('rt-flash');
+    void container.offsetWidth;
+    container.classList.add('rt-flash');
   }
 
-  var ep = e.wukuEng.get_detailed_wuku_epoch_info(p.ka);
-  h += '<div class="card"><h3>📆 Detail Wuku & Wara</h3>' + App.kv([
-    ['Hari dalam Wuku', p.wuku.day_in_wuku + '/7'],
-    ['Sadwara', p.wuku.sadwara_full + ' (' + p.wuku.sadwara + ')'],
-    ['Pancawara', p.wuku.pancawara_full + ' (' + p.wuku.pancawara + ')'],
-    ['Saptawara', p.wuku.saptawara_full + ' (' + p.wuku.saptawara + ')'],
-    ['Wara Triple', p.wuku.wara_triple_full],
-    ['Sejak epoch', ep.days_since_epoch.toLocaleString('id-ID') + ' (' + ep.direction + ')'],
-    ['Siklus', '#' + ep.cycle_number + ', hari ' + ep.day_in_cycle + '/210'],
-    ['Progres siklus', App.num(ep.progress_percent, 2) + '%'],
-    ['TU-PA-Ā berikutnya', ep.days_to_next_tu_pa_a + ' hari']
-  ]) + '</div>';
+  updateClock();
+  renderAstro();
 
-  main.innerHTML = h;
+  var tClock = setInterval(updateClock, 1000);
+  var tAstro = setInterval(function(){
+    if(!document.body.contains(main)){ App.clearRT(); return; }
+    renderAstro();
+  }, 300000);
+  App._rtTimers = [tClock, tAstro];
+
+  document.getElementById('rt-refresh').onclick = function(){ renderAstro(); };
 };
 
 // ============================================================================
@@ -12596,15 +12895,15 @@ App.renderWukuTab = function(tab) {
       var list = e.wukuEng.find_tu_pa_a_in_year(y);
       var r = document.getElementById('tpa-result');
       if (!list || list.length === 0) { r.innerHTML = '<div class="dim">Tidak ditemukan TU-PA-Ā di tahun ini.</div>'; return; }
-      var hh = '<table class="data"><tr><th>Tanggal</th><th>KA</th><th>Wuku</th><th>Wara</th></tr>';
+      var hh = '<div class="tbl-wrap"><div class=\"tbl-wrap\"><table class=\"data\"><tr><th>Tanggal</th><th>KA</th><th>Wuku</th><th>Wara</th></tr>';
       for (var i = 0; i < list.length; i++) {
         var t = list[i], dt = t.date;
         hh += '<tr><td>' + dt[0] + '-' + String(dt[1]).padStart(2,'0') + '-' + String(dt[2]).padStart(2,'0') + '</td>';
         hh += '<td>' + App.formatKA(t.ka) + '</td>';
-        hh += '<td>' + t.wuku_info.wuku_name + '</td>';
-        hh += '<td>' + t.wuku_info.wara_triple + '</td></tr>';
+        hh += '<td>' + (t.wuku_name || '—') + '</td>';
+        hh += '<td>' + (t.wara_triple || '—') + '</td></tr>';
       }
-      hh += '</table>';
+      hh += '</table></div>';
       r.innerHTML = hh;
     };
   } else {
@@ -12633,7 +12932,7 @@ App._renderWukuResult = function(container, wi, ep, ka) {
   h += App.card('📆 Wuku', App.kv([
     ['Nama Wuku', wi.wuku_name + ' (#' + wi.wuku_number + ')'],
     ['Hari ke-', wi.day_in_wuku + '/7'],
-    ['TU-PA-Ā', wi.is_tu_pa_a ? '✅ YA' : '❌ TIDAK'],
+    ['TU-PA-Ā', App.tpaDisplay(wi.ka, wi)],
     ['KA', App.formatKA(ka)]
   ]));
   h += App.card('🌀 Wara Triple', App.kv([
@@ -12756,7 +13055,7 @@ App.render_prasasti = function(main) {
       } else {
         var best = results[0], c = best.candidate;
         var wi_best = e.wukuEng.get_wuku_by_ka(c.ka);
-        out += '<div class="card" style="border-color:var(--accent)"><h3>✨ Kandidat Terbaik</h3>' + App.kv([
+        out += '<div class="card card-hud" style="border-color:var(--accent)"><h3>✨ Kandidat Terbaik</h3>' + App.kv([
           ['Tanggal', App.dateStr(c.date)],
           ['KA', App.formatKA(c.ka)],
           ['Wuku', wi_best.wuku_name + ' (#' + wi_best.wuku_number + ')'],
@@ -12800,13 +13099,13 @@ App.render_prasasti = function(main) {
         out += '</div>';
 
         out += '<div class="card"><h3>Top ' + Math.min(results.length, 5) + ' Kandidat</h3>';
-        out += '<table class="data"><tr><th>#</th><th>Tanggal</th><th>KA</th><th>Wuku</th><th>Wara</th><th>Skor</th><th>Confidence</th></tr>';
+        out += '<div class="tbl-wrap"><div class=\"tbl-wrap\"><table class=\"data\"><tr><th>#</th><th>Tanggal</th><th>KA</th><th>Wuku</th><th>Wara</th><th>Skor</th><th>Confidence</th></tr>';
         for (var i = 0; i < Math.min(results.length, 5); i++) {
           var r = results[i], cd = r.candidate;
           var wi_r = e.wukuEng.get_wuku_by_ka(cd.ka);
           out += '<tr><td>' + (i+1) + '</td><td>' + App.dateStr(cd.date) + '</td><td>' + App.formatKA(cd.ka) + '</td><td>' + wi_r.wuku_name + '</td><td>' + wi_r.wara_triple + '</td><td>' + App.num(r.score,3) + '</td><td>' + r.confidence + '</td></tr>';
         }
-        out += '</table></div>';
+        out += '</table></div></div>';
         if(results[0] && results[0].breakdown) out += App._renderTPDPBreakdown(results);
       }
       document.getElementById('pr-out').innerHTML = out;
@@ -12882,7 +13181,7 @@ App.render_damais = function(main) {
     }
 
     var html = '<p class="caption">Menampilkan ' + rows.length + ' dari ' + list.length + ' prasasti</p>';
-    html += '<table class="data" style="min-width:1400px"><tr><th>No</th><th>ID</th><th>Nama</th><th>Śaka</th><th>Masa</th><th>Tithi</th><th>Wuku</th><th>Nakṣatra</th><th>Status</th><th>KA</th><th>Skor</th><th>Sistem</th><th>Sistem (Tol ±1)</th><th>Tanggal Damais</th></tr>';
+    html += '<div class="tbl-wrap"><div class=\"tbl-wrap\"><table class=\"data\" style=\"min-width:1400px\"><tr><th>No</th><th>ID</th><th>Nama</th><th>Śaka</th><th>Masa</th><th>Tithi</th><th>Wuku</th><th>Nakṣatra</th><th>Status</th><th>KA</th><th>Skor</th><th>Sistem</th><th>Sistem (Tol ±1)</th><th>Tanggal Damais</th></tr>';
     for(var r=0;r<rows.length;r++){
       var ins = rows[r][0], v = rows[r][1];
       var jd = ins.julian_date ? (ins.julian_date[0]+'-'+String(ins.julian_date[1]).padStart(2,'0')+'-'+String(ins.julian_date[2]).padStart(2,'0')) : '';
@@ -12903,7 +13202,7 @@ App.render_damais = function(main) {
       html += '<td>'+jd+'</td>';
       html += '</tr>';
     }
-    html += '</table>';
+    html += '</table></div>';
     document.getElementById('dm-table').innerHTML = html;
   }
 
@@ -12983,7 +13282,7 @@ App.render_zodiak = function(main) {
   if(centuries.length === 0){
     h += '<p class="dim">Tidak ada data abad.</p>';
   } else {
-    h += '<table class="data"><tr><th>Abad Śaka</th><th>Sayana</th><th>Nirayana</th><th>Both</th><th>None</th><th>N/A</th><th>Total</th></tr>';
+    h += '<div class="tbl-wrap"><div class=\"tbl-wrap\"><table class=\"data\"><tr><th>Abad Śaka</th><th>Sayana</th><th>Nirayana</th><th>Both</th><th>None</th><th>N/A</th><th>Total</th></tr>';
     for(var ci=0;ci<centuries.length;ci++){
       var c3 = centuries[ci];
       var cd = centuryData[c3];
@@ -12999,7 +13298,7 @@ App.render_zodiak = function(main) {
       h += '<td>' + tot + '</td>';
       h += '</tr>';
     }
-    h += '</table>';
+    h += '</table></div>';
   }
   h += '</div>';
 
@@ -13210,7 +13509,7 @@ App.render_offset = function(main) {
           ['Wuku', wi.wuku_name + ' (#' + wi.wuku_number + ')'],
           ['Wara Triple', wi.wara_triple_full],
           ['Hari dalam wuku', wi.day_in_wuku + '/7'],
-          ['TU-PA-Ā', wi.is_tu_pa_a ? '✅ YA' : '❌ TIDAK']
+          ['TU-PA-Ā', App.tpaDisplay(wi.ka, wi)]
         ]) + '</div>';
     } catch(err) {
       document.getElementById('of-out').innerHTML = '<div class="err">' + err.message + '</div>';
@@ -13292,6 +13591,332 @@ App._renderTPDPBreakdown = function(results){
   }
   out += '</div>';
   return out;
+};
+
+
+// ============================================================================
+// 10. RĀŚI CHAKRA (Visual Ekliptika)
+// ============================================================================
+App.render_rasi = function(main) {
+  App.clearRT();
+  var RASI_SANS = ['Me\u1e63a','V\u1e5b\u1e63abha','Mithuna','Karka\u1e6da','Si\u1e43ha','Kany\u0101','Tul\u0101','V\u1e5b\u015bcika','Dhanu\u1e63a','Makara','Kumbha','M\u012bna'];
+  var RASI_WEST = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+  var RASI_SYMB = ['\u2648','\u2649','\u264a','\u264b','\u264c','\u264d','\u264e','\u264f','\u2650','\u2651','\u2652','\u2653'];
+  var NAKS = ['Aswini','Bharani','Krittika','Rohini','Mrigasira','Ardra','Punarvasu','Pushya','Aslesha','Magha','P.Phalguni','U.Phalguni','Hasta','Chitra','Swati','Visakha','Anuradha','Jyestha','Mula','P.Ashadha','U.Ashadha','Sravana','Dhanistha','Satabhisha','P.Bhadrapada','U.Bhadrapada','Revati'];
+  var CX = 250, CY = 250;
+
+  // ring boundaries
+  var R_RASI_NIR_O = 248, R_RASI_NIR_I = 220;
+  var R_RASI_SAY_O = 220, R_RASI_SAY_I = 196;
+  var R_NAKS_NIR_O = 196, R_NAKS_NIR_I = 172;
+  var R_NAKS_SAY_O = 172, R_NAKS_SAY_I = 148;
+  var R_MARK_O = 148, R_MARK_I = 118;
+  var R_CENTER = 118;
+
+  function sectorPath(r1, r2, a1, a2) {
+    var ra1 = (a1 - 90) * Math.PI / 180;
+    var ra2 = (a2 - 90) * Math.PI / 180;
+    var x1 = CX + r2 * Math.cos(ra1), y1 = CY + r2 * Math.sin(ra1);
+    var x2 = CX + r2 * Math.cos(ra2), y2 = CY + r2 * Math.sin(ra2);
+    var x3 = CX + r1 * Math.cos(ra2), y3 = CY + r1 * Math.sin(ra2);
+    var x4 = CX + r1 * Math.cos(ra1), y4 = CY + r1 * Math.sin(ra1);
+    var large = (a2 - a1) > 180 ? 1 : 0;
+    return 'M' + x1.toFixed(2) + ',' + y1.toFixed(2)
+      + ' A' + r2 + ',' + r2 + ' 0 ' + large + ' 1 ' + x2.toFixed(2) + ',' + y2.toFixed(2)
+      + ' L' + x3.toFixed(2) + ',' + y3.toFixed(2)
+      + ' A' + r1 + ',' + r1 + ' 0 ' + large + ' 0 ' + x4.toFixed(2) + ',' + y4.toFixed(2) + ' Z';
+  }
+  function posAt(r, a) {
+    var rad = (a - 90) * Math.PI / 180;
+    return [CX + r * Math.cos(rad), CY + r * Math.sin(rad)];
+  }
+  function rotFor(a) {
+    var r = a;
+    if (a > 90 && a < 270) r -= 180;
+    return r;
+  }
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function buildSvg(p) {
+    var ay = p.ayanamsa;
+    var sun_nir = p.sun_nirayana, moon_nir = p.moon_nirayana;
+    var sun_say = p.sun_sayana, moon_say = p.moon_sayana;
+    var sun_rasi_nir = Math.floor(sun_nir / 30), moon_rasi_nir = Math.floor(moon_nir / 30);
+    var sun_rasi_say = Math.floor(sun_say / 30), moon_rasi_say = Math.floor(moon_say / 30);
+    var naks_span = 360 / 27;
+    var sun_naks_nir = Math.floor(sun_nir / naks_span), moon_naks_nir = Math.floor(moon_nir / naks_span);
+    var sun_naks_say = Math.floor(sun_say / naks_span), moon_naks_say = Math.floor(moon_say / naks_span);
+
+    var svg = '<svg viewBox="-32 -32 564 564" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:480px;height:auto;display:block;margin:0 auto;overflow:visible">';
+    svg += '<circle cx="' + CX + '" cy="' + CY + '" r="252" fill="#0a0c14"/>';
+
+    // Outer degree ring
+    for (var d = 0; d < 360; d += 30) {
+      var t1 = posAt(248, d), t2 = posAt(258, d);
+      svg += '<line x1="' + t1[0].toFixed(1) + '" y1="' + t1[1].toFixed(1) + '" x2="' + t2[0].toFixed(1) + '" y2="' + t2[1].toFixed(1) + '" stroke="#d4b896" stroke-width="0.8" opacity="0.7"/>';
+      var pl = posAt(268, d), rr = rotFor(d);
+      svg += '<text x="' + pl[0].toFixed(1) + '" y="' + pl[1].toFixed(1) + '" transform="rotate(' + rr.toFixed(1) + ' ' + pl[0].toFixed(1) + ' ' + pl[1].toFixed(1) + ')" fill="#d4b896" font-size="8.5" font-family="\'Courier New\',monospace" text-anchor="middle" dominant-baseline="middle">' + d + '\u00b0</text>';
+    }
+    for (var d2 = 0; d2 < 360; d2 += 10) {
+      if (d2 % 30 === 0) continue;
+      var u1 = posAt(248, d2), u2 = posAt(253, d2);
+      svg += '<line x1="' + u1[0].toFixed(1) + '" y1="' + u1[1].toFixed(1) + '" x2="' + u2[0].toFixed(1) + '" y2="' + u2[1].toFixed(1) + '" stroke="#d4b896" stroke-width="0.4" opacity="0.4"/>';
+    }
+
+    // Rasi Nirayana ring
+    for (var i = 0; i < 12; i++) {
+      var a1 = i * 30, a2 = (i+1) * 30;
+      var is_hi = (i === sun_rasi_nir || i === moon_rasi_nir);
+      var fill = is_hi ? 'rgba(232,200,135,0.22)' : (i % 2 ? 'rgba(212,184,150,0.06)' : 'rgba(212,184,150,0.12)');
+      var tip = RASI_SYMB[i] + ' ' + RASI_SANS[i] + ' / ' + RASI_WEST[i] + ' (' + (i*30) + '\u00b0\u2013' + ((i+1)*30) + '\u00b0, Nirayana)';
+      svg += '<path class="rc-sector" data-tip="' + esc(tip) + '" d="' + sectorPath(R_RASI_NIR_I, R_RASI_NIR_O, a1, a2) + '" fill="' + fill + '" stroke="#d4b896" stroke-width="0.7" style="cursor:pointer"><title>' + esc(tip) + '</title></path>';
+      var mid = i * 30 + 15;
+      var p1 = posAt(240, mid), rr = rotFor(mid);
+      svg += '<text x="' + p1[0].toFixed(1) + '" y="' + p1[1].toFixed(1) + '" transform="rotate(' + rr.toFixed(1) + ' ' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1) + ')" fill="#e8c887" font-size="11" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle" font-weight="600" pointer-events="none">' + RASI_SYMB[i] + '</text>';
+      var p2 = posAt(228, mid);
+      svg += '<text x="' + p2[0].toFixed(1) + '" y="' + p2[1].toFixed(1) + '" transform="rotate(' + rr.toFixed(1) + ' ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1) + ')" fill="#d4b896" font-size="8" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle" pointer-events="none">' + RASI_SANS[i] + '</text>';
+    }
+
+    // Rasi Sayana ring (shift -ay)
+    for (var i = 0; i < 12; i++) {
+      var a1 = i * 30 - ay, a2 = (i+1) * 30 - ay;
+      var is_hi = (i === sun_rasi_say || i === moon_rasi_say);
+      var fill = is_hi ? 'rgba(79,209,197,0.15)' : (i % 2 ? 'rgba(120,130,150,0.04)' : 'rgba(120,130,150,0.09)');
+      var tip = RASI_SYMB[i] + ' ' + RASI_WEST[i] + ' (Sayana/Tropis) \u2014 ' + RASI_SANS[i];
+      svg += '<path class="rc-sector" data-tip="' + esc(tip) + '" d="' + sectorPath(R_RASI_SAY_I, R_RASI_SAY_O, a1, a2) + '" fill="' + fill + '" stroke="rgba(120,130,150,0.4)" stroke-width="0.5" style="cursor:pointer"><title>' + esc(tip) + '</title></path>';
+      var mid = i * 30 + 15 - ay;
+      var p1 = posAt(208, mid), rr = rotFor(mid);
+      svg += '<text x="' + p1[0].toFixed(1) + '" y="' + p1[1].toFixed(1) + '" transform="rotate(' + rr.toFixed(1) + ' ' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1) + ')" fill="#8899bb" font-size="8" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle" pointer-events="none">' + RASI_WEST[i] + '</text>';
+    }
+
+    // Nakṣatra Nirayana ring
+    for (var i = 0; i < 27; i++) {
+      var a1 = i * naks_span, a2 = (i+1) * naks_span;
+      var is_moon = (i === moon_naks_nir);
+      var is_sun = (i === sun_naks_nir);
+      var fill = is_moon ? 'rgba(79,209,197,0.22)' : (is_sun ? 'rgba(232,200,135,0.14)' : (i % 2 ? 'rgba(79,209,197,0.03)' : 'rgba(79,209,197,0.07)'));
+      var tip = NAKS[i] + ' (Nirayana) \u2014 ' + (i*naks_span).toFixed(2) + '\u00b0\u2013' + ((i+1)*naks_span).toFixed(2) + '\u00b0';
+      svg += '<path class="rc-sector" data-tip="' + esc(tip) + '" d="' + sectorPath(R_NAKS_NIR_I, R_NAKS_NIR_O, a1, a2) + '" fill="' + fill + '" stroke="rgba(79,209,197,0.2)" stroke-width="0.4" style="cursor:pointer"><title>' + esc(tip) + '</title></path>';
+      var mid = i * naks_span + naks_span / 2;
+      var p1 = posAt(184, mid), rr = rotFor(mid);
+      svg += '<text x="' + p1[0].toFixed(1) + '" y="' + p1[1].toFixed(1) + '" transform="rotate(' + rr.toFixed(1) + ' ' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1) + ')" fill="#7a8ea8" font-size="6" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle" pointer-events="none">' + NAKS[i] + '</text>';
+    }
+
+    // Nakṣatra Sayana ring (shift -ay)
+    for (var i = 0; i < 27; i++) {
+      var a1 = i * naks_span - ay, a2 = (i+1) * naks_span - ay;
+      var is_moon = (i === moon_naks_say);
+      var is_sun = (i === sun_naks_say);
+      var fill = is_moon ? 'rgba(79,209,197,0.14)' : (is_sun ? 'rgba(232,200,135,0.09)' : (i % 2 ? 'rgba(79,209,197,0.02)' : 'rgba(79,209,197,0.045)'));
+      var tip = NAKS[i] + ' (Sayana) \u2014 ' + (i*naks_span).toFixed(2) + '\u00b0\u2013' + ((i+1)*naks_span).toFixed(2) + '\u00b0';
+      svg += '<path class="rc-sector" data-tip="' + esc(tip) + '" d="' + sectorPath(R_NAKS_SAY_I, R_NAKS_SAY_O, a1, a2) + '" fill="' + fill + '" stroke="rgba(79,209,197,0.12)" stroke-width="0.3" style="cursor:pointer"><title>' + esc(tip) + '</title></path>';
+      var mid = i * naks_span + naks_span / 2 - ay;
+      var p1 = posAt(160, mid), rr = rotFor(mid);
+      svg += '<text x="' + p1[0].toFixed(1) + '" y="' + p1[1].toFixed(1) + '" transform="rotate(' + rr.toFixed(1) + ' ' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1) + ')" fill="#5a6e88" font-size="5" font-family="Georgia,serif" text-anchor="middle" dominant-baseline="middle" pointer-events="none">' + NAKS[i] + '</text>';
+    }
+
+    // Center
+    svg += '<circle cx="' + CX + '" cy="' + CY + '" r="' + R_CENTER + '" fill="#0e1117" stroke="#2a3040" stroke-width="1"/>';
+
+    // Sun sayana (shadow, behind)
+    var sunSay = posAt(132, sun_say);
+    svg += '<circle cx="' + sunSay[0].toFixed(1) + '" cy="' + sunSay[1].toFixed(1) + '" r="9" fill="rgba(232,200,135,0.08)" stroke="rgba(232,200,135,0.4)" stroke-width="0.6" stroke-dasharray="2,2" pointer-events="none"/>';
+    // Moon sayana (shadow)
+    var moonSay = posAt(132, moon_say);
+    svg += '<circle cx="' + moonSay[0].toFixed(1) + '" cy="' + moonSay[1].toFixed(1) + '" r="9" fill="rgba(79,209,197,0.06)" stroke="rgba(79,209,197,0.4)" stroke-width="0.6" stroke-dasharray="2,2" pointer-events="none"/>';
+
+    // Sun nirayana (main)
+    var sunNir = posAt(120, sun_nir);
+    svg += '<circle cx="' + sunNir[0].toFixed(1) + '" cy="' + sunNir[1].toFixed(1) + '" r="13" fill="rgba(232,200,135,0.18)" stroke="#e8c887" stroke-width="1" pointer-events="none"/>';
+    svg += '<text x="' + sunNir[0].toFixed(1) + '" y="' + sunNir[1].toFixed(1) + '" fill="#e8c887" font-size="15" text-anchor="middle" dominant-baseline="central" font-weight="600" pointer-events="none">\u2609</text>';
+    // line sun
+    var sIn = posAt(118, sun_nir), sOut = posAt(196, sun_nir);
+    svg += '<line x1="' + sIn[0].toFixed(1) + '" y1="' + sIn[1].toFixed(1) + '" x2="' + sOut[0].toFixed(1) + '" y2="' + sOut[1].toFixed(1) + '" stroke="#e8c887" stroke-width="0.5" opacity="0.5" pointer-events="none"/>';
+
+    // Moon nirayana (main)
+    var moonNir = posAt(120, moon_nir);
+    svg += '<circle cx="' + moonNir[0].toFixed(1) + '" cy="' + moonNir[1].toFixed(1) + '" r="13" fill="rgba(79,209,197,0.15)" stroke="#4fd1c5" stroke-width="1" pointer-events="none"/>';
+    svg += '<text x="' + moonNir[0].toFixed(1) + '" y="' + moonNir[1].toFixed(1) + '" fill="#4fd1c5" font-size="13" text-anchor="middle" dominant-baseline="central" pointer-events="none">\u263e</text>';
+    var mIn = posAt(118, moon_nir), mOut = posAt(196, moon_nir);
+    svg += '<line x1="' + mIn[0].toFixed(1) + '" y1="' + mIn[1].toFixed(1) + '" x2="' + mOut[0].toFixed(1) + '" y2="' + mOut[1].toFixed(1) + '" stroke="#4fd1c5" stroke-width="0.5" opacity="0.5" pointer-events="none"/>';
+
+    // Center text
+    var dt = p.date;
+    svg += '<text x="' + CX + '" y="' + (CY - 40) + '" fill="#8899bb" font-size="7.5" text-anchor="middle" font-family="\'Courier New\',monospace" letter-spacing="1" pointer-events="none">' + dt.year + '-' + String(dt.month).padStart(2,'0') + '-' + String(dt.day).padStart(2,'0') + '</text>';
+    svg += '<text x="' + CX + '" y="' + (CY - 26) + '" fill="#8899bb" font-size="7" text-anchor="middle" font-family="\'Courier New\',monospace" letter-spacing="1" pointer-events="none">AYAN\u0100\u1e40\u015aA</text>';
+    svg += '<text x="' + CX + '" y="' + (CY - 4) + '" fill="#e8c887" font-size="20" text-anchor="middle" font-family="\'Courier New\',monospace" font-weight="700" pointer-events="none">' + ay.toFixed(2) + '\u00b0</text>';
+    svg += '<text x="' + CX + '" y="' + (CY + 18) + '" fill="#c0c8d8" font-size="8.5" text-anchor="middle" font-family="\'Courier New\',monospace" pointer-events="none">Tithi ' + esc(p.tithi.paksa) + ' ' + p.tithi.tithi + '</text>';
+    svg += '<text x="' + CX + '" y="' + (CY + 33) + '" fill="#8899bb" font-size="7.5" text-anchor="middle" font-family="\'Courier New\',monospace" pointer-events="none">elong ' + p.tithi.elongation.toFixed(1) + '\u00b0</text>';
+    svg += '</svg>';
+    return svg;
+  }
+
+  function bindTooltip() {
+    var svgEl = main.querySelector('svg');
+    if (!svgEl) return;
+    var tipEl = document.getElementById('rc-tooltip');
+    if (!tipEl) {
+      tipEl = document.createElement('div');
+      tipEl.id = 'rc-tooltip';
+      document.body.appendChild(tipEl);
+    }
+    function show(e) {
+      var x = e.clientX, y = e.clientY;
+      if (e.touches && e.touches.length) { x = e.touches[0].clientX; y = e.touches[0].clientY; }
+      tipEl.textContent = this.getAttribute('data-tip');
+      tipEl.style.display = 'block';
+      var tw = tipEl.offsetWidth, th = tipEl.offsetHeight;
+      var vw = window.innerWidth;
+      var lx = Math.max(8, Math.min(vw - tw - 8, x - tw/2));
+      var ly = y - th - 14;
+      if (ly < 8) ly = y + 20;
+      tipEl.style.left = lx + 'px';
+      tipEl.style.top = ly + 'px';
+    }
+    function hide() { tipEl.style.display = 'none'; }
+    svgEl.querySelectorAll('path.rc-sector').forEach(function(el){
+      el.addEventListener('mouseenter', show);
+      el.addEventListener('mousemove', show);
+      el.addEventListener('mouseleave', hide);
+      el.addEventListener('touchstart', show, {passive:true});
+      el.addEventListener('touchend', function(){ setTimeout(hide, 1600); }, {passive:true});
+    });
+  }
+
+  var state = { mode: 'now', date: null };
+
+  function getData() {
+    if (state.mode === 'now') return App.getTodayPanchanga();
+    var d = state.date;
+    return App.getPanchangaAt(d.y, d.mo, d.d, d.h);
+  }
+
+  function draw() {
+    var p = getData();
+    var ay = p.ayanamsa;
+    var sun = p.sun_nirayana, moon = p.moon_nirayana;
+    var sunSay = p.sun_sayana, moonSay = p.moon_sayana;
+    var sunRasi = Math.floor(sun / 30), sunRasiSay = Math.floor(sunSay / 30);
+    var moonRasi = Math.floor(moon / 30), moonRasiSay = Math.floor(moonSay / 30);
+    var naksSpan = 360/27;
+    var sunNaksNir = Math.floor(sun / naksSpan), moonNaksNir = Math.floor(moon / naksSpan);
+    var sunNaksSay = Math.floor(sunSay / naksSpan), moonNaksSay = Math.floor(moonSay / naksSpan);
+
+    var dt = p.date;
+    var hhStr = String(dt.hour).padStart(2,'0') + ':' + String(dt.minute || 0).padStart(2,'0');
+
+    var html = '';
+    html += '<h1>\u2638\ufe0f R\u0101\u015bi Chakra</h1>';
+    html += '<p class="caption">Visual posisi Matahari &amp; Bulan \u2014 Nirayana (Sidereal) &amp; Sayana (Tropis)</p>';
+
+    // Date input card
+    html += '<div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">';
+    html += '<div style="flex:2;min-width:80px"><label>Tahun</label><input id="rc-y" type="number" value="' + dt.year + '" step="1"></div>';
+    html += '<div style="flex:1;min-width:60px"><label>Bulan</label><input id="rc-m" type="number" value="' + dt.month + '" min="1" max="12"></div>';
+    html += '<div style="flex:1;min-width:60px"><label>Hari</label><input id="rc-d" type="number" value="' + dt.day + '" min="1" max="31"></div>';
+    html += '<div style="flex:1;min-width:80px"><label>Jam WIB</label><input id="rc-h" type="text" value="' + hhStr + '"></div>';
+    html += '<button class="primary" id="rc-go" style="margin:0">\ud83d\udd0d Hitung</button>';
+    html += '<button class="primary" id="rc-now" style="margin:0">\ud83d\udd50 Sekarang</button>';
+    html += '</div>';
+    if (state.mode === 'now') {
+      html += '<div class="caption" style="margin-top:8px">Mode: <b style="color:var(--accent)">Sekarang</b> \u2014 auto-refresh tiap 60 detik</div>';
+    } else {
+      html += '<div class="caption" style="margin-top:8px">Mode: <b style="color:var(--accent)">Tanggal Statis</b> \u2014 klik Sekarang untuk kembali ke mode live</div>';
+    }
+    html += '</div>';
+
+    // Clock bar (only for now mode)
+    if (state.mode === 'now') {
+      html += '<div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-left:4px solid var(--accent)">';
+      html += '<div><b style="color:var(--accent)">\ud83d\udd50 Waktu:</b> <span id="rc-clock" style="font-family:\'Courier New\',monospace;color:var(--fg)">--:--:--</span> WIB</div>';
+      html += '<button class="primary" id="rc-refresh" style="margin:0">\ud83d\udd04 Refresh</button>';
+      html += '</div>';
+    }
+
+    // Chart
+    html += '<div class="card" style="padding:16px 8px">';
+    html += buildSvg(p);
+    html += '</div>';
+
+    // Info cards
+    html += '<div class="grid2">';
+    html += App.card('\u2609 Matahari', App.kv([
+      ['Bujur nirayana', App.num(sun, 4) + '\u00b0'],
+      ['Rasi (Nir)', RASI_SYMB[sunRasi] + ' ' + RASI_SANS[sunRasi]],
+      ['Nak\u1e63atra (Nir)', NAKS[sunNaksNir]],
+      ['Bujur sayana', App.num(sunSay, 4) + '\u00b0'],
+      ['Rasi (Say)', RASI_WEST[sunRasiSay]],
+      ['Nak\u1e63atra (Say)', NAKS[sunNaksSay]]
+    ]));
+    html += App.card('\u263e Bulan', App.kv([
+      ['Bujur nirayana', App.num(moon, 4) + '\u00b0'],
+      ['Rasi (Nir)', RASI_SYMB[moonRasi] + ' ' + RASI_SANS[moonRasi]],
+      ['Nak\u1e63atra (Nir)', NAKS[moonNaksNir]],
+      ['Bujur sayana', App.num(moonSay, 4) + '\u00b0'],
+      ['Rasi (Say)', RASI_WEST[moonRasiSay]],
+      ['Nak\u1e63atra (Say)', NAKS[moonNaksSay]]
+    ]));
+    html += '</div>';
+
+    // Legend
+    html += '<div class="card"><h3>Keterangan Cincin</h3>';
+    html += '<div style="display:flex;flex-direction:column;gap:6px;font-size:0.82rem">';
+    html += '<div><span style="display:inline-block;width:12px;height:12px;background:rgba(212,184,150,0.28);border-radius:2px;vertical-align:middle;margin-right:6px"></span> <b>Rasi Nirayana</b> (Sidereal) \u2014 12 \u00d7 30\u00b0</div>';
+    html += '<div><span style="display:inline-block;width:12px;height:12px;background:rgba(120,130,150,0.28);border-radius:2px;vertical-align:middle;margin-right:6px"></span> <b>Rasi Sayana</b> (Tropis) \u2014 bergeser \u201324\u00b0</div>';
+    html += '<div><span style="display:inline-block;width:12px;height:12px;background:rgba(79,209,197,0.18);border-radius:2px;vertical-align:middle;margin-right:6px"></span> <b>Nak\u1e63atra Nirayana</b> \u2014 27 \u00d7 13\u00b020\u2032</div>';
+    html += '<div><span style="display:inline-block;width:12px;height:12px;background:rgba(79,209,197,0.08);border-radius:2px;vertical-align:middle;margin-right:6px"></span> <b>Nak\u1e63atra Sayana</b> \u2014 bayangan, bergeser \u201324\u00b0</div>';
+    html += '<div><span style="color:#e8c887;font-size:1.1rem;vertical-align:middle;margin-right:6px">\u2609</span> Matahari (Nir) \u00b7 <span style="color:#4fd1c5;font-size:1.1rem;vertical-align:middle;margin:0 6px">\u263e</span> Bulan (Nir)</div>';
+    html += '<div style="opacity:0.55"><span style="font-size:1rem;vertical-align:middle;margin-right:6px">\u25cc</span> Lingkaran putus-putus = posisi Sayana (bayangan)</div>';
+    html += '<div class="dim" style="font-size:0.75rem;margin-top:6px">\ud83d\udca1 Tap/hover sektor untuk info lengkap</div>';
+    html += '</div></div>';
+
+    main.innerHTML = html;
+
+    // Bind tooltip
+    bindTooltip();
+
+    // Bind date input
+    document.getElementById('rc-go').onclick = function() {
+      var y = parseInt(document.getElementById('rc-y').value, 10);
+      var mo = parseInt(document.getElementById('rc-m').value, 10);
+      var d = parseInt(document.getElementById('rc-d').value, 10);
+      var hv = App.parseHour(document.getElementById('rc-h').value);
+      if (isNaN(y) || isNaN(mo) || isNaN(d) || isNaN(hv)) return;
+      state.mode = 'date';
+      state.date = {y: y, mo: mo, d: d, h: hv};
+      App.clearRT();
+      draw();
+    };
+    document.getElementById('rc-now').onclick = function() {
+      state.mode = 'now';
+      state.date = null;
+      App.clearRT();
+      draw();
+    };
+
+    // Clock + auto-refresh
+    if (state.mode === 'now') {
+      document.getElementById('rc-refresh').onclick = function(){ App.clearRT(); draw(); };
+
+      var tClock = setInterval(function(){
+        if (!document.body.contains(main)) { App.clearRT(); return; }
+        var el = document.getElementById('rc-clock');
+        if (!el) return;
+        var t = App.nowWIB();
+        function pad(n){ return n<10?'0'+n:''+n; }
+        el.textContent = t.year + '-' + pad(t.month) + '-' + pad(t.day) + ' ' + pad(t.hour) + ':' + pad(t.minute) + ':' + pad(t.second);
+      }, 1000);
+      var tData = setInterval(function(){
+        if (!document.body.contains(main)) { App.clearRT(); return; }
+        if (state.mode !== 'now') return;
+        App.clearRT();
+        draw();
+      }, 60000);
+      App._rtTimers = [tClock, tData];
+    }
+  }
+
+  draw();
 };
 
 // ============================================================================
