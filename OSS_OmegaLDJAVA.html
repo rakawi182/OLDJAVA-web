@@ -75,11 +75,96 @@ pre.code{background:var(--panel);border:1px solid var(--border);border-radius:6p
 .card{padding:12px 14px}
 }
 
+
+/* === Paket B: Kartu Glass + Hover Lift === */
+body{
+  background:
+    radial-gradient(ellipse at top left, rgba(212,184,150,0.06), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(79,209,197,0.05), transparent 50%),
+    var(--bg);
+  background-attachment:fixed;
+}
+.card{
+  background:rgba(26,30,42,0.6);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(212,184,150,0.12);
+  border-radius:12px;
+  box-shadow:0 1px 0 rgba(255,255,255,0.03) inset,0 4px 20px rgba(0,0,0,0.3);
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+}
+.card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(212,184,150,0.28);
+  box-shadow:0 1px 0 rgba(255,255,255,0.05) inset,0 8px 30px rgba(0,0,0,0.5),0 0 20px rgba(212,184,150,0.08);
+}
+.metric{
+  background:rgba(26,30,42,0.7);
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+  border-radius:8px;
+}
+@media (hover:none){
+  .card:hover{transform:none;box-shadow:0 1px 0 rgba(255,255,255,0.03) inset,0 4px 20px rgba(0,0,0,0.3)}
+  .card:active{transform:scale(0.99)}
+}
+
+/* === Paket D: Bottom Nav Mobile === */
+.nav-bottom{display:none}
+@media (max-width:900px){
+  .sidebar{overflow:visible}
+  .nav{display:none !important}
+  .sidebar-footer{display:none !important}
+  .brand{padding:10px 14px}
+  .main{padding:14px 14px calc(88px + env(safe-area-inset-bottom,0px)) 14px !important}
+  .nav-bottom{
+    display:flex;
+    position:fixed;
+    bottom:0;left:0;right:0;
+    height:64px;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px)) 8px;
+    background:rgba(20,24,34,0.88);
+    -webkit-backdrop-filter:blur(14px);
+    backdrop-filter:blur(14px);
+    border-top:1px solid rgba(212,184,150,0.15);
+    box-shadow:0 -4px 20px rgba(0,0,0,0.4);
+    overflow-x:auto;
+    overflow-y:hidden;
+    gap:4px;
+    z-index:1000;
+    scrollbar-width:none;
+  }
+  .nav-bottom::-webkit-scrollbar{display:none}
+  .nav-bottom button{
+    flex:0 0 auto;
+    min-width:76px;
+    padding:6px 10px;
+    background:transparent;
+    color:var(--dim);
+    border:none;
+    border-radius:8px;
+    font-size:0.68rem;
+    text-align:center;
+    cursor:pointer;
+    transition:background .15s,color .15s;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+  }
+  .nav-bottom button:hover{background:rgba(212,184,150,0.08);color:var(--text)}
+  .nav-bottom button.active{
+    background:rgba(212,184,150,0.15);
+    color:var(--accent);
+    box-shadow:0 0 0 1px rgba(212,184,150,0.25);
+  }
+}
+
 </style>
 </head><body>
 <div class="layout">
 <aside class="sidebar">
-<div class="brand"><div class="brand-title">🔭 OSS ΩLDJAVA</div><div class="brand-sub">Open Source Old Javanese Astronomy</div></div>
+<div class="brand"><div class="brand-title">🔭 Jolotundo Research · OSS ΩLDJAVA</div><div class="brand-sub">— exploring the ancient sky</div></div>
 <nav class="nav" id="nav">
 <button data-page="beranda">🏠 Beranda</button>
 <button data-page="realtime">🌞 Real-time</button>
@@ -93,7 +178,7 @@ pre.code{background:var(--panel);border:1px solid var(--border);border-radius:6p
 </nav>
 <div class="sidebar-footer">
 <div>PAWITRA &bull; <span id="sf-date"></span></div>
-<div>Open Source &bull; Jolotundo Research Consortium</div>
+<div>Jolotundo Research Consortium</div>
 <div>🏫 Sekolah Alam Penanggungan</div>
 <div>📜 SAJAK (Sinau Aksara Jawa Kuno)</div>
 <div>🔭 Jolotundo Obsv</div>
@@ -101,6 +186,18 @@ pre.code{background:var(--panel);border:1px solid var(--border);border-radius:6p
 </div>
 </aside>
 <main class="main" id="main"><div class="spinner">Memuat modul astronomi...</div></main>
+<nav class="nav-bottom" id="nav-bottom">
+<button data-page="beranda"><span style="font-size:1.15rem;line-height:1">🏠</span><span>Beranda</span></button>
+<button data-page="realtime"><span style="font-size:1.15rem;line-height:1">🌞</span><span>Real-time</span></button>
+<button data-page="tanggal"><span style="font-size:1.15rem;line-height:1">📅</span><span>Tanggal</span></button>
+<button data-page="wuku"><span style="font-size:1.15rem;line-height:1">📆</span><span>Wuku</span></button>
+<button data-page="prasasti"><span style="font-size:1.15rem;line-height:1">📜</span><span>Prasasti</span></button>
+<button data-page="damais"><span style="font-size:1.15rem;line-height:1">📊</span><span>Damais</span></button>
+<button data-page="zodiak"><span style="font-size:1.15rem;line-height:1">📈</span><span>Zodiak</span></button>
+<button data-page="konversi"><span style="font-size:1.15rem;line-height:1">🔄</span><span>Konversi</span></button>
+<button data-page="offset"><span style="font-size:1.15rem;line-height:1">⏱️</span><span>Offset</span></button>
+</nav>
+
 </div>
 
 <script type="text/plain" id="jrc1-src">'use strict';
@@ -12086,7 +12183,7 @@ App.loadDamaisValidation = function(){
 };
 App.esc = function(x){ return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); };
 App.navigate = function(page) {
-  document.querySelectorAll('.nav button').forEach(function(b){ b.classList.toggle('active', b.dataset.page === page); });
+  document.querySelectorAll('.nav button, .nav-bottom button').forEach(function(b){ b.classList.toggle('active', b.dataset.page === page); });
   var m = document.getElementById('main');
   m.innerHTML = '<div class="spinner">Menghitung...</div>';
   setTimeout(function() {
@@ -12159,14 +12256,9 @@ App.render_beranda = function(main) {
   var e = App.engines;
 
   var h = '';
-  h += '<div style="background:linear-gradient(135deg,#1a1e2a,#2a3040);border-radius:12px;padding:14px 20px;border-left:6px solid var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,0.3)">';
-  h += '<span style="font-size:2rem;line-height:1">🔭</span>';
-  h += '<div><span style="color:var(--accent);font-weight:600;font-size:1.05rem">Jolotundo Research</span>';
-  h += '<span style="color:var(--dim);font-size:0.9rem;margin-left:8px;font-style:italic"> — exploring the ancient sky</span></div>';
-  h += '</div>';
   h += '<h1>🏛️ OSS ΩLDJAVA-astro</h1>';
-  h += '<p class="caption">Open Source System for Old Javanese Archaeoastronomy — Jolotundo Obsv</p>';
-  h += '<div style="margin:8px 0"><span class="badge">🌍 OPEN SOURCE</span><span class="badge">🔓 PUBLIC</span><span class="badge">⚡ OSS.Ω</span></div>';
+  h += '<p class="caption">Sistem Astronomi Arkeologi Jawa Kuno — Jolotundo Obsv</p>';
+  h += '<div style="margin:8px 0"><span class="badge">OSS.Ω</span></div>';
 
   h += '<h2>📜 Swasti Śakawarsātīta</h2>';
   h += '<div class="grid2">';
@@ -12231,6 +12323,19 @@ App.render_beranda = function(main) {
   h += App.card('☀️ Matahari', '<p>VSOP87D (IMCCE)<br>Bretagnon &amp; Francou, 1988</p>');
   h += App.card('🌙 Bulan', '<p>ELP2000-82B (SYRTE)<br>Chapront-Touzé, Chapront &amp; Francou, 2001</p>');
   h += App.card('📜 Prasasti', '<p>Ω-STHAPATI<br>Damais + Proudfoot + Jolotundo Obsv</p>');
+  h += '</div>';
+
+  var dt = p.date;
+  var tglStr = dt.year + '-' + String(dt.month).padStart(2,'0') + '-' + String(dt.day).padStart(2,'0');
+  h += '<div class="card" style="margin-top:12px;text-align:center;padding:16px 20px">';
+  h += '<div style="color:var(--accent);font-size:0.72rem;letter-spacing:1px;font-weight:600;margin-bottom:8px">PAWITRA &bull; ' + tglStr + '</div>';
+  h += '<div style="color:var(--text);font-size:0.82rem;line-height:1.9">';
+  h += '<div style="color:var(--dim);font-size:0.75rem;margin-bottom:4px">Jolotundo Research Consortium</div>';
+  h += '🏫 Sekolah Alam Penanggungan<br>';
+  h += '📜 SAJAK (Sinau Aksara Jawa Kuno)<br>';
+  h += '🔭 Jolotundo Obsv<br>';
+  h += '<span style="color:var(--dim);font-size:0.75rem">📍 Jolotundo &minus;7.6094°, 112.5956°</span>';
+  h += '</div>';
   h += '</div>';
 
   main.innerHTML = h;
@@ -13195,7 +13300,7 @@ App._renderTPDPBreakdown = function(results){
 window.addEventListener('DOMContentLoaded', function() {
   try {
     App.init();
-    document.querySelectorAll('.nav button').forEach(function(b) {
+    document.querySelectorAll('.nav button, .nav-bottom button').forEach(function(b) {
       b.onclick = function() { App.navigate(b.dataset.page); };
     });
     var t = App.nowWIB();
