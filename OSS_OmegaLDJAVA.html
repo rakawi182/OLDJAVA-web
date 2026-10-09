@@ -13036,16 +13036,16 @@ App._renderKonversiTab = function(tab) {
       var y = parseInt(document.getElementById('cv-gy').value, 10);
       var m = parseInt(document.getElementById('cv-gm').value, 10);
       var d = parseInt(document.getElementById('cv-gd').value, 10);
-      var jd = e.constants ? window.SAKA_CAL.CalendarConverter.gregorian_to_jd(y, m, d) : 0;
-      var julian = window.SAKA_CAL.CalendarConverter.jd_to_julian(jd);
+      var jd = e.constants ? e.wukuEng.converter.gregorian_to_jd(y, m, d) : 0;
+      var julian = e.wukuEng.converter.jd_to_julian(jd);
       document.getElementById('cv-g-out').innerHTML = '<div class="card">Julian: <b>' + julian[0] + '-' + String(julian[1]).padStart(2,'0') + '-' + String(julian[2]).padStart(2,'0') + '</b> (JD ' + App.num(jd,2) + ')</div>';
     };
     document.getElementById('cv-j-btn').onclick = function() {
       var y = parseInt(document.getElementById('cv-jy').value, 10);
       var m = parseInt(document.getElementById('cv-jm').value, 10);
       var d = parseInt(document.getElementById('cv-jd2').value, 10);
-      var jd = window.SAKA_CAL.CalendarConverter.julian_to_jd(y, m, d);
-      var greg = window.SAKA_CAL.CalendarConverter.jd_to_gregorian(jd);
+      var jd = e.wukuEng.converter.julian_to_jd(y, m, d);
+      var greg = e.wukuEng.converter.jd_to_gregorian(jd);
       document.getElementById('cv-j-out').innerHTML = '<div class="card">Gregorian: <b>' + greg[0] + '-' + String(greg[1]).padStart(2,'0') + '-' + String(greg[2]).padStart(2,'0') + '</b> (JD ' + App.num(jd,2) + ')</div>';
     };
   }
