@@ -395,6 +395,24 @@ body[data-page="timeline"]{--accent:#e8a468}
 .tl-scroll::-webkit-scrollbar{height:6px}
 .tl-scroll::-webkit-scrollbar-thumb{background:rgba(212,184,150,0.3);border-radius:3px}
 
+
+/* === Cakram Multi-Ring Tooltip === */
+#cak-tooltip{
+  position:fixed;display:none;z-index:9999;
+  background:rgba(20,24,34,0.96);color:var(--fg);
+  border:1px solid var(--accent);border-radius:8px;
+  padding:8px 12px;font-size:0.78rem;line-height:1.4;
+  max-width:240px;pointer-events:none;
+  box-shadow:0 8px 24px rgba(0,0,0,0.6),0 0 12px rgba(232,200,135,0.15);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  font-family:'Courier New',monospace;
+}
+path.cak-seg{cursor:pointer;transition:filter .15s,opacity .15s}
+svg.cak-svg.dim-mode path.cak-seg:not(.cak-hover){opacity:0.22}
+path.cak-seg.cak-hover{filter:brightness(1.7) drop-shadow(0 0 4px currentColor)}
+path.cak-active-day{filter:drop-shadow(0 0 6px rgba(232,200,135,0.85)) drop-shadow(0 0 12px rgba(232,200,135,0.4))}
+path.cak-active-night{filter:drop-shadow(0 0 6px rgba(79,209,197,0.85)) drop-shadow(0 0 12px rgba(79,209,197,0.4))}
+
 </style>
 </head><body>
 <div class="layout">
@@ -12483,6 +12501,337 @@ App.getPanchangaAt = function(year, month, day, hourFloat){
   };
 };
 
+
+// ============================================================================
+// GHAṬIKĀ CLOCK (Hybrid dial + digital)
+// ============================================================================
+App._bindCakTooltip = function(container) {
+  var tipEl = document.getElementById('cak-tooltip');
+  if (!tipEl) {
+    tipEl = document.createElement('div');
+    tipEl.id = 'cak-tooltip';
+    document.body.appendChild(tipEl);
+  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function showTip(target, e) {
+    var text = target.getAttribute('data-tip') || '';
+    var parts = text.split('|');
+    var html = '';
+    for (var i = 0; i < parts.length; i++) html += (i ? '<br>' : '') + esc(parts[i]);
+    tipEl.innerHTML = html;
+    tipEl.style.display = 'block';
+    moveTip(e);
+    var svg = container.querySelector('svg.cak-svg');
+    if (svg) {
+      svg.classList.add('dim-mode');
+      svg.querySelectorAll('path.cak-seg').forEach(function(p){ p.classList.remove('cak-hover'); });
+    }
+    target.classList.add('cak-hover');
+  }
+  function moveTip(e) {
+    var x = e.clientX, y = e.clientY;
+    if (e.touches && e.touches.length) { x = e.touches[0].clientX; y = e.touches[0].clientY; }
+    var tw = tipEl.offsetWidth, th = tipEl.offsetHeight;
+    var vw = window.innerWidth;
+    var lx = Math.max(8, Math.min(vw - tw - 8, x - tw/2));
+    var ly = y - th - 14;
+    if (ly < 8) ly = y + 20;
+    tipEl.style.left = lx + 'px';
+    tipEl.style.top = ly + 'px';
+  }
+  function hideTip() {
+    tipEl.style.display = 'none';
+    var svg = container.querySelector('svg.cak-svg');
+    if (svg) {
+      svg.classList.remove('dim-mode');
+      svg.querySelectorAll('path.cak-seg').forEach(function(p){ p.classList.remove('cak-hover'); });
+    }
+  }
+  container.addEventListener('mouseover', function(e){
+    var t = e.target;
+    if (!t || !t.getAttribute || !t.getAttribute('data-tip')) return;
+    showTip(t, e);
+  });
+  container.addEventListener('mousemove', function(e){
+    var t = e.target;
+    if (!t || !t.getAttribute || !t.getAttribute('data-tip')) return;
+    moveTip(e);
+  });
+  container.addEventListener('mouseleave', hideTip);
+  container.addEventListener('touchstart', function(e){
+    var t = e.target;
+    if (!t || !t.getAttribute || !t.getAttribute('data-tip')) return;
+    showTip(t, e);
+  }, {passive:true});
+  container.addEventListener('touchend', function(){
+    setTimeout(hideTip, 1600);
+  }, {passive:true});
+};
+
+App.renderGhatikaClock = function(ka, opts) {
+  opts = opts || {};
+  var e = App.engines;
+
+  var _sunCache = {};
+  function getSunTimes(y, mo, d) {
+    var key = y + '-' + mo + '-' + d;
+    if (_sunCache[key]) return _sunCache[key];
+    var info = null;
+    try { info = e.astro.calculate_sunrise_sunset_precise(e.ts.wib_to_jd_utc(y, mo, d, 0, 0, 0)); } catch(_){}
+    function parseH(s){ if(!s) return null; var p = String(s).split(':'); return parseFloat(p[0]) + parseFloat(p[1])/60 + parseFloat(p[2]||0)/3600; }
+    var srH = 6.0, ssH = 18.0;
+    if (info && info.sunrise && info.sunrise.wib) { var v = parseH(info.sunrise.wib); if (v !== null) srH = v; }
+    if (info && info.sunset && info.sunset.wib) { var v2 = parseH(info.sunset.wib); if (v2 !== null) ssH = v2; }
+    _sunCache[key] = {sr: srH, ss: ssH};
+    return _sunCache[key];
+  }
+
+  function computeState() {
+    var t = App.nowWIB();
+    var st = getSunTimes(t.year, t.month, t.day);
+    var sunriseH = st.sr, sunsetH = st.ss;
+    var secF = t.second + (t.millisecond || 0) / 1000;
+    var nowH = t.hour + t.minute/60 + secF/3600;
+    var rel = nowH - sunriseH;
+    if (rel < 0) rel += 24;
+    var ghatika = rel * 60 / 24;
+    var sunsetGhatika = (sunsetH - sunriseH);
+    if (sunsetGhatika < 0) sunsetGhatika += 24;
+    sunsetGhatika = sunsetGhatika * 60 / 24;
+    return {t: t, sunriseH: sunriseH, sunsetH: sunsetH, nowH: nowH, ghatika: ghatika, sunsetGhatika: sunsetGhatika};
+  }
+
+  var CX = 190, CY = 190;
+  var RT_OUT = 186, RT_IN = 162;
+  var RM_OUT = 156, RM_IN = 132;
+  var RG_OUT = 126, RG_IN = 102;
+  var R_INNER = 96;
+
+  function pt(r, a) {
+    var rad = (a - 90) * Math.PI / 180;
+    return [CX + r * Math.cos(rad), CY + r * Math.sin(rad)];
+  }
+  function sector(r1, r2, a1, a2) {
+    var p1 = pt(r2, a1), p2 = pt(r2, a2), p3 = pt(r1, a2), p4 = pt(r1, a1);
+    var large = (a2 - a1) > 180 ? 1 : 0;
+    return 'M' + p1[0].toFixed(2) + ',' + p1[1].toFixed(2)
+      + ' A' + r2 + ',' + r2 + ' 0 ' + large + ' 1 ' + p2[0].toFixed(2) + ',' + p2[1].toFixed(2)
+      + ' L' + p3[0].toFixed(2) + ',' + p3[1].toFixed(2)
+      + ' A' + r1 + ',' + r1 + ' 0 ' + large + ' 0 ' + p4[0].toFixed(2) + ',' + p4[1].toFixed(2) + ' Z';
+  }
+  function rotFor(a) {
+    var r = a;
+    if (a > 90 && a < 270) r -= 180;
+    return r;
+  }
+  function pad2(n){ n=Math.floor(n); return n<10?'0'+n:''+n; }
+  function fmtHHMM(h) {
+    h = ((h % 24) + 24) % 24;
+    var H = Math.floor(h); var M = Math.floor((h - H) * 60);
+    return pad2(H) + ':' + pad2(M);
+  }
+
+  function buildSvg() {
+    var st = computeState();
+    var t = st.t, sunriseH = st.sunriseH, sunsetH = st.sunsetH, nowH = st.nowH, ghatika = st.ghatika, sunsetGhatika = st.sunsetGhatika;
+    var dayLen = sunsetH - sunriseH;
+    if (dayLen < 0) dayLen += 24;
+    var nightGhat = 60 - sunsetGhatika;
+    var isDayNow = (nowH >= sunriseH && nowH < sunsetH);
+    var activeGhat = Math.floor(ghatika);
+    if (activeGhat >= 60) activeGhat = 59;
+    var activeMuhurta, activeTabeh;
+    if (isDayNow) {
+      var dP = (nowH - sunriseH) / dayLen;
+      activeMuhurta = Math.min(14, Math.floor(dP * 15));
+      activeTabeh = Math.min(7, Math.floor(dP * 8));
+    } else {
+      var nh = nowH - sunsetH; if (nh < 0) nh += 24;
+      var nightLen = 24 - dayLen;
+      var nP = nh / nightLen;
+      activeMuhurta = 15 + Math.min(14, Math.floor(nP * 15));
+      activeTabeh = 8 + Math.min(7, Math.floor(nP * 8));
+    }
+
+    var svg = '<svg viewBox="-15 -15 410 410" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:440px;height:auto;display:block;margin:0 auto" class="cak-svg">';
+    svg += '<circle cx="' + CX + '" cy="' + CY + '" r="196" fill="#0a0c14"/>';
+
+    // ====== TABEH ======
+    var tw1 = sunsetGhatika / 8;
+    for (var i = 0; i < 8; i++) {
+      var a1 = i * tw1 * 6, a2 = (i + 1) * tw1 * 6;
+      var isActive = (i === activeTabeh);
+      var fill = isActive ? 'rgba(232,200,135,0.38)' : 'rgba(232,200,135,' + (i % 2 ? 0.10 : 0.20) + ')';
+      var stroke = isActive ? '#e8c887' : 'rgba(232,200,135,0.5)';
+      var sw = isActive ? 1.2 : 0.6;
+      var sH = sunriseH + i * tw1 * 24 / 60;
+      var eH = sunriseH + (i + 1) * tw1 * 24 / 60;
+      var tip = 'Tabeh ' + (i+1) + ' \u00b7 Siang|' + fmtHHMM(sH) + ' \u2013 ' + fmtHHMM(eH) + '|(' + (i+1) + '/8)';
+      var cls = 'cak-seg' + (isActive ? ' cak-active-day' : '');
+      svg += '<path class="' + cls + '" data-tip="' + tip + '" d="' + sector(RT_IN, RT_OUT, a1, a2) + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '"/>';
+      var mid = (a1 + a2) / 2;
+      var pp = pt(174, mid), rr = rotFor(mid);
+      svg += '<text x="' + pp[0].toFixed(1) + '" y="' + pp[1].toFixed(1) + '" transform="rotate(' + rr.toFixed(1) + ' ' + pp[0].toFixed(1) + ' ' + pp[1].toFixed(1) + ')" fill="#e8c887" font-size="7.5" font-family="\'Courier New\',monospace" text-anchor="middle" dominant-baseline="middle" pointer-events="none" font-weight="' + (isActive ? '700' : '400') + '">S' + (i+1) + '</text>';
+    }
+    var tw2 = nightGhat / 8;
+    for (var i = 0; i < 8; i++) {
+      var a1 = sunsetGhatika * 6 + i * tw2 * 6, a2 = sunsetGhatika * 6 + (i + 1) * tw2 * 6;
+      var isActive = ((8 + i) === activeTabeh);
+      var fill = isActive ? 'rgba(79,209,197,0.32)' : 'rgba(79,209,197,' + (i % 2 ? 0.06 : 0.13) + ')';
+      var stroke = isActive ? '#4fd1c5' : 'rgba(79,209,197,0.4)';
+      var sw = isActive ? 1.2 : 0.6;
+      var sH = sunsetH + i * tw2 * 24 / 60;
+      var eH = sunsetH + (i + 1) * tw2 * 24 / 60;
+      var tip = 'Tabeh ' + (i+1) + ' \u00b7 Malam|' + fmtHHMM(sH) + ' \u2013 ' + fmtHHMM(eH) + '|(' + (i+1) + '/8)';
+      var cls = 'cak-seg' + (isActive ? ' cak-active-night' : '');
+      svg += '<path class="' + cls + '" data-tip="' + tip + '" d="' + sector(RT_IN, RT_OUT, a1, a2) + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '"/>';
+      var mid = (a1 + a2) / 2;
+      var pp = pt(174, mid), rr = rotFor(mid);
+      svg += '<text x="' + pp[0].toFixed(1) + '" y="' + pp[1].toFixed(1) + '" transform="rotate(' + rr.toFixed(1) + ' ' + pp[0].toFixed(1) + ' ' + pp[1].toFixed(1) + ')" fill="#4fd1c5" font-size="7.5" font-family="\'Courier New\',monospace" text-anchor="middle" dominant-baseline="middle" pointer-events="none" font-weight="' + (isActive ? '700' : '400') + '">M' + (i+1) + '</text>';
+    }
+
+    // ====== MUHURTA ======
+    var mw1 = sunsetGhatika / 15;
+    for (var i = 0; i < 15; i++) {
+      var a1 = i * mw1 * 6, a2 = (i + 1) * mw1 * 6;
+      var isActive = (i === activeMuhurta);
+      var fill = isActive ? 'rgba(232,200,135,0.32)' : 'rgba(232,200,135,' + (i % 2 ? 0.08 : 0.15) + ')';
+      var stroke = isActive ? '#e8c887' : 'rgba(232,200,135,0.35)';
+      var sw = isActive ? 1 : 0.4;
+      var sH = sunriseH + i * mw1 * 24 / 60;
+      var eH = sunriseH + (i + 1) * mw1 * 24 / 60;
+      var tip = 'Muhurta ' + (i+1) + ' \u00b7 Siang|' + fmtHHMM(sH) + ' \u2013 ' + fmtHHMM(eH) + '|(' + (i+1) + '/15)';
+      var cls = 'cak-seg' + (isActive ? ' cak-active-day' : '');
+      svg += '<path class="' + cls + '" data-tip="' + tip + '" d="' + sector(RM_IN, RM_OUT, a1, a2) + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '"/>';
+      var mid = (a1 + a2) / 2;
+      var pp = pt(144, mid), rr = rotFor(mid);
+      svg += '<text x="' + pp[0].toFixed(1) + '" y="' + pp[1].toFixed(1) + '" transform="rotate(' + rr.toFixed(1) + ' ' + pp[0].toFixed(1) + ' ' + pp[1].toFixed(1) + ')" fill="#e8c887" font-size="6" font-family="\'Courier New\',monospace" text-anchor="middle" dominant-baseline="middle" pointer-events="none" opacity="' + (isActive ? '1' : '0.75') + '" font-weight="' + (isActive ? '700' : '400') + '">' + (i+1) + '</text>';
+    }
+    var mw2 = nightGhat / 15;
+    for (var i = 0; i < 15; i++) {
+      var a1 = sunsetGhatika * 6 + i * mw2 * 6, a2 = sunsetGhatika * 6 + (i + 1) * mw2 * 6;
+      var isActive = ((15 + i) === activeMuhurta);
+      var fill = isActive ? 'rgba(79,209,197,0.28)' : 'rgba(79,209,197,' + (i % 2 ? 0.05 : 0.11) + ')';
+      var stroke = isActive ? '#4fd1c5' : 'rgba(79,209,197,0.3)';
+      var sw = isActive ? 1 : 0.4;
+      var sH = sunsetH + i * mw2 * 24 / 60;
+      var eH = sunsetH + (i + 1) * mw2 * 24 / 60;
+      var tip = 'Muhurta ' + (i+1) + ' \u00b7 Malam|' + fmtHHMM(sH) + ' \u2013 ' + fmtHHMM(eH) + '|(' + (i+1) + '/15)';
+      var cls = 'cak-seg' + (isActive ? ' cak-active-night' : '');
+      svg += '<path class="' + cls + '" data-tip="' + tip + '" d="' + sector(RM_IN, RM_OUT, a1, a2) + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '"/>';
+      var mid = (a1 + a2) / 2;
+      var pp = pt(144, mid), rr = rotFor(mid);
+      svg += '<text x="' + pp[0].toFixed(1) + '" y="' + pp[1].toFixed(1) + '" transform="rotate(' + rr.toFixed(1) + ' ' + pp[0].toFixed(1) + ' ' + pp[1].toFixed(1) + ')" fill="#4fd1c5" font-size="6" font-family="\'Courier New\',monospace" text-anchor="middle" dominant-baseline="middle" pointer-events="none" opacity="' + (isActive ? '1' : '0.75') + '" font-weight="' + (isActive ? '700' : '400') + '">' + (i+1) + '</text>';
+    }
+
+    // ====== GHATIKA ======
+    for (var i = 0; i < 60; i++) {
+      var a1 = i * 6, a2 = (i + 1) * 6;
+      var isDay = (i < sunsetGhatika);
+      var isMajor = (i % 5 === 0);
+      var isActive = (i === activeGhat);
+      var fill;
+      if (isActive) fill = isDay ? 'rgba(232,200,135,0.55)' : 'rgba(79,209,197,0.45)';
+      else fill = isDay ? 'rgba(232,200,135,' + (isMajor ? 0.30 : 0.12) + ')' : 'rgba(79,209,197,' + (isMajor ? 0.14 : 0.06) + ')';
+      var stroke = isActive ? (isDay ? '#e8c887' : '#4fd1c5') : (isDay ? 'rgba(232,200,135,0.5)' : 'rgba(79,209,197,0.35)');
+      var sw = isActive ? 1 : 0.3;
+      var gS = sunriseH + i * 24 / 60;
+      var gE = sunriseH + (i + 1) * 24 / 60;
+      var tip = 'Gha\u1e6dik\u0101 ' + i + '|' + fmtHHMM(gS) + ' \u2013 ' + fmtHHMM(gE) + '|(24 menit)';
+      var cls = 'cak-seg' + (isActive ? (isDay ? ' cak-active-day' : ' cak-active-night') : '');
+      svg += '<path class="' + cls + '" data-tip="' + tip + '" d="' + sector(RG_IN, RG_OUT, a1, a2) + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '"/>';
+    }
+    for (var j = 0; j < 12; j++) {
+      var gVal = j * 5, aMid = gVal * 6;
+      var pp = pt(114, aMid), rr = rotFor(aMid);
+      svg += '<text x="' + pp[0].toFixed(1) + '" y="' + pp[1].toFixed(1) + '" transform="rotate(' + rr.toFixed(1) + ' ' + pp[0].toFixed(1) + ' ' + pp[1].toFixed(1) + ')" fill="#8899bb" font-size="7" font-family="\'Courier New\',monospace" text-anchor="middle" dominant-baseline="middle" pointer-events="none">' + gVal + '</text>';
+    }
+
+    svg += '<circle cx="' + CX + '" cy="' + CY + '" r="' + R_INNER + '" fill="#0e1117" stroke="#2a3040" stroke-width="1"/>';
+
+    var sunUp = pt(174, 0);
+    svg += '<circle cx="' + sunUp[0].toFixed(1) + '" cy="' + sunUp[1].toFixed(1) + '" r="4" fill="#e8c887" pointer-events="none"/>';
+    var sunDown = pt(174, sunsetGhatika * 6);
+    svg += '<circle cx="' + sunDown[0].toFixed(1) + '" cy="' + sunDown[1].toFixed(1) + '" r="4" fill="#e8a468" pointer-events="none"/>';
+
+    var nowAngle = ghatika * 6;
+    var nOut = pt(RT_OUT + 6, nowAngle);
+    var nIn = pt(R_INNER + 4, nowAngle);
+    svg += '<line x1="' + nIn[0].toFixed(1) + '" y1="' + nIn[1].toFixed(1) + '" x2="' + nOut[0].toFixed(1) + '" y2="' + nOut[1].toFixed(1) + '" stroke="#ff7b72" stroke-width="1.5" stroke-linecap="round" pointer-events="none"/>';
+    svg += '<circle cx="' + nIn[0].toFixed(1) + '" cy="' + nIn[1].toFixed(1) + '" r="3" fill="#ff7b72" pointer-events="none"/>';
+
+    var timeStr = pad2(t.hour) + ':' + pad2(t.minute) + ':' + pad2(t.second);
+    svg += '<text x="' + CX + '" y="' + (CY + 4) + '" fill="#c0c8d8" font-size="16" text-anchor="middle" font-family="\'Courier New\',monospace" font-weight="600" letter-spacing="1" pointer-events="none">' + timeStr + '</text>';
+    svg += '<text x="' + CX + '" y="' + (CY + 22) + '" fill="#8899bb" font-size="9" text-anchor="middle" font-family="\'Courier New\',monospace" pointer-events="none">WIB</text>';
+    svg += '</svg>';
+    return svg;
+  }
+
+  function ghatikaFull(g) {
+    var whole = Math.floor(g);
+    var frac = g - whole;
+    var pala = frac * 60;
+    var palaWhole = Math.floor(pala);
+    var vipala = (pala - palaWhole) * 60;
+    return whole + ' Nadi ' + palaWhole + ' Vinadi ' + vipala.toFixed(1) + ' Lipta';
+  }
+  function ghatikaFullSanskrit(g) {
+    var whole = Math.floor(g);
+    var frac = g - whole;
+    var pala = frac * 60;
+    var palaWhole = Math.floor(pala);
+    var vipala = (pala - palaWhole) * 60;
+    return whole + ' gha\u1e6dik\u0101 ' + palaWhole + ' pala ' + vipala.toFixed(1) + ' vipala';
+  }
+
+  function buildInfo() {
+    var st = computeState();
+    var ghatika = st.ghatika, sunriseH = st.sunriseH, sunsetH = st.sunsetH, sunsetGhatika = st.sunsetGhatika;
+    var nowH = st.nowH;
+    var isDay = (nowH >= sunriseH && nowH < sunsetH);
+    var nightGhatika = 60 - sunsetGhatika;
+    var periodLabel, periodIcon, periodValue;
+    if (isDay) {
+      periodLabel = 'Siang'; periodIcon = '\u2600\ufe0f'; periodValue = sunsetGhatika;
+    } else {
+      periodLabel = 'Malam'; periodIcon = '\u263e'; periodValue = nightGhatika;
+    }
+    return '<div class="g-num" style="margin-top:10px;font-family:\'Courier New\',monospace;font-size:0.85rem;color:var(--accent);font-weight:600">'
+      + App.num(ghatika, 3) + ' gha\u1e6dik\u0101</div>'
+      + '<div class="g-full" style="margin-top:2px;font-family:\'Courier New\',monospace;font-size:0.72rem;color:var(--dim)">'
+      + ghatikaFull(ghatika)
+      + '</div>'
+      + '<div class="g-full-sk" style="margin-top:2px;font-family:\'Courier New\',monospace;font-size:0.65rem;color:#556688">'
+      + '(' + ghatikaFullSanskrit(ghatika) + ')'
+      + '</div>'
+      + '<div style="margin-top:8px;font-size:0.72rem;color:var(--dim);display:flex;justify-content:center;gap:14px;flex-wrap:wrap">'
+      + '<span>\ud83c\udf05 ' + pad2(Math.floor(sunriseH)) + ':' + pad2(Math.round((sunriseH % 1) * 60)) + '</span>'
+      + '<span>\ud83c\udf07 ' + pad2(Math.floor(sunsetH)) + ':' + pad2(Math.round((sunsetH % 1) * 60)) + '</span>'
+      + '<span>' + periodIcon + ' ' + periodLabel + ' ' + App.num(periodValue, 1) + ' gha\u1e6dik\u0101</span>'
+      + '</div>';
+  }
+
+  var container = document.createElement('div');
+  container.className = 'ghatika-clock';
+  container.innerHTML =
+    '<div class="card" style="padding:14px 10px;text-align:center">'
+    + '<h3 style="text-align:left">\u23f3 Waktu Tradisional</h3>'
+    + '<div class="g-svg-wrap">' + buildSvg() + '</div>'
+    + '<div class="g-info-wrap">' + buildInfo() + '</div>'
+    + '</div>';
+
+  App._bindCakTooltip(container);
+
+  return {
+    el: container,
+    update: function(){
+      var svgWrap = container.querySelector('.g-svg-wrap');
+      if (svgWrap) svgWrap.innerHTML = buildSvg();
+      var infoWrap = container.querySelector('.g-info-wrap');
+      if (infoWrap) infoWrap.innerHTML = buildInfo();
+    }
+  };
+};
 App.navigate = function(page) {
   if(App.clearRT) App.clearRT();
   document.body.setAttribute('data-page', page);
@@ -12506,7 +12855,7 @@ App.num = function(x, n) {
   return x.toFixed(n === undefined ? 4 : n);
 };
 App.dateStr = function(d) { return d[0] + '-' + String(d[1]).padStart(2,'0') + '-' + String(d[2]).padStart(2,'0'); };
-App.nowWIB = function() { var d = new Date(); return { year: d.getFullYear(), month: d.getMonth()+1, day: d.getDate(), hour: d.getHours(), minute: d.getMinutes(), second: d.getSeconds() }; };
+App.nowWIB = function() { var d = new Date(); return { year: d.getFullYear(), month: d.getMonth()+1, day: d.getDate(), hour: d.getHours(), minute: d.getMinutes(), second: d.getSeconds(), millisecond: d.getMilliseconds() }; };
 App.parseHour = function(txt) {
   if (!txt) return 12.0; txt = String(txt).trim();
   if (txt.indexOf(':') >= 0) { var p = txt.split(':'); return parseFloat(p[0]) + (parseFloat(p[1])||0)/60 + (parseFloat(p[2])||0)/3600; }
@@ -12544,7 +12893,7 @@ App.getTodayPanchanga = function() {
   var ym = null; try { ym = e.sakaYM.jd_to_saka_year_month(jd_utc); } catch(err) {}
   var isKab = false, punah = null;
   if (ym) { isKab = window.SAKA_CAL.is_kabisat(ym.saka_year); punah = window.SAKA_CAL.get_punah_month(ym.saka_year); }
-  return { date: t, hour: hour, jd_utc: jd_utc, jd_tt: jd_tt, ka: ka, saka: ym, is_kabisat: isKab, punah: punah, ayanamsa: ay, sun: sd, moon: md, sun_nirayana: sn, moon_nirayana: mn, tithi: tithi, nakshatra: nak, nakshatra_say: nakSay, yoga: yoga, karana: karana, parwesa: parwesa, wuku: wi, dewata: dw, muhurta: mu, tabeh: tb, sunrise: sr, ishta_kala: ishta, nadi_vinadi: nv, lagna: lagna };
+  return { date: t, hour: hour, jd_utc: jd_utc, jd_tt: jd_tt, ka: ka, saka: ym, is_kabisat: isKab, punah: punah, ayanamsa: ay, sun: sd, moon: md, sun_nirayana: sn, moon_nirayana: mn, sun_sayana: sd.longitude_deg, moon_sayana: md.longitude, tithi: tithi, nakshatra: nak, nakshatra_say: nakSay, yoga: yoga, karana: karana, parwesa: parwesa, wuku: wi, dewata: dw, muhurta: mu, tabeh: tb, sunrise: sr, ishta_kala: ishta, nadi_vinadi: nv, lagna: lagna };
 };
 
 </script>
@@ -12609,6 +12958,8 @@ App.render_beranda = function(main) {
   h += App.card('⏳ Lagna & Waktu', App.kv(timeLines));
   h += '</div>';
 
+  h += '<div id="bdr-ghatika-slot" style="margin-top:12px"></div>';
+
   h += '<div class="caption">🕐 Data untuk ' + p.date.year + '-' + String(p.date.month).padStart(2,'0') + '-' + String(p.date.day).padStart(2,'0') + ' pukul ' + String(p.date.hour).padStart(2,'0') + ':' + String(p.date.minute).padStart(2,'0') + ' WIB (KA: ' + App.formatKA(p.ka) + ')</div>';
 
   h += '<h2>🔭 Ephemeris Presisi Tinggi — Sumber Resmi</h2>';
@@ -12651,6 +13002,18 @@ App.render_beranda = function(main) {
   main.innerHTML = h;
   var bdr = document.getElementById('bdr-refresh');
   if(bdr) bdr.onclick = function(){ App.navigate('beranda'); };
+
+  var gSlotB = document.getElementById('bdr-ghatika-slot');
+  if (gSlotB) {
+    var gClkB = App.renderGhatikaClock(p.ka, {accent: '#d4b896'});
+    gSlotB.appendChild(gClkB.el);
+    var gTimerB = setInterval(function(){
+      if (!document.body.contains(main)) { App.clearRT(); return; }
+      gClkB.update();
+    }, 50);
+    if (!App._rtTimers) App._rtTimers = [];
+    App._rtTimers.push(gTimerB);
+  }
 };
 
 // ============================================================================
@@ -12668,6 +13031,7 @@ App.render_realtime = function(main) {
     +  '<div><b style="color:var(--accent)">🕐 Waktu:</b> <span id="rt-clock" style="font-family:\'Courier New\',monospace;color:var(--fg)">--:--:--</span> WIB</div>'
     +  '<button class="primary" id="rt-refresh" style="margin:0">🔄 Refresh</button>'
     +'</div>'
+    +'<div id="rt-ghatika-slot" style="margin-top:12px"></div>'
     +'<div id="rt-astro"></div>';
 
   var clockEl = document.getElementById('rt-clock');
@@ -12762,6 +13126,18 @@ App.render_realtime = function(main) {
   App._rtTimers = [tClock, tAstro];
 
   document.getElementById('rt-refresh').onclick = function(){ renderAstro(); };
+
+  var gSlotR = document.getElementById('rt-ghatika-slot');
+  if (gSlotR) {
+    var gClkR = App.renderGhatikaClock(null, {accent: '#4fd1c5'});
+    gSlotR.appendChild(gClkR.el);
+    var gTimerR = setInterval(function(){
+      if (!document.body.contains(main)) { App.clearRT(); return; }
+      gClkR.update();
+    }, 50);
+    if (App._rtTimers) App._rtTimers.push(gTimerR);
+    else App._rtTimers = [gTimerR];
+  }
 };
 
 // ============================================================================
