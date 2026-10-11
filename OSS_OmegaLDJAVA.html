@@ -413,6 +413,12 @@ path.cak-seg.cak-hover{filter:brightness(1.7) drop-shadow(0 0 4px currentColor)}
 path.cak-active-day{filter:drop-shadow(0 0 6px rgba(232,200,135,0.85)) drop-shadow(0 0 12px rgba(232,200,135,0.4))}
 path.cak-active-night{filter:drop-shadow(0 0 6px rgba(79,209,197,0.85)) drop-shadow(0 0 12px rgba(79,209,197,0.4))}
 
+
+/* Tithi badge (Purnama / Amavasya) */
+.tb{display:inline-block;padding:2px 8px;margin-left:6px;border-radius:10px;font-size:0.68rem;font-weight:600;letter-spacing:0.5px;vertical-align:middle;font-family:'Courier New',monospace}
+.tb-purn{background:rgba(232,200,135,0.18);border:1px solid rgba(232,200,135,0.6);color:#e8c887}
+.tb-amav{background:rgba(136,153,187,0.15);border:1px solid rgba(136,153,187,0.5);color:#8899bb}
+
 </style>
 </head><body>
 <div class="layout">
@@ -12832,6 +12838,14 @@ App.renderGhatikaClock = function(ka, opts) {
     }
   };
 };
+
+App.tithiBadge = function(t){
+  if(!t) return '';
+  if(t.is_purnama) return ' <span class="tb tb-purn">\ud83c\udf15 PURN\u0100MA</span>';
+  if(t.is_amavasya) return ' <span class="tb tb-amav">\ud83c\udf11 AM\u0100VASY\u0100</span>';
+  return '';
+};
+
 App.navigate = function(page) {
   if(App.clearRT) App.clearRT();
   document.body.setAttribute('data-page', page);
@@ -12929,7 +12943,7 @@ App.render_beranda = function(main) {
     ['KA', App.formatKA(p.ka)]
   ]));
   h += App.card('🌙 Panchanga', App.kv([
-    ['Tithi', p.tithi.paksa + ' ' + p.tithi.tithi + ' (' + App.num(p.tithi.percent,1) + '%)'],
+    ['Tithi', p.tithi.paksa + ' ' + p.tithi.tithi + ' (' + App.num(p.tithi.percent,1) + '%)' + App.tithiBadge(p.tithi)],
     ['Wara', p.wuku.wara_triple],
     ['Wuku', p.wuku.wuku_name + ' (#' + p.wuku.wuku_number + ')'],
     ['Nakṣatra (Nir)', p.nakshatra.nakshatra + ' (pada ' + p.nakshatra.pada + ')'],
@@ -13216,7 +13230,7 @@ App.render_tanggal = function(main) {
       out += '</div>';
 
       out += App.card('🌙 Panchanga', App.kv([
-        ['Tithi', tithi.paksa + ' ' + tithi.tithi + ' (' + App.num(tithi.percent,1) + '%)'],
+        ['Tithi', tithi.paksa + ' ' + tithi.tithi + ' (' + App.num(tithi.percent,1) + '%)' + App.tithiBadge(tithi)],
         ['Nakṣatra (Nir)', nak.nakshatra + ' (pada ' + nak.pada + ')'],
         ['Nakṣatra (Say)', nakSay.nakshatra + ' (pada ' + nakSay.pada + ')'],
         ['Yoga', yoga.name + ' (' + App.num(yoga.percent,0) + '%)'],
