@@ -4332,7 +4332,7 @@ class SakaYearMonth {
             if (am > jd_eq) {
                 am = this._find_amavasya(am - 15);
             }
-            jd = am + 1.0;
+            jd = am;
         }
 
         this.cache_start[saka_year] = jd;
@@ -4360,7 +4360,7 @@ class SakaYearMonth {
                     const mname = month_names[i];
                     const purn = this._find_purnima(current + 14.77);
                     const next_am = this._find_amavasya(purn + 14.77);
-                    const next_start = next_am + 1.0;
+                    const next_start = next_am;
                     if (jd_utc < next_start) {
                         return {
                             saka_year: sy,
