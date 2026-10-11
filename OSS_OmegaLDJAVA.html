@@ -419,6 +419,7 @@ path.cak-active-night{filter:drop-shadow(0 0 6px rgba(79,209,197,0.85)) drop-sha
 .tb-purn{background:rgba(232,200,135,0.18);border:1px solid rgba(232,200,135,0.6);color:#e8c887}
 .tb-amav{background:rgba(136,153,187,0.15);border:1px solid rgba(136,153,187,0.5);color:#8899bb}
 
+
 </style>
 </head><body>
 <div class="layout">
@@ -12846,6 +12847,62 @@ App.tithiBadge = function(t){
   return '';
 };
 
+
+App._moonTimesCache = {};
+App.getMoonTimes = function(y, mo, d) {
+  var key = y + '-' + mo + '-' + d;
+  if (App._moonTimesCache[key]) return App._moonTimesCache[key];
+  var e = App.engines;
+  try {
+    var jdLocalMid = e.ts.wib_to_jd_utc(y, mo, d, 0, 0, 0);
+    var mrst = e.astro.topo_corr.calculate_moon_rise_set_transit(
+      jdLocalMid, e.astro.lat, e.astro.lon, e.astro.elev, e.moon
+    );
+    App._moonTimesCache[key] = mrst;
+    var keys = Object.keys(App._moonTimesCache);
+    if (keys.length > 30) delete App._moonTimesCache[keys[0]];
+    return mrst;
+  } catch(err) {
+    return { error: String(err.message || err) };
+  }
+};
+
+
+App.moonPhaseName = function(elong){
+  var e = ((elong % 360) + 360) % 360;
+  if (e < 22.5 || e >= 337.5) return 'New Moon';
+  if (e < 67.5) return 'Waxing Crescent';
+  if (e < 112.5) return 'First Quarter';
+  if (e < 157.5) return 'Waxing Gibbous';
+  if (e < 202.5) return 'Full Moon';
+  if (e < 247.5) return 'Waning Gibbous';
+  if (e < 292.5) return 'Last Quarter';
+  return 'Waning Crescent';
+};
+
+App.moonPhaseSvg = function(illum, elong, size){
+  size = size || 72;
+  elong = ((elong % 360) + 360) % 360;
+  var r = size / 2 - 3;
+  var cx = size / 2, cy = size / 2;
+  var phi = elong * Math.PI / 180;
+  var cosPhi = Math.cos(phi);
+  var termRx = r * Math.abs(cosPhi);
+  var waxing = elong < 180;
+  var sweepOuter = waxing ? 1 : 0;
+  var sweepTerm;
+  if (waxing) sweepTerm = cosPhi >= 0 ? 0 : 1;
+  else sweepTerm = cosPhi >= 0 ? 1 : 0;
+  var d = 'M ' + cx.toFixed(2) + ' ' + (cy - r).toFixed(2)
+    + ' A ' + r.toFixed(2) + ' ' + r.toFixed(2) + ' 0 0 ' + sweepOuter + ' ' + cx.toFixed(2) + ' ' + (cy + r).toFixed(2)
+    + ' A ' + termRx.toFixed(2) + ' ' + r.toFixed(2) + ' 0 0 ' + sweepTerm + ' ' + cx.toFixed(2) + ' ' + (cy - r).toFixed(2)
+    + ' Z';
+  return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">'
+    + '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="#1a1e2a" stroke="rgba(212,184,150,0.35)" stroke-width="0.8"/>'
+    + '<path d="' + d + '" fill="#e8c887" opacity="0.92"/>'
+    + '</svg>';
+};
+
 App.navigate = function(page) {
   if(App.clearRT) App.clearRT();
   document.body.setAttribute('data-page', page);
@@ -12907,6 +12964,7 @@ App.getTodayPanchanga = function() {
   var ym = null; try { ym = e.sakaYM.jd_to_saka_year_month(jd_utc); } catch(err) {}
   var isKab = false, punah = null;
   if (ym) { isKab = window.SAKA_CAL.is_kabisat(ym.saka_year); punah = window.SAKA_CAL.get_punah_month(ym.saka_year); }
+  try { md.times = App.getMoonTimes(t.year, t.month, t.day); } catch(_){}
   return { date: t, hour: hour, jd_utc: jd_utc, jd_tt: jd_tt, ka: ka, saka: ym, is_kabisat: isKab, punah: punah, ayanamsa: ay, sun: sd, moon: md, sun_nirayana: sn, moon_nirayana: mn, sun_sayana: sd.longitude_deg, moon_sayana: md.longitude, tithi: tithi, nakshatra: nak, nakshatra_say: nakSay, yoga: yoga, karana: karana, parwesa: parwesa, wuku: wi, dewata: dw, muhurta: mu, tabeh: tb, sunrise: sr, ishta_kala: ishta, nadi_vinadi: nv, lagna: lagna };
 };
 
@@ -12942,6 +13000,9 @@ App.render_beranda = function(main) {
     ['JD UTC', App.num(p.jd_utc, 5)],
     ['KA', App.formatKA(p.ka)]
   ]));
+  var _bElong = p.tithi.elongation || 0;
+  var _bIllum = (p.moon.illumination != null) ? p.moon.illumination : (0.5 * (1 - Math.cos(_bElong * Math.PI / 180)) * 100);
+  var _bPhaseName = App.moonPhaseName(_bElong);
   h += App.card('🌙 Panchanga', App.kv([
     ['Tithi', p.tithi.paksa + ' ' + p.tithi.tithi + ' (' + App.num(p.tithi.percent,1) + '%)' + App.tithiBadge(p.tithi)],
     ['Wara', p.wuku.wara_triple],
@@ -12951,7 +13012,10 @@ App.render_beranda = function(main) {
     ['Yoga', p.yoga.name + ' (' + App.num(p.yoga.percent,0) + '%)'],
     ['Karana', p.karana.name],
     ['Parwesa', p.parwesa.name]
-  ]));
+  ]) + '<div style="text-align:center;margin-top:14px">'
+    + App.moonPhaseSvg(_bIllum, _bElong, 68)
+    + '<div style="font-size:0.7rem;color:var(--dim);margin-top:6px;letter-spacing:0.5px">' + _bPhaseName + ' · ' + App.num(_bIllum,1) + '%</div>'
+    + '</div>');
   h += '</div>';
 
   h += '<div class="grid2">';
@@ -13083,14 +13147,20 @@ App.render_realtime = function(main) {
       ['Jarak', App.num(p.sun.radius_au, 8) + ' AU']
     ]));
 
+    var _elong = p.tithi.elongation || 0;
+    var _illum = (p.moon.illumination != null) ? p.moon.illumination : (0.5 * (1 - Math.cos(_elong * Math.PI / 180)) * 100);
+    var _phaseName = App.moonPhaseName(_elong);
     h += '<h2>🌙 Bulan</h2>' + App.card('', App.kv([
       ['Altitude', App.num(moon_aa.altitude_apparent, 2) + '°'],
       ['Azimuth', App.num(moon_aa.azimuth, 2) + '°'],
       ['RA', App.num(p.moon.ra, 4) + '°'],
       ['Dec', App.num(p.moon.dec, 4) + '°'],
-      ['Fase', p.moon.illumination !== null ? App.num(p.moon.illumination, 1) + '%' : '—'],
+      ['Fase', App.num(_illum, 1) + '%'],
       ['Jarak', App.num(p.moon.distance_km, 0) + ' km']
-    ]));
+    ]) + '<div style="text-align:center;margin-top:14px">'
+      + App.moonPhaseSvg(_illum, _elong, 84)
+      + '<div style="font-size:0.72rem;color:var(--dim);margin-top:6px;letter-spacing:0.5px">' + _phaseName + '</div>'
+      + '</div>');
 
     if (sr && sr.sunrise) {
       h += '<h2>🌅 Waktu Matahari</h2>' + App.card('', App.kv([
@@ -13229,6 +13299,10 @@ App.render_tanggal = function(main) {
       ]));
       out += '</div>';
 
+      var _elongT = tithi.elongation || 0;
+      var _illumT = 0.5 * (1 - Math.cos(_elongT * Math.PI / 180)) * 100;
+      var _phaseNameT = App.moonPhaseName(_elongT);
+
       out += App.card('🌙 Panchanga', App.kv([
         ['Tithi', tithi.paksa + ' ' + tithi.tithi + ' (' + App.num(tithi.percent,1) + '%)' + App.tithiBadge(tithi)],
         ['Nakṣatra (Nir)', nak.nakshatra + ' (pada ' + nak.pada + ')'],
@@ -13240,7 +13314,31 @@ App.render_tanggal = function(main) {
         ['Wara', wi.wara_triple_full],
         ['Dewata', dw.dewata],
         ['Maṇḍala', dw.mandala]
-      ]));
+      ]) + '<div style="text-align:center;margin-top:14px">'
+        + App.moonPhaseSvg(_illumT, _elongT, 76)
+        + '<div style="font-size:0.72rem;color:var(--dim);margin-top:6px;letter-spacing:0.5px">' + _phaseNameT + ' \u00b7 ' + App.num(_illumT,1) + '%</div>'
+        + '</div>');
+
+      try {
+        var srT = e.astro.calculate_sunrise_sunset_precise(jd_utc);
+        if (srT && srT.sunrise) {
+          out += App.card('\u2600\ufe0f Waktu Matahari', App.kv([
+            ['Terbit', srT.sunrise.wib],
+            ['Transit', srT.transit.wib],
+            ['Terbenam', srT.sunset.wib],
+            ['Panjang siang', App.num(srT.day_length, 2) + ' jam']
+          ]));
+        }
+      } catch(_){}
+
+      var mrstT = App.getMoonTimes(y, m, d);
+      if (mrstT && !mrstT.error) {
+        out += App.card('🌙 Waktu Bulan', App.kv([
+          ['Terbit', mrstT.moonrise ? mrstT.moonrise.wib : '--:--:--'],
+          ['Transit', mrstT.transit ? mrstT.transit.wib : '--:--:--'],
+          ['Terbenam', mrstT.moonset ? mrstT.moonset.wib : '--:--:--']
+        ]));
+      }
 
       document.getElementById('tgl-out').innerHTML = out;
     } catch(err) {
@@ -14683,6 +14781,7 @@ App.render_timeline = function(main) {
 
   run();
 };
+
 
 // ============================================================================
 // BOOTSTRAP
