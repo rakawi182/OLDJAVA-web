@@ -82,12 +82,9 @@ body{
     radial-gradient(ellipse at top left, rgba(212,184,150,0.06), transparent 50%),
     radial-gradient(ellipse at bottom right, rgba(79,209,197,0.05), transparent 50%),
     var(--bg);
-  background-attachment:fixed;
 }
 .card{
-  background:rgba(26,30,42,0.6);
-  -webkit-backdrop-filter:blur(12px);
-  backdrop-filter:blur(12px);
+  background:#171b26;
   border:1px solid rgba(212,184,150,0.12);
   border-radius:12px;
   box-shadow:0 1px 0 rgba(255,255,255,0.03) inset,0 4px 20px rgba(0,0,0,0.3);
@@ -99,9 +96,7 @@ body{
   box-shadow:0 1px 0 rgba(255,255,255,0.05) inset,0 8px 30px rgba(0,0,0,0.5),0 0 20px rgba(212,184,150,0.08);
 }
 .metric{
-  background:rgba(26,30,42,0.7);
-  -webkit-backdrop-filter:blur(8px);
-  backdrop-filter:blur(8px);
+  background:#171b26;
   border-radius:8px;
 }
 @media (hover:none){
@@ -262,8 +257,9 @@ body[data-page="zodiak"]{--accent:#b29cff}
 /* === Batch 3: Grid Blueprint === */
 body::before{
   content:'';
-  position:fixed;
-  inset:0;
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100vh;
   pointer-events:none;
   z-index:0;
   background-image:
@@ -409,9 +405,9 @@ body[data-page="timeline"]{--accent:#e8a468}
 }
 path.cak-seg{cursor:pointer;transition:filter .15s,opacity .15s}
 svg.cak-svg.dim-mode path.cak-seg:not(.cak-hover){opacity:0.22}
-path.cak-seg.cak-hover{filter:brightness(1.7) drop-shadow(0 0 4px currentColor)}
-path.cak-active-day{filter:drop-shadow(0 0 6px rgba(232,200,135,0.85)) drop-shadow(0 0 12px rgba(232,200,135,0.4))}
-path.cak-active-night{filter:drop-shadow(0 0 6px rgba(79,209,197,0.85)) drop-shadow(0 0 12px rgba(79,209,197,0.4))}
+path.cak-seg.cak-hover{filter:brightness(1.6)}
+path.cak-active-day{stroke:#f5d9a0;stroke-width:1.8;opacity:1}
+path.cak-active-night{stroke:#7eefff;stroke-width:1.8;opacity:1}
 
 
 /* Tithi badge (Purnama / Amavasya) */
@@ -419,6 +415,28 @@ path.cak-active-night{filter:drop-shadow(0 0 6px rgba(79,209,197,0.85)) drop-sha
 .tb-purn{background:rgba(232,200,135,0.18);border:1px solid rgba(232,200,135,0.6);color:#e8c887}
 .tb-amav{background:rgba(136,153,187,0.15);border:1px solid rgba(136,153,187,0.5);color:#8899bb}
 
+
+
+/* === Referensi / Bibliografi === */
+.refs{list-style:none;padding:0;margin:0;font-size:0.8rem;line-height:1.7}
+.refs li{padding:10px 0;border-bottom:1px solid rgba(42,48,64,0.5);color:var(--text)}
+.refs li:last-child{border-bottom:none;padding-bottom:0}
+.refs b{color:var(--fg)}
+.refs i{color:#b8c0d0}
+.refs a{color:var(--link);text-decoration:none;word-break:break-all}
+.refs a:hover{text-decoration:underline}
+
+
+/* === Panel Ephemeris — Catatan Teknis === */
+.tech h4{color:var(--accent);font-size:0.78rem;margin:16px 0 6px;letter-spacing:1px;text-transform:uppercase;font-family:'Courier New',monospace}
+.tech h4:first-child{margin-top:0}
+.tech p{margin:0 0 8px;font-size:0.8rem;line-height:1.7;color:var(--text)}
+.tech ul,.tech ol{margin:0 0 8px 18px;font-size:0.8rem;line-height:1.7;color:var(--text)}
+.tech li{margin-bottom:4px}
+.tech code{background:rgba(79,209,197,0.08);padding:1px 5px;border-radius:3px;font-family:'Courier New',monospace;font-size:0.78rem;color:#4fd1c5}
+.tech b{color:var(--fg)}
+.tech i{color:#b8c0d0}
+.tech sup{font-size:0.68rem}
 
 </style>
 </head><body>
@@ -428,6 +446,8 @@ path.cak-active-night{filter:drop-shadow(0 0 6px rgba(79,209,197,0.85)) drop-sha
 <nav class="nav" id="nav">
 <button data-page="beranda">🏠 Beranda</button>
 <button data-page="realtime">🌞 Real-time</button>
+<button data-page="rasi">☸️ Rāśi Chakra</button>
+<button data-page="timeline">⏳ Timeline</button>
 <button data-page="tanggal">📅 Tanggal Spesifik</button>
 <button data-page="wuku">📆 Wuku & Wara</button>
 <button data-page="prasasti">📜 Konversi Prasasti</button>
@@ -435,8 +455,7 @@ path.cak-active-night{filter:drop-shadow(0 0 6px rgba(79,209,197,0.85)) drop-sha
 <button data-page="zodiak">📈 Analisis Sistem Zodiak</button>
 <button data-page="konversi">🔄 Konversi Waktu</button>
 <button data-page="offset">⏱️ Offset Waktu</button>
-<button data-page="rasi">☸️ Rāśi Chakra</button>
-<button data-page="timeline">⏳ Timeline</button>
+<button data-page="referensi">📖 Referensi</button>
 </nav>
 <div class="sidebar-footer">
 <div>PAWITRA &bull; <span id="sf-date"></span></div>
@@ -451,6 +470,8 @@ path.cak-active-night{filter:drop-shadow(0 0 6px rgba(79,209,197,0.85)) drop-sha
 <nav class="nav-bottom" id="nav-bottom">
 <button data-page="beranda"><span style="font-size:1.15rem;line-height:1">🏠</span><span>Beranda</span></button>
 <button data-page="realtime"><span style="font-size:1.15rem;line-height:1">🌞</span><span>Real-time</span></button>
+<button data-page="rasi"><span style="font-size:1.15rem;line-height:1">☸️</span><span>Chakra</span></button>
+<button data-page="timeline"><span style="font-size:1.15rem;line-height:1">⏳</span><span>Timeline</span></button>
 <button data-page="tanggal"><span style="font-size:1.15rem;line-height:1">📅</span><span>Tanggal</span></button>
 <button data-page="wuku"><span style="font-size:1.15rem;line-height:1">📆</span><span>Wuku</span></button>
 <button data-page="prasasti"><span style="font-size:1.15rem;line-height:1">📜</span><span>Prasasti</span></button>
@@ -458,8 +479,7 @@ path.cak-active-night{filter:drop-shadow(0 0 6px rgba(79,209,197,0.85)) drop-sha
 <button data-page="zodiak"><span style="font-size:1.15rem;line-height:1">📈</span><span>Zodiak</span></button>
 <button data-page="konversi"><span style="font-size:1.15rem;line-height:1">🔄</span><span>Konversi</span></button>
 <button data-page="offset"><span style="font-size:1.15rem;line-height:1">⏱️</span><span>Offset</span></button>
-<button data-page="rasi"><span style="font-size:1.15rem;line-height:1">☸️</span><span>Chakra</span></button>
-<button data-page="timeline"><span style="font-size:1.15rem;line-height:1">⏳</span><span>Timeline</span></button>
+<button data-page="referensi"><span style="font-size:1.15rem;line-height:1">📖</span><span>Referensi</span></button>
 </nav>
 
 </div>
@@ -12762,13 +12782,15 @@ App.renderGhatikaClock = function(ka, opts) {
     svg += '<circle cx="' + sunDown[0].toFixed(1) + '" cy="' + sunDown[1].toFixed(1) + '" r="4" fill="#e8a468" pointer-events="none"/>';
 
     var nowAngle = ghatika * 6;
-    var nOut = pt(RT_OUT + 6, nowAngle);
-    var nIn = pt(R_INNER + 4, nowAngle);
-    svg += '<line x1="' + nIn[0].toFixed(1) + '" y1="' + nIn[1].toFixed(1) + '" x2="' + nOut[0].toFixed(1) + '" y2="' + nOut[1].toFixed(1) + '" stroke="#ff7b72" stroke-width="1.5" stroke-linecap="round" pointer-events="none"/>';
-    svg += '<circle cx="' + nIn[0].toFixed(1) + '" cy="' + nIn[1].toFixed(1) + '" r="3" fill="#ff7b72" pointer-events="none"/>';
+    var nInY = CY - (R_INNER + 4);
+    var nOutY = CY - (RT_OUT + 6);
+    svg += '<g data-needle="1" transform="rotate(' + nowAngle.toFixed(2) + ' ' + CX + ' ' + CY + ')" pointer-events="none">'
+         + '<line x1="' + CX + '" y1="' + nInY.toFixed(1) + '" x2="' + CX + '" y2="' + nOutY.toFixed(1) + '" stroke="#ff7b72" stroke-width="1.5" stroke-linecap="round"/>'
+         + '<circle cx="' + CX + '" cy="' + nInY.toFixed(1) + '" r="3" fill="#ff7b72"/>'
+         + '</g>';
 
     var timeStr = pad2(t.hour) + ':' + pad2(t.minute) + ':' + pad2(t.second);
-    svg += '<text x="' + CX + '" y="' + (CY + 4) + '" fill="#c0c8d8" font-size="16" text-anchor="middle" font-family="\'Courier New\',monospace" font-weight="600" letter-spacing="1" pointer-events="none">' + timeStr + '</text>';
+    svg += '<text data-clk="1" x="' + CX + '" y="' + (CY + 4) + '" fill="#c0c8d8" font-size="16" text-anchor="middle" font-family="\'Courier New\',monospace" font-weight="600" letter-spacing="1" pointer-events="none">' + timeStr + '</text>';
     svg += '<text x="' + CX + '" y="' + (CY + 22) + '" fill="#8899bb" font-size="9" text-anchor="middle" font-family="\'Courier New\',monospace" pointer-events="none">WIB</text>';
     svg += '</svg>';
     return svg;
@@ -12836,6 +12858,26 @@ App.renderGhatikaClock = function(ka, opts) {
       if (svgWrap) svgWrap.innerHTML = buildSvg();
       var infoWrap = container.querySelector('.g-info-wrap');
       if (infoWrap) infoWrap.innerHTML = buildInfo();
+    },
+    updateText: function(){
+      var st = computeState();
+      var ghatika = st.ghatika;
+      var g1 = container.querySelector('.g-num');
+      if (g1) g1.textContent = App.num(ghatika, 3) + ' gha\u1e6dik\u0101';
+      var g2 = container.querySelector('.g-full');
+      if (g2) g2.textContent = ghatikaFull(ghatika);
+      var g3 = container.querySelector('.g-full-sk');
+      if (g3) g3.textContent = '(' + ghatikaFullSanskrit(ghatika) + ')';
+      var clkEl = container.querySelector('text[data-clk="1"]');
+      if (clkEl) {
+        var t = st.t;
+        clkEl.textContent = pad2(t.hour) + ':' + pad2(t.minute) + ':' + pad2(t.second);
+      }
+      var needle = container.querySelector('g[data-needle="1"]');
+      if (needle) {
+        var angle = ghatika * 6;
+        needle.setAttribute('transform', 'rotate(' + angle.toFixed(2) + ' ' + CX + ' ' + CY + ')');
+      }
     }
   };
 };
@@ -13040,22 +13082,13 @@ App.render_beranda = function(main) {
 
   h += '<div class="caption">🕐 Data untuk ' + p.date.year + '-' + String(p.date.month).padStart(2,'0') + '-' + String(p.date.day).padStart(2,'0') + ' pukul ' + String(p.date.hour).padStart(2,'0') + ':' + String(p.date.minute).padStart(2,'0') + ' WIB (KA: ' + App.formatKA(p.ka) + ')</div>';
 
-  h += '<h2>🔭 Ephemeris Presisi Tinggi — Sumber Resmi</h2>';
+  h += '<h2>🔭 Sumber Ilmiah</h2>';
   h += '<div class="description-box">' +
-    '<b>☀️ MATAHARI (VSOP87D) – IMCCE / Observatoire de Paris</b><br>' +
-    'Menggunakan <b>VSOP87D</b> (<i>Bretagnon &amp; Francou, 1988</i>) dari <b>IMCCE - Observatoire de Paris</b>, turunan spherical dari solusi analitik VSOP87 yang difit terhadap integrasi numerik <b>DE200/LE200 (JPL)</b>. Perbandingan eksternal dengan <b>JPL Horizons (DE441)</b>: <b>3–10″</b> koordinat ekuatorial, <b>&lt; 0.1°</b> horizontal.<br><br>' +
-    '<b>🌙 BULAN (ELP2000-82B) – SYRTE / Observatoire de Paris</b><br>' +
-    'Menggunakan <b>ELP2000-82B</b> (<i>Chapront-Touzé, Chapront &amp; Francou, 2001</i>) dari <b>SYRTE - Observatoire de Paris</b>. Perbandingan dengan <b>JPL Horizons (DE441)</b>: <b>7–10″</b> RA/Dec, <b>&lt; 40 km</b> jarak geosentrik.<br><br>' +
-    '<b>📆 WUKU SYSTEM (210-HARI) – SUMBER EPIGRAFI</b><br>' +
-    'Berdasarkan <b>Louis-Charles Damais (1955)</b>, katalog prasasti dan wuku <b><i>Javaanse Oorkonden</i></b> (<i>Pigeaud, 1960–1963</i>). Epoch absolut <b>8 Februari 1 SM</b> (KA 1132630).<br><br>' +
-    '<b>📅 DUKUNGAN TAHUN NEGATIF (TAHUN ASTRONOMI)</b><br>' +
-    '<ul><li><b>1 M</b> → <code>1</code></li><li><b>1 SM</b> → <code>0</code></li><li><b>2 SM</b> → <code>-1</code></li><li><b>3102 SM</b> (Kali Yuga) → <code>-3101</code></li></ul>' +
-    '<b>⏱️ KOREKSI WAKTU (ΔT) – SUMBER HISTORIS &amp; MODERN</b><br>' +
-    'ΔT dihitung dengan metode hybrid: data eksplisit <b>IERS/HMNAO</b> (era modern), jangkar gerhana historis Jolotundo 702–1299 M (<i>Morrison &amp; Stephenson, 2004</i>), dan polinomial <b>Espenak &amp; Meeus (2006)</b> untuk era di luar jangkauan data.<br><br>' +
-    '<b>📚 DATABASE DAMAIS (112 PRASASTI)</b><br>' +
-    '<b>Louis-Charles Damais</b> (1955). <i>Études d\'épigraphie indonésienne IV</i>, <b>BEFEO</b> 47.1, pp. 7-290. DOI: <a href="https://doi.org/10.3406/befeo.1955.5406" target="_blank">10.3406/befeo.1955.5406</a>.<br><br>' +
-    '<b>📍 LOKASI ACUAN – JOLOTUNDO</b><br>' +
-    'Observatorium Jolotundo, Jawa Timur (−7.609444°, 112.595556°, elev. 554.5 m)' +
+    '<b>Ephemeris:</b> VSOP87D (<i>Bretagnon &amp; Francou, 1988</i>) · ELP2000-82B (<i>Chapront-Touzé dkk., 2001</i>)<br>' +
+    '<b>Kalender Saka-Wuku:</b> sistem epigrafi Jawa Kuno berbasis Damais (1955) dan Eade &amp; Gislén (2000)<br>' +
+    '<b>Koreksi waktu:</b> ΔT hybrid IERS/HMNAO + jangkar gerhana 702–1299 M + polinomial Espenak &amp; Meeus (2006)<br>' +
+    '<b>Lokasi acuan:</b> Jolotundo, Jawa Timur (−7.609444°, 112.595556°, elev. 554.5 m)<br><br>' +
+    '<a href="#" onclick="App.navigate(\'referensi\');return false;" style="color:var(--link);text-decoration:underline">📖 Daftar referensi lengkap →</a>' +
   '</div>';
 
   h += '<div class="grid3" style="margin-top:12px">';
@@ -13085,12 +13118,17 @@ App.render_beranda = function(main) {
   if (gSlotB) {
     var gClkB = App.renderGhatikaClock(p.ka, {accent: '#d4b896'});
     gSlotB.appendChild(gClkB.el);
-    var gTimerB = setInterval(function(){
+    var gTimerB_full = setInterval(function(){
       if (!document.body.contains(main)) { App.clearRT(); return; }
       gClkB.update();
+    }, 30000);
+    var gTimerB_text = setInterval(function(){
+      if (!document.body.contains(main)) { App.clearRT(); return; }
+      gClkB.updateText();
     }, 50);
     if (!App._rtTimers) App._rtTimers = [];
-    App._rtTimers.push(gTimerB);
+    App._rtTimers.push(gTimerB_full);
+    App._rtTimers.push(gTimerB_text);
   }
 };
 
@@ -13215,12 +13253,20 @@ App.render_realtime = function(main) {
   if (gSlotR) {
     var gClkR = App.renderGhatikaClock(null, {accent: '#4fd1c5'});
     gSlotR.appendChild(gClkR.el);
-    var gTimerR = setInterval(function(){
+    var gTimerR_full = setInterval(function(){
       if (!document.body.contains(main)) { App.clearRT(); return; }
       gClkR.update();
+    }, 30000);
+    var gTimerR_text = setInterval(function(){
+      if (!document.body.contains(main)) { App.clearRT(); return; }
+      gClkR.updateText();
     }, 50);
-    if (App._rtTimers) App._rtTimers.push(gTimerR);
-    else App._rtTimers = [gTimerR];
+    if (App._rtTimers) {
+      App._rtTimers.push(gTimerR_full);
+      App._rtTimers.push(gTimerR_text);
+    } else {
+      App._rtTimers = [gTimerR_full, gTimerR_text];
+    }
   }
 };
 
@@ -14783,9 +14829,147 @@ App.render_timeline = function(main) {
 };
 
 
+
+// ============================================================================
+// 13. REFERENSI / BIBLIOGRAFI
+// ============================================================================
+App.render_referensi = function(main) {
+  var h = '';
+  h += '<h1>\ud83d\udcd6 Referensi</h1>';
+  h += '<p class="caption">Daftar pustaka dan sumber ilmiah yang mendasari OSS \u03a9LDJAVA-astro</p>';
+
+  h += App.card('\ud83d\udd2d Ephemeris &amp; Astronomi Modern',
+    '<ul class="refs">'
+    + '<li><b>Bretagnon, P. &amp; Francou, G.</b> (1988). <i>Planetary theories in rectangular and spherical variables: VSOP87 solutions</i>. Astronomy &amp; Astrophysics 202, 309\u2013315.</li>'
+    + '<li><b>Chapront-Touz\u00e9, M., Chapront, J. &amp; Francou, G.</b> (2001). <i>ELP 2000-82B: Lunar solution</i>. Observatoire de Paris, SYRTE.</li>'
+    + '<li><b>Meeus, J.</b> (1998). <i>Astronomical Algorithms</i> (2nd ed.). Willmann-Bell, Richmond.</li>'
+    + '<li><b>Bennett, G.G.</b> (1982). <i>The calculation of astronomical refraction in marine navigation</i>. Journal of Navigation 35(2), 255\u2013259.</li>'
+    + '</ul>');
+
+
+
+
+
+  h += App.card('\ud83d\udce1 Panel Ephemeris \u2014 Catatan Teknis',
+    '<div class="tech">'
+
+    + '<h4>1. Sumber dan Data</h4>'
+    + '<p>OSS \u03a9LDJAVA menggunakan dua solusi analitik dari Observatoire de Paris untuk gerak Matahari dan Bulan:</p>'
+    + '<ul>'
+    + '<li><b>VSOP87D</b> (Bretagnon &amp; Francou, 1988, <i>Astronomy &amp; Astrophysics</i> 202, 309). Solusi dari <b>IMCCE</b> — Institut de Mécanique Céleste et de Calcul des Éphémérides, Observatoire de Paris. Gerak heliosentrik Bumi dalam <i>spherical variables</i>, mengacu pada <i>mean ecliptic and equinox of date</i>.</li>'
+    + '<li><b>ELP2000-82B</b> (Chapront-Touz\u00e9, Chapront &amp; Francou, 2001). Solusi dari <b>SYRTE</b> \u2014 Syst\u00e8mes de R\u00e9f\u00e9rence Temps-Espace (UMR 8630/CNRS), Observatoire de Paris. Semi-analitik geosentrik Bulan; konstanta di-fit terhadap DE200/LE200 JPL, argumen mengikuti ELP 2000-85.</li>'
+    + '</ul>'
+    + '<p>Data yang disertakan: berkas <code>VSOP87D.ear</code> dan 36 berkas ELP (ELP01\u2013ELP36). Keduanya dimuat utuh tanpa pemotongan suku. Seluruh <i>Poisson terms</i> \u2014 berfaktor waktu <i>t</i> dan <i>t</i><sup>2</sup> \u2014 disertakan.</p>'
+
+    + '<h4>2. Verifikasi Porting</h4>'
+    + '<p>Kedua implementasi diuji terhadap berkas acuan resmi dari institusi penerbit:</p>'
+    + '<ul>'
+    + '<li><b>VSOP87D</b> \u2014 berkas <code>vsop87.chk</code> (dokumen BDL-9502, Bureau des Longitudes). Sepuluh titik uji, rentang 1600\u20132000 M. Selisih maksimum 4,7 \u00d7 10<sup>\u221211</sup> rad, setara 10 mikrodetik busur.</li>'
+    + '<li><b>ELP2000-82B</b> \u2014 Tabel H dari dokumen <i>Lunar solution ELP, version ELP 2000-82B</i> (Chapront-Touz\u00e9, Chapront &amp; Francou, 2001, SYRTE/UMR8630-CNRS). Lima titik uji, rentang 1828\u20132047 M. Selisih maksimum 0,5 m dari jarak 361.000 km.</li>'
+    + '</ul>'
+    + '<p>Selisih tersebut berada pada tingkat pembulatan <i>double precision</i>. Uji ini memverifikasi korespondensi dengan acuan resmi, bukan mengukur akurasi absolut.</p>'
+
+    + '<h4>3. Akurasi Absolut</h4>'
+    + '<p><b>VSOP87D</b> untuk Bumi (Tabel 1, Bretagnon &amp; Francou 1988):</p>'
+    + '<ul>'
+    + '<li>0,005\u2033 pada rentang 1900\u20132100 M</li>'
+    + '<li>sekitar 1\u2033 di ujung rentang \u00b14000 tahun dari J2000 (2000 SM \u2013 6000 M)</li>'
+    + '</ul>'
+    + '<p><b>ELP2000-82B</b> (Chapront-Touz\u00e9 &amp; Chapront, 1983, <i>A&amp;A</i> 124, 50):</p>'
+    + '<ul>'
+    + '<li>presisi internal solusi semi-analitik: 0,01\u2033</li>'
+    + '<li>residual post-fit terhadap DE200/LE200 (1900\u20132000 M): bujur &lt; 0,005\u2033, lintang &lt; 0,001\u2033, jarak &lt; 1 m</li>'
+    + '</ul>'
+
+    + '<h4>4. Presesi dan Nutasi</h4>'
+    + '<p>Transformasi antara GCRS (<i>Geocentric Celestial Reference System</i>) dan CIRS (<i>Celestial Intermediate Reference System</i>) menggunakan model IAU 2006/2000A_R06, mengikuti rekomendasi Wallace &amp; Capitaine (2006, <i>Astronomy &amp; Astrophysics</i> 459, 981):</p>'
+    + '<ul>'
+    + '<li><b>Presesi</b>: model P03 (Capitaine et al., 2003a, <i>A&amp;A</i> 412, 567), parameterisasi Fukushima\u2013Williams empat-rotasi.</li>'
+    + '<li><b>Nutasi</b>: IAU 2000A (Mathews, Herring &amp; Buffett, 2002), dengan koreksi konsistensi IAU 2006 (Capitaine et al., 2005, <i>A&amp;A</i> 432, 355).</li>'
+    + '<li>Tabel lunisolar dan planet yang disertakan: 1358 suku untuk nutasi bujur, 1056 suku untuk nutasi obliquity.</li>'
+    + '<li>Diverifikasi terhadap referensi IERS: selisih maksimum 2,9 \u00d7 10<sup>\u22125</sup> \u00b5as pada titik uji JD TT = 2453751,39.</li>'
+    + '</ul>'
+
+    + '<h4>5. Kerangka Acuan dan Konvensi Waktu</h4>'
+    + '<ul>'
+    + '<li><b>VSOP87D</b> menghasilkan koordinat Bumi pada <i>mean ecliptic and equinox of date</i>. Argumen waktu = <i>dynamical time</i> = TT = TAI + 32,184 s.</li>'
+    + '<li><b>ELP2000-82B</b> menghasilkan <i>rectangular coordinates</i> Bulan pada <i>mean ecliptic and equinox J2000</i>. Untuk memperoleh posisi pada tanggal bersangkutan, koordinat dirotasi menggunakan <i>accumulated precession p<sub>A</sub></i> (Laskar, 1986) dan polinomial <i>P</i>, <i>Q</i> lima suku.</li>'
+    + '<li>OSS menempatkan kedua solusi pada <i>mean ecliptic and equinox of date</i> sebelum perhitungan tithi, nak\u1e63atra, dan panjang hari.</li>'
+    + '<li><b>\u0394T tidak berasal dari ELP82B maupun VSOP87D.</b> Nilainya dihitung dari model hibrida: data IERS/HMNAO untuk era modern, jangkar gerhana Jolotundo 702\u20131299 M (Morrison &amp; Stephenson, 2004), dan polinomial Espenak &amp; Meeus (2006) untuk era di luar jangkauan data.</li>'
+    + '<li>Aberasi tahunan dan paralaks diurnal dihitung terpisah. Koreksi relativistik lokal Bumi pada tingkat LLR tidak diterapkan.</li>'
+    + '</ul>'
+
+    
+    + '<h4>6. Uji Silang terhadap JPL Horizons (DE441)</h4>'
+    + '<p>Untuk mengukur akurasi praktis pada era kontemporer, kedua solusi dibandingkan dengan <i>JPL Horizons</i> (DE441) pada 25 Desember 2024, 05:00 UT, dengan pengamat di Jolotundo. DE441 adalah integrasi numerik JPL generasi terkini \u2014 bukan referensi yang dipakai untuk fit VSOP87D maupun ELP2000-82B (keduanya di-fit ke DE200/LE200 dari era 1980-an).</p>'
+    + '<p><b>Matahari</b> \u2014 selisih terhadap JPL Horizons:</p>'
+    + '<ul>'
+    + '<li>RA: 3,20\u2033 (0,00089\u00b0) &middot; Dec: &minus;2,95\u2033 (&minus;0,00082\u00b0)</li>'
+    + '<li>Bujur ekliptika: 2,80\u2033 (0,00078\u00b0) &middot; Lintang ekliptika: 2,36\u2033 (0,00066\u00b0)</li>'
+    + '<li>Jarak: 6.088 km</li>'
+    + '</ul>'
+    + '<p><b>Bulan</b> \u2014 selisih terhadap JPL Horizons (setelah koreksi <i>equinox offset</i> JPL terhadap IAU 2006/2000A sebesar 0,053\u2033):</p>'
+    + '<ul>'
+    + '<li>RA: 6,89\u2033 (0,00191\u00b0) &middot; Dec: &minus;5,82\u2033 (&minus;0,00162\u00b0)</li>'
+    + '<li>Jarak geosentrik: 36,7 km</li>'
+    + '</ul>'
+    + '<p>Untuk konteks: toleransi arkeoastronomi Jolotundo adalah 10\u2033 (0,0028\u00b0) untuk posisi sudut. Seluruh selisih di atas berada di bawah toleransi tersebut.</p>'
+    + '<p>Sebagian selisih berasal dari perbedaan <b>model kerangka acuan</b> antara kedua sistem, bukan dari ephemeris itu sendiri:</p>'
+    + '<ul>'
+    + '<li><b>Presesi dan nutasi.</b> OSS memakai IAU 2006/2000A_R06. Output <i>ecliptic-of-date</i> JPL Horizons masih menggunakan IAU 1976/1980 (Lieske 1977), yang jaraknya ~0,05\u2033 dari frame modern dan membesar menjauh dari J2000. Integrasi numerik DE441 sendiri menggunakan model Vondr\u00e1k 2011 \u2014 perbedaan frame ini murni pada lapisan output Horizons.</li>'
+    + '<li><b>Offset ekuinoks.</b> Setelah koreksi 0,053\u2033 (JPL terhadap IAU 2006/2000A), selisih RA Bulan turun dari 6,94\u2033 ke 6,89\u2033.</li>'
+    + '<li><b>Aberasi tahunan dan paralaks diurnal</b> sudah diterapkan pada kedua sisi. Refraksi atmosfer bukan penyebab karena kedua sisi bersifat <i>airless</i>.</li>'
+    + '</ul>'
+    + '<p>Selisih pada orde <i>arcsecond</i> ini bukan cacat implementasi, melainkan <b>batas presisi inherent</b> dari solusi yang di-fit ke DE200/LE200 ditambah perbedaan model kerangka acuan. Untuk konteks arkeoastronomi Jawa Kuno, keduanya berada jauh di bawah toleransi: posisi sudut &lt; 10\u2033, jarak &lt; 50.000 km untuk Matahari dan &lt; 500 km untuk Bulan.</p>'
+
++ '<h4>7. Konsekuensi untuk OSS</h4>'
+    + '<p>Pada era prasasti Jawa Kuno (abad 8\u201316 M, sekitar 400\u20131200 tahun sebelum J2000), kedua solusi berada jauh di dalam rentang validitasnya. Sumber kesalahan yang dominan <b>bukan</b> dari ephemeris, melainkan dari:</p>'
+    + '<ol>'
+    + '<li><b>\u0394T historis</b> \u2014 nilai \u0394T pada era prasasti Jawa Kuno sangat besar: sekitar 2900 detik (~49 menit) pada 800 M, ~1560 detik (~26 menit) pada 1000 M, dan ~90 detik pada 1600 M. Magnitudo koreksi ini jauh melampaui galat ephemeris (yang setara beberapa arcsec) sehingga menjadi faktor dominan dalam penanggalan. Ketidakpastian model \u0394T untuk era 702\u20131299 M berada pada orde puluhan detik (Morrison &amp; Stephenson, 2004).</li>'
+    + '<li><b>Definisi awal hari</b> \u2014 resolusi satu menit pada waktu matahari terbit.</li>'
+    + '</ol>'
+    + '<p>Kontribusi kesalahan dari VSOP87D dan ELP2000-82B pada rentang ini berada di bawah 1\u2033 dalam posisi sudut.</p>'
+
+    + '</div>');
+
+  h += App.card('\ud83d\udcc5 Kalender Jawa-Bali &amp; Astronomi India',
+    '<ul class="refs">'
+    + '<li><b>Damais, L.-C.</b> (1945\u20131958). <i>\u00c9tudes d\'\u00e9pigraphie indon\u00e9sienne</i>. Bulletin de l\'\u00c9cole fran\u00e7aise d\'Extr\u00eame-Orient. Paris.</li>'
+    + '<li><b>Eade, J.C. &amp; Gisl\u00e9n, L.</b> (2000). <i>Early Javanese Inscriptions: A New Dating Method</i>. Brill, Leiden.</li>'
+    + '<li><b>Friederich, R.</b> (1850). <i>Voorloopig verslag van het eiland Bali</i>. Verhandelingen van het Bataviaasch Genootschap.</li>'
+    + '<li><b>Gomperts, A.</b> (1998). <i>Sanskrit Jyoti\u1e63a terms and Indian astronomy in Old Javanese inscriptions</i>.</li>'
+    + '<li><b>Pingree, D.</b> (1981). <i>Jyoti\u1e25\u015b\u0101stra: Astral and Mathematical Literature</i>. A History of Indian Literature. Harrassowitz, Wiesbaden.</li>'
+    + '<li><b>Proudfoot, I.</b> (2007). <i>In search of lost time: Javanese and Balinese understanding of the Indian calendar</i>. Bijdragen tot de Taal-, Land- en Volkenkunde (BKI).</li>'
+    + '</ul>');
+
+  h += App.card('\ud83d\udcdc Epigrafi &amp; Prasasti',
+    '<ul class="refs">'
+    + '<li><b>Damais, L.-C.</b> (1955). <i>\u00c9tudes d\'\u00e9pigraphie indon\u00e9sienne IV: Discussion de la date des inscriptions</i>. BEFEO 47(1), 7\u2013290. DOI: <a href="https://doi.org/10.3406/befeo.1955.5406" target="_blank">10.3406/befeo.1955.5406</a>.</li>'
+    + '<li><b>Pigeaud, T.G.Th.</b> (1960\u20131963). <i>Javaanse Oorkonden</i>. Martinus Nijhoff, \u2019s-Gravenhage.</li>'
+    + '</ul>');
+
+  h += App.card('\u23f1\ufe0f Koreksi Waktu (\u0394T)',
+    '<ul class="refs">'
+    + '<li><b>Morrison, L.V. &amp; Stephenson, F.R.</b> (2004). <i>Historical values of the Earth\u2019s clock error \u0394T and the calculation of eclipses</i>. Journal for the History of Astronomy 35, 327\u2013336.</li>'
+    + '<li><b>Espenak, F. &amp; Meeus, J.</b> (2006). <i>Five Millennium Canon of Solar Eclipses</i>. NASA/TP-2006-214141.</li>'
+    + '</ul>');
+
+  main.innerHTML = h;
+};
+
 // ============================================================================
 // BOOTSTRAP
 // ============================================================================
+// Hide semua tooltip saat scroll (fix tooltip nyangkut)
+document.addEventListener('scroll', function(){
+  ['cak-tooltip','tl-tooltip','kal-tooltip'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  var svg = document.querySelector('svg.cak-svg');
+  if (svg) svg.classList.remove('dim-mode');
+}, {passive:true, capture:true});
+
 window.addEventListener('DOMContentLoaded', function() {
   try {
     App.init();
