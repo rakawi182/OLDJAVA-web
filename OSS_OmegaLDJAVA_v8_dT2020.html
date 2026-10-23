@@ -5,6 +5,7 @@
 <style>
 :root{--bg:#0e1117;--panel:#1a1e2a;--panel2:#252b3d;--border:#2a3040;--border2:#3a4050;--text:#c0c8d8;--dim:#8899bb;--accent:#d4b896;--fg:#f0e6d0;--ok:#7ee787;--err:#ff7b72;--link:#79c0ff}
 *{box-sizing:border-box;margin:0;padding:0}
+ol, ul { padding-left: 1.5rem !important; margin-left: 0.5rem !important; }
 html,body{height:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;overflow:hidden}
 .layout{display:flex;height:100vh;height:100dvh}
@@ -421,6 +422,7 @@ path.cak-active-night{stroke:#7eefff;stroke-width:1.8;opacity:1}
 /* === Referensi / Bibliografi === */
 .refs{list-style:none;padding:0;margin:0;font-size:0.8rem;line-height:1.7}
 .refs li{padding:10px 0;border-bottom:1px solid rgba(42,48,64,0.5);color:var(--text)}
+.dt-h{margin:18px 0 6px;color:var(--accent);font-size:0.85rem;font-weight:600}
 .refs li:last-child{border-bottom:none;padding-bottom:0}
 .refs b{color:var(--fg)}
 .refs i{color:#b8c0d0}
@@ -1177,26 +1179,68 @@ TimeSystem.msh2020_max_jump = function() {
 };
 
 TimeSystem.DELTA_T_SOURCES = Object.freeze({
-    references: [
-        { id: 'msh2021', text: 'Morrison, L.V., Stephenson, F.R., Hohenkerk, C.Y. & Zawilski, M. (2021). Addendum 2020 to \u2018Measurement of the Earth\u2019s rotation: 720 BC to AD 2015\u2019. Proc. R. Soc. A 477, 20200776.', doi: '10.1098/rspa.2020.0776', role: 'Spline \u0394T \u2212720\u20132019 (Tabel S15, versi 2020); parabola jangka panjang pers. (5.1)' },
-        { id: 'smh2016', text: 'Stephenson, F.R., Morrison, L.V. & Hohenkerk, C.Y. (2016). Measurement of the Earth\u2019s rotation: 720 BC to AD 2015. Proc. R. Soc. A 472, 20160404 (beserta Supplement).', doi: '10.1098/rspa.2016.0404', role: 'Himpunan data gerhana pra-teleskop, okultasi bulan 1623\u20132015, dan metode penyesuaian spline' },
-        { id: 'hg2012', text: 'Herald, D. & Gault, D. (2012). Lunar occultation archive VI/132B. Centre de Donn\u00e9es astronomiques de Strasbourg (CDS).', doi: null, role: 'Data okultasi bintang oleh Bulan, 1623\u2013sekarang (bagian teleskopik dari spline)' },
-        { id: 'wb2016', text: 'Williams, J.G. & Boggs, D.H. (2016). Secular tidal changes in lunar orbit and Earth rotation. Celest. Mech. Dyn. Astron. 126, 89\u2013129.', doi: '10.1007/s10569-016-9702-3', role: 'Prediksi percepatan pasang-surut (pembanding)' },
-        { id: 'ms2004', text: 'Morrison, L.V. & Stephenson, F.R. (2004). Historical values of the Earth\u2019s clock error \u0394T and the calculation of eclipses. J. Hist. Astron. 35, 327\u2013336.', doi: null, role: 'Model legacy (jangkar gerhana 702\u20131299)' },
-        { id: 'em2006', text: 'Espenak, F. & Meeus, J. (2006). Five Millennium Canon of Solar Eclipses: \u22121999 to +3000 (2000 BCE to 3000 CE). NASA/TP-2006-214141 (Revision 1.0, 2007 Mei 11).', doi: null, role: 'Pembanding \u0394T (pers. 9\u201326), galat baku MS2004 (pers. 27), polinomial cadangan setelah data IERS' },
-        { id: 'em2008se', text: 'Espenak, F. & Meeus, J. (2008). Five Millennium Catalog of Solar Eclipses: \u22121999 to +3000. NASA/TP-2008-214170 (katalog bertanggal 2008 Okt 07).', doi: null, role: 'Kolom DT 11.898 gerhana Matahari: dipakai memvalidasi polinomial NASA (selisih maks. 1,5 s) dan membandingkan spline MSH2020' },
-        { id: 'em2009le', text: 'Espenak, F. & Meeus, J. (2009). Five Millennium Canon of Lunar Eclipses: \u22121999 to +3000. NASA/TP-2009-214172; Five Millennium Catalog of Lunar Eclipses, NASA/TP-2009-214173 (katalog bertanggal 2011 Mei 23).', doi: null, role: 'Katalog gerhana Bulan (12.064 peristiwa, TD & DT) sebagai data pembanding' },
+    groups: [
+        { title: 'A. Model \u0394T utama (spline MSH2020)', items: [
+            { cite: 'Morrison, L.V., Stephenson, F.R., Hohenkerk, C.Y. & Zawilski, M. (2021). Addendum 2020 to \u2018Measurement of the Earth\u2019s rotation: 720 BC to AD 2015\u2019. Proceedings of the Royal Society A, 477, 20200776.', doi: '10.1098/rspa.2020.0776', role: 'Spline \u0394T \u2212720 s.d. 2019 (Tabel S15, versi 2020); parabola jangka panjang pers. (5.1); batas gerhana tak-berwaktu terbaru (Tabel 1\u20133, S10, S11).' },
+            { cite: 'Stephenson, F.R., Morrison, L.V. & Hohenkerk, C.Y. (2016). Measurement of the Earth\u2019s rotation: 720 BC to AD 2015. Proceedings of the Royal Society A, 472, 20160404 (termasuk Supplement).', doi: '10.1098/rspa.2016.0404', role: 'Kompilasi gerhana pra-teleskop, okultasi bulan 1623\u20132015, dan metode penyesuaian spline.' }
+        ] },
+        { title: 'B. Data pengamatan', items: [
+            { cite: 'Herald, D. & Gault, D. (2012). Lunar Occultation Archive VI/132B. Centre de Donn\u00e9es astronomiques de Strasbourg (CDS).', doi: null, role: 'Okultasi bintang oleh Bulan 1623\u2013sekarang; dasar bagian teleskopik spline (tidak ditanam di OSS).' },
+            { cite: 'Huber, P.J. & De Meis, S. (2004). Babylonian Eclipse Observations from 750 BC to 1 BC. Mimesis, Milano. Hunger, H. (2001). Lunar and Planetary Texts, dan (2006) Goal Year Texts, dalam Astronomical Diaries and Related Texts from Babylonia, vol. V dan VI. Sachs, A.J. & Hunger, H. (1996). Astronomical Diaries and Related Texts from Babylonia, vol. III. Austrian Academy of Sciences, Wien.', doi: null, role: 'Sumber primer pengamatan Babilonia dalam Tabel S01\u2013S03 (sebagaimana dikutip dalam Supplement 2016).' }
+        ] },
+        { title: 'C. Pembanding dan validasi (NASA)', items: [
+            { cite: 'Espenak, F. & Meeus, J. (2006). Five Millennium Canon of Solar Eclipses: \u22121999 to +3000 (2000 BCE to 3000 CE). NASA/TP-2006-214141, Revision 1.0 (2007 Mei 11).', doi: null, role: 'Polinomial \u0394T pers. (9)\u2013(26), koreksi percepatan sekuler Bulan pers. (26), galat baku MS2004 pers. (27).' },
+            { cite: 'Espenak, F. & Meeus, J. (2008). Five Millennium Catalog of Solar Eclipses: \u22121999 to +3000. NASA/TP-2008-214170 (katalog bertanggal 2008 Okt 07).', doi: null, role: '11.898 gerhana Matahari: kolom DT dan TD gerhana terbesar dipakai sebagai oracle validasi.' },
+            { cite: 'Espenak, F. & Meeus, J. (2009). Five Millennium Canon of Lunar Eclipses: \u22121999 to +3000. NASA/TP-2009-214172; Five Millennium Catalog of Lunar Eclipses, NASA/TP-2009-214173 (katalog bertanggal 2011 Mei 23).', doi: null, role: '12.064 gerhana Bulan: kolom DT dipakai memvalidasi polinomial NASA.' },
+            { cite: 'Morrison, L.V. & Stephenson, F.R. (2004). Historical values of the Earth\u2019s clock error \u0394T and the calculation of eclipses. Journal for the History of Astronomy, 35(3), 327\u2013336.', doi: null, role: 'Dasar model NASA dan galat baku \u03c3 = 0,8 t\u00b2; model legacy OSS v8.' }
+        ] },
+        { title: 'D. Konsistensi efemeris Bulan dan fisika rotasi', items: [
+            { cite: 'Chapront-Touz\u00e9, M. & Chapront, J. (1983). The lunar ephemeris ELP 2000. Astronomy & Astrophysics, 124(1), 50\u201362.', doi: null, role: 'Teori Bulan ELP2000-82 yang dipakai OSS (berkas ELP2000-82B).' },
+            { cite: 'Chapront, J., Chapront-Touz\u00e9, M. & Francou, G. (2002). A new determination of lunar orbital parameters, precession constant and tidal acceleration from LLR measurements. Astronomy & Astrophysics, 387, 700\u2013709.', doi: null, role: 'Percepatan sekuler Bulan \u221225,858\u2033/abad\u00b2 (dasar koreksi percepatan sekuler di mesin Bulan).' },
+            { cite: 'Williams, J.G. & Boggs, D.H. (2016). Secular tidal changes in lunar orbit and Earth rotation. Celestial Mechanics and Dynamical Astronomy, 126, 89\u2013129.', doi: '10.1007/s10569-016-9702-3', role: 'Percepatan pasang-surut (+2,40 ms/abad pada lod) sebagai pembanding hasil observasi (+1,72 ms/abad).' }
+        ] },
+        { title: 'E. Model cadangan', items: [
+            { cite: 'Espenak, F. & Meeus, J. (2006), lihat kelompok C.', doi: null, role: 'Polinomial cadangan setelah tabel IERS berakhir dan pada model legacy.' }
+        ] }
+    ],
+    files: [
+        ['Table-S15_2020.txt', 'Koefisien spline, 58 baris, \u2212720,0\u20132019,0 (v. 2020)', 'Ditanam penuh (TimeSystem.DELTA_T_MSH2020)'],
+        ['Table-S10_2020.txt', 'Batas gerhana total/annular tak-berwaktu (48)', 'Ditanam (dt-obs.untimed) untuk grafik'],
+        ['Table-S11_2020.txt', 'Batas gerhana parsial tak-berwaktu (revisi 2020)', 'Dibaca untuk verifikasi; tidak ditanam'],
+        ['Table-S01\u2013S03, S05\u2013S09', 'Pengamatan berwaktu: Babilonia 171, Cina 111, Yunani 11, Arab 54', 'Ditanam (dt-obs.timed), bobot 0 tidak digambar'],
+        ['5MKSEcatalog.txt / 5MKLEcatalog.txt', 'Katalog NASA gerhana Matahari (11.898) dan Bulan (12.064)', 'Hanya untuk validasi; tidak ditanam'],
+        ['extract-lunarocc.dat', 'Ekstrak okultasi bulan Herald & Gault (120.908 rekaman)', 'Tidak dipakai (sudah terwakili di spline)']
     ],
     methods: [
-        '\u0394T = TT \u2212 UT (detik), dievaluasi pada tahun desimal Y yang dihitung dari JD (kalender Julian/Gregorian, penomoran astronomis: 1 SM = 0).',
-        '\u2212720 \u2264 Y < 2019,0: spline kubik piecewise Tabel S15 (2020): untuk baris i dengan K_i \u2264 Y \u2264 K_{i+1}, t = (Y\u2212K_i)/(K_{i+1}\u2212K_i), \u0394T = a0 + a1\u00b7t + a2\u00b7t\u00b2 + a3\u00b7t\u00b3.',
-        'Y < \u2212720: parabola jangka panjang pers. (5.1), \u0394T = \u221210 + 31,4\u00b7((Y\u22121825)/100)\u00b2 detik, digeser konstan (+44 s) agar kontinu di \u2212720 (keputusan implementasi OSS; spline tidak berlaku sebelum \u2212720).',
-        'Y \u2265 2019,0: tabel IERS/EOP (interpolasi linear); di luar cakupan tabel, polinomial Espenak & Meeus (2006) dan ekstrapolasi linear (perilaku lama OSS).',
-        'Pembanding NASA: Espenak & Meeus (2006) pers. (9)\u2013(26) dengan koreksi percepatan sekuler Bulan (c); direproduksi terhadap kolom DT katalog NASA (selisih maks. 1,5 s). Galat baku \u03c3 yang ditampilkan adalah \u03c3 MS2004 (pers. 27), bukan galat spline MSH2020.',
-        'Tabel IERS mentah dibersihkan sebelum dipakai (hanya segmen bulanan/kuartalan dari MJD 41683, terurut menaik).',
-        'Model legacy (jangkar gerhana 702\u20131299 + Espenak & Meeus) tetap tersedia lewat set_delta_t_model(\'legacy\') untuk pembandingan.'
+        '\u0394T = TT \u2212 UT (detik), dievaluasi pada tahun desimal Y dari JD (kalender Julian/Gregorian, penomoran astronomis: 1 SM = 0). Basis data spline dan parabola ΔT divalidasi berdasarkan kompilasi Stephenson et al. (2016, Proc. R. Soc. A 472) beserta Addendum Morrison et al. (2021, Proc. R. Soc. A 477).',
+        '\u2212720 \u2264 Y < 2019,0: spline kubik piecewise Tabel S15 (2020). Untuk baris i dengan K_i \u2264 Y \u2264 K_{i+1}: t = (Y\u2212K_i)/(K_{i+1}\u2212K_i); \u0394T = a0 + a1\u00b7t + a2\u00b7t\u00b2 + a3\u00b7t\u00b3.',
+        'Y < \u2212720: parabola pers. (5.1), \u0394T = \u221210 + 31,4\u00b7((Y\u22121825)/100)\u00b2, digeser +44 s agar kontinu di \u2212720 (keputusan implementasi OSS).',
+        'Y \u2265 2019,0: tabel IERS/EOP (interpolasi linear, sudah dibersihkan dan terurut); di luar cakupan: polinomial Espenak & Meeus dan ekstrapolasi linear (perilaku lama).',
+        'Pembanding NASA: pers. (9)\u2013(26) Espenak & Meeus dengan y = tahun + (bulan \u2212 0,5)/12 dan koreksi c = \u22120,000012932\u00b7(y\u22121955)\u00b2 (di luar 1955\u20132005).',
+        '\u03c3 yang ditampilkan adalah \u03c3 MS2004 (pers. 27 dan \u00a72.8 Espenak & Meeus), bukan galat spline MSH2020.',
+        'Koreksi opsional mesin Bulan: Koreksi percepatan sekuler Bulan, AKTIF secara default (pasangan konsisten dengan \u0394T MSH2020): \u0394W1 = \u22120,9817\u2033\u00b7T\u00b2 (T abad Julian dari J2000) = \u00bd(\u221225,858 \u2212 (\u221223,8946)). Nonaktifkan dengan ELP82B.set_tidal_correction(false).',
+        'Model legacy v8 tersedia lewat TimeSystem.set_delta_t_model(\'legacy\') untuk pembandingan.'
     ],
-    notes: 'Spline tidak berlaku di luar \u2212720..2019. Ketidakpastian \u0394T pra-1600 ditentukan oleh sebaran batas gerhana tak-berwaktu (puluhan hingga ratusan detik), bukan oleh galat numerik interpolasi.'
+    validation: [
+        ['Koefisien S15 (2020)', '58 baris identik dengan berkas; lompatan C0 antar-segmen maks. 0,001 s'],
+        ['Implementasi spline', 'Selisih terhadap implementasi acuan terpisah \u2264 4\u00d710\u207b\u00b9\u00b2 s pada seluruh rentang'],
+        ['10 batas gerhana kritis', 'MSH2020 melanggar 2 (454: 13 s; 1239: 14 s); model legacy melanggar 6'],
+        ['Polinomial NASA vs katalog', 'Selisih maks. 1,52 s (11.898 gerhana Matahari) dan 1,44 s (12.064 gerhana Bulan)'],
+        ['Jangkar legacy vs katalog', '34 jangkar bertanggal cocok dengan DT katalog (selisih \u2264 5 s): bukan data independen'],
+        ['MSH2020 \u2212 NASA (rata-rata)', '\u2212139 s (\u2212720..\u2212400), +13 s (\u2212400..0), \u2212153 s (0..400), \u221264 s (400..800), +45 s (800..1000), +142 s (1000..1200), +188 s (1200..1400), +89 s (1400..1600)'],
+        ['Konsistensi efemeris Bulan', 'Residu konjungsi OSS vs TD gerhana NASA (geometri dihilangkan): 1248 s (\u2212720..\u2212400), 917 s (\u2212400..0), 616 s (0..400), 369 s (400..800), 186 s (800..1200), 67 s (1200..1600), 16 s (1600..1800), 0 s (1800..2100); fit 1,89 s/abad\u00b2 \u2248 0,96\u2033/abad\u00b2'],
+        ['Setelah koreksi Bulan (kini default)', '|rata-rata residu| \u2264 9 s pada semua era (contoh 800..1200: \u22127,5 s)'],
+        ['Integrasi panchanga (v8 vs \u0394T baru + koreksi Bulan)', '400 tanggal acak 1\u20131300 M, tengah hari: 1 pergantian tithi (222-02-09: tithi 11 \u2192 10); elongasi bergeser rata-rata \u22120,033\u00b0, maks. 0,128\u00b0; era modern (2026) tidak berubah']
+    ],
+    limitations: [
+        'Spline hanya berlaku \u2212720..2019; sebelum itu parabola bergeser (galat \u0394T ribuan detik di era jauh).',
+        '\u03c3 MS2004 bukan galat statistik spline MSH2020; selisih MSH2020\u2212NASA pada 1000\u20131600 jauh melampaui \u03c3 tersebut.',
+        'Dua batas kritis (454, 1239) dilampaui \u2264 14 s oleh spline; penyebab (pembulatan/tanggal) belum ditelusuri.',
+        'Uji konsistensi efemeris memakai TD gerhana terbesar NASA dan kalibrasi geometri pada 1800\u20132100; bukan pembandingan langsung dengan JPL DE.',
+        'Nilai \u221223,8946\u2033/abad\u00b2 (ELP2000-82) diverifikasi secara eksplisit dari Chapront-Touzé & Chapront (1983, A&A 124, Tabel 7) dan Chapront-Touzé & Chapront (1988, A&A 190, hlm. 16). Kesesuaian model pasang surut (tidal) ini terhadap standar modern didukung oleh fit empiris sebesar 0,96\u2033/abad\u00b2.',
+        'Setelah akhir tabel IERS (\u2248 2033) terdapat loncatan \u2248 1,9 s ke ekstrapolasi lama (bawaan v8).',
+        'Naskah MSH2021 menyebut volume 477; berkas S15 menyebut 478 \u2014 dipakai 477.'
+    ]
 });
 
 // ============================================================================
@@ -2806,19 +2850,64 @@ if (typeof module !== 'undefined' && module.exports) {
 
         const horizon = -0.25;
         let transit_time = null, transit_alt = null;
-        for (let i = 0; i < N - 1; i++) {
-            const h1 = has[i], h2 = has[i+1];
-            if (h1 < 0 && h2 >= 0) {
-                const frac = -h1 / (h2 - h1);
-                const t = hours[i] + frac * (hours[i+1] - hours[i]);
-                if (t >= 0 && t <= 24) {
-                    transit_time = t;
-                    transit_alt = alts[i] + frac * (alts[i+1] - alts[i]);
-                    break;
+            
+            for (let i = 0; i < N - 1; i++) {
+                const h1 = has[i], h2 = has[i+1];
+                if ((h1 <= 0 && h2 >= 0) || (h1 >= 0 && h2 <= 0)) {
+                    if (h1 !== h2) {
+                        // Jika memungkinkan, gunakan 3 titik (i-1, i, i+1) untuk kurva parabola
+                        if (i > 0 && i < N - 2) {
+                            const y1 = has[i-1], y2 = has[i], y3 = has[i+1];
+                            const a1 = alts[i-1], a2 = alts[i], a3 = alts[i+1];
+                            const dx = hours[i] - hours[i-1];
+                            
+                            // Persamaan Parabola: A*u^2 + B*u + C = 0
+                            const A = y1 - 2*y2 + y3;
+                            const B = (y3 - y1) * dx;
+                            const C = 2 * y2 * dx * dx;
+                            
+                            let u = 0;
+                            if (Math.abs(A) > 1e-10) {
+                                const disc = B*B - 4*A*C;
+                                if (disc >= 0) {
+                                    const sqrtDisc = Math.sqrt(disc);
+                                    const u1 = (-B + sqrtDisc) / (2*A);
+                                    const u2 = (-B - sqrtDisc) / (2*A);
+                                    // Pilih akar yang paling dekat dengan titik pusat (u=0)
+                                    u = Math.abs(u1) < Math.abs(u2) ? u1 : u2;
+                                } else {
+                                    u = -y2 * dx / (y3 - y1); // Fallback linear
+                                }
+                            } else {
+                                u = -y2 * dx / (y3 - y1); // Fallback linear
+                            }
+                            
+                            let raw_t = hours[i] + u;
+                            let t = ((raw_t % 24) + 24) % 24;
+                            
+                            // Hitung altitude menggunakan rumus parabola
+                            let alt = a2 + (a3 - a1) / (2*dx) * u + A / (2*dx*dx) * u*u;
+                            
+                            if (alt > -1.0 || transit_time === null) {
+                                transit_time = t;
+                                transit_alt = alt;
+                                if (alt > 0) break;
+                            }
+                        } else {
+                            // Fallback ke linear jika terjadi di ujung array (sangat jarang)
+                            const frac = -h1 / (h2 - h1);
+                            let t = hours[i] + frac * (hours[i+1] - hours[i]);
+                            t = ((t % 24) + 24) % 24;
+                            const alt = alts[i] + frac * (alts[i+1] - alts[i]);
+                            if (alt > -1.0 || transit_time === null) {
+                                transit_time = t;
+                                transit_alt = alt;
+                                if (alt > 0) break;
+                            }
+                        }
+                    }
                 }
             }
-        }
-
         let rise_time = null, set_time = null;
         for (let i = 0; i < N - 1; i++) {
             const h1 = hours[i], h2 = hours[i+1];
@@ -2826,11 +2915,11 @@ if (typeof module !== 'undefined' && module.exports) {
             if (alts[i] < horizon && alts[i+1] >= horizon) {
                 const frac = (horizon - alts[i]) / (alts[i+1] - alts[i]);
                 const t = h1 + frac * (h2 - h1);
-                if (t >= 0 && t <= 24 && rise_time === null) rise_time = t;
+                if (t >= 0 && t <= 24.0001 && rise_time === null) rise_time = t;
             } else if (alts[i] >= horizon && alts[i+1] < horizon) {
                 const frac = (alts[i] - horizon) / (alts[i] - alts[i+1]);
                 const t = h1 + frac * (h2 - h1);
-                if (t >= 0 && t <= 24 && set_time === null) set_time = t;
+                if (t >= 0 && t <= 24.0001 && set_time === null) set_time = t;
             }
         }
 
@@ -3268,6 +3357,19 @@ const ATH_ = 384747.9806743165;
 const A0_  = 384747.9806448954;
 
 class ELP82B {
+    // Koreksi percepatan sekuler Bulan (opsional, default AKTIF; set_tidal_correction(false) = ELP2000-82B asli).
+    // ELP2000-82B asli memakai percepatan sekuler pasang-surut -23,8946"/abad^2 (nilai ELP2000-82);
+    // Espenak & Meeus (2006) memakai -25,858"/abad^2 (Chapront dkk. 2002, cocok dengan LLR).
+    // Koreksi dikenakan pada bujur rata-rata W1 sebagai suku T^2 (T = abad Julian dari J2000):
+    //   dW1 = 0,5 * (ndot_baru - ndot_ELP82) * T^2  =  -0,9817" * T^2 untuk -25,858.
+    // Diverifikasi empiris terhadap kolom TD katalog gerhana NASA (lihat Referensi).
+    set_tidal_correction(on, ndot_new) {
+        const nd_new = (ndot_new === undefined) ? -25.858 : ndot_new;
+        this.tidal_corr = on ? (0.5 * (nd_new - (-23.8946)) / RAD_) : 0;
+        // Hasil lama di cache global tidak lagi berlaku: kosongkan.
+        try { if (typeof window !== 'undefined' && window.JRC_Part1) window.JRC_Part1.GlobalCacheManager.get_instance().clear_cache(); } catch (e) {}
+        return this.tidal_corr * RAD_;
+    }
     constructor(filesMap, verbose) {
         this.filesMap = filesMap;
         this.verbose  = !!verbose;
@@ -3519,7 +3621,7 @@ class ELP82B {
             sum_dist += amp * Math.sin(arg0 + arg1*t) * mult;
         }
 
-        const W1 = this.w1[0] + this.w1[1]*t + this.w1[2]*t2 + this.w1[3]*t3 + this.w1[4]*t4;
+        const W1 = this.w1[0] + this.w1[1]*t + (this.w1[2] + this.tidal_corr)*t2 + this.w1[3]*t3 + this.w1[4]*t4;
         const V = sum_lon / RAD_ + W1;
         const U = sum_lat / RAD_;
         const R = sum_dist * (A0_ / ATH_);
@@ -3588,10 +3690,11 @@ class ELP82B {
             sum_dist += amp * Math.sin(arg0 + arg1*t) * mult;
         }
 
-        const W1 = this.w1[0] + this.w1[1]*t + this.w1[2]*t2 + this.w1[3]*t3 + this.w1[4]*t4;
+        const W1 = this.w1[0] + this.w1[1]*t + (this.w1[2] + this.tidal_corr)*t2 + this.w1[3]*t3 + this.w1[4]*t4;
         return [sum_lon / RAD_ + W1, sum_lat / RAD_, sum_dist * (A0_ / ATH_)];
     }
 }
+ELP82B.prototype.tidal_corr = 0.5 * (-25.858 - (-23.8946)) / RAD_;   // default aktif: -0,9817"/abad^2
 
 if (typeof window !== 'undefined') window.ELP82B = ELP82B;
 if (typeof module !== 'undefined' && module.exports) module.exports = { ELP82B };
@@ -10519,11 +10622,11 @@ class GrahacaraAsthaEngine {
             hours.push(h); alts.push(aa.altitude_apparent); has.push(aa.hour_angle);
         }
         let tt = null, ta = null, rise = null, set = null; const hz = 0.0;
-        for (let i = 0; i < N - 1; i++) if (has[i] < 0 && has[i + 1] >= 0) { const fr = -has[i] / (has[i + 1] - has[i]), t = hours[i] + fr * 0.5; if (t >= 0 && t <= 24) { tt = t; ta = alts[i] + fr * (alts[i + 1] - alts[i]); break; } }
+        for (let i = 0; i < N - 1; i++) if (has[i] < 0 && has[i + 1] >= 0) { const fr = -has[i] / (has[i + 1] - has[i]), t = hours[i] + fr * 0.5; if (t >= 0 && t <= 24.0001) { tt = t; ta = alts[i] + fr * (alts[i + 1] - alts[i]); break; } }
         for (let i = 0; i < N - 1; i++) {
             const h1 = hours[i], h2 = hours[i + 1]; if (h2 < 0 || h1 > 24) continue;
-            if (alts[i] < hz && alts[i + 1] >= hz) { const t = h1 + (hz - alts[i]) / (alts[i + 1] - alts[i]) * 0.5; if (t >= 0 && t <= 24 && rise === null) rise = t; }
-            else if (alts[i] >= hz && alts[i + 1] < hz) { const t = h1 + (alts[i] - hz) / (alts[i] - alts[i + 1]) * 0.5; if (t >= 0 && t <= 24 && set === null) set = t; }
+            if (alts[i] < hz && alts[i + 1] >= hz) { const t = h1 + (hz - alts[i]) / (alts[i + 1] - alts[i]) * 0.5; if (t >= 0 && t <= 24.0001 && rise === null) rise = t; }
+            else if (alts[i] >= hz && alts[i + 1] < hz) { const t = h1 + (alts[i] - hz) / (alts[i] - alts[i + 1]) * 0.5; if (t >= 0 && t <= 24.0001 && set === null) set = t; }
         }
         return { rise: mk(rise), transit: mk(tt, ta), set: mk(set), method: 'scan 97 titik (gaya moon rise/set JRC)' };
     }
@@ -39011,7 +39114,7 @@ App.render_referensi = function(main) {
     + '<li><b>VSOP87D</b> menghasilkan koordinat Bumi pada <i>mean ecliptic and equinox of date</i>. Argumen waktu = <i>dynamical time</i> = TT = TAI + 32,184 s.</li>'
     + '<li><b>ELP2000-82B</b> menghasilkan <i>rectangular coordinates</i> Bulan pada <i>mean ecliptic and equinox J2000</i>. Untuk memperoleh posisi pada tanggal bersangkutan, koordinat dirotasi menggunakan <i>accumulated precession p<sub>A</sub></i> (Laskar, 1986) dan polinomial <i>P</i>, <i>Q</i> lima suku.</li>'
     + '<li>OSS menempatkan kedua solusi pada <i>mean ecliptic and equinox of date</i> sebelum perhitungan tithi, nak\u1e63atra, dan panjang hari.</li>'
-    + '<li><b>\u0394T tidak berasal dari ELP82B maupun VSOP87D.</b> Nilainya dihitung dari spline Morrison, Stephenson, Hohenkerk &amp; Zawilski (2021, Tabel S15 versi 2020) untuk \u2212720 s.d. 2019 (didasarkan pada gerhana pra-teleskop dan okultasi bulan), parabola jangka panjang (5.1) untuk sebelum \u2212720, tabel IERS/EOP setelah 2019, dan polinomial Espenak &amp; Meeus (2006) sebagai cadangan di luar cakupan data. Model lama (jangkar gerhana 702\u20131299 M) tetap tersedia sebagai pembanding.</li>'
+    + '<li><b>\u0394T tidak berasal dari ELP82B maupun VSOP87D.</b> Nilainya dihitung dari spline Morrison, Stephenson, Hohenkerk &amp; Zawilski (2021, Tabel S15 versi 2020) untuk \u2212720 s.d. 2019 (didasarkan pada gerhana pra-teleskop dan okultasi bulan), parabola jangka panjang (5.1) untuk sebelum \u2212720, tabel IERS/EOP setelah 2019, dan polinomial Espenak &amp; Meeus (2006) sebagai cadangan di luar cakupan data. Model lama (jangkar gerhana 702\u20131299 M) tetap tersedia sebagai pembanding. Uji terhadap TD gerhana katalog NASA menunjukkan Bulan ELP2000-82B asli tertinggal secara kuadratik di era kuno (\u2248186 detik di sekitar 1000 M); koreksi percepatan sekuler (aktif secara default; <code>ELP82B.set_tidal_correction(false)</code> untuk menonaktifkan) menghilangkannya (lihat Referensi \u2192 \u0394T).</li>'
     + '<li>Aberasi tahunan dan paralaks diurnal dihitung terpisah. Koreksi relativistik lokal Bumi pada tingkat LLR tidak diterapkan.</li>'
     + '</ul>'
 
@@ -39065,24 +39168,33 @@ App.render_referensi = function(main) {
     + '</ul>');
 
   (function() {
-    var TS = window.JRC_Part1 && window.JRC_Part1.TimeSystem, SRC = TS && TS.DELTA_T_SOURCES;
-    var refs = '<ul class="refs">';
-    (SRC ? SRC.references : []).forEach(function(r) {
-      refs += '<li>' + App.esc(r.text) + (r.doi ? ' DOI: <a href="https://doi.org/' + App.esc(r.doi) + '" target="_blank">' + App.esc(r.doi) + '</a>.' : '')
-           + ' <i>Peran di OSS: ' + App.esc(r.role) + '.</i></li>';
+    var TS = window.JRC_Part1 && window.JRC_Part1.TimeSystem, SRC = TS && TS.DELTA_T_SOURCES, E = App.esc;
+    if (!SRC) return;
+    var refs = '', n = 0;
+    SRC.groups.forEach(function(g) {
+      refs += '<h4 class="dt-h">' + E(g.title) + '</h4><ul class="refs">';
+      g.items.forEach(function(r) {
+        n++;
+        refs += '<li>[' + n + '] ' + E(r.cite) + (r.doi ? ' DOI: <a href="https://doi.org/' + E(r.doi) + '" target="_blank">' + E(r.doi) + '</a>.' : '') + '<br><i>Peran di OSS: ' + E(r.role) + '</i></li>';
+      });
+      refs += '</ul>';
     });
-    refs += '</ul>';
-    var meth = '';
-    if (SRC) {
-      meth = '<h4>Metode</h4><ol>' + SRC.methods.map(function(m) { return '<li>' + App.esc(m) + '</li>'; }).join('') + '</ol>'
-           + '<p class="dim">' + App.esc(SRC.notes) + '</p>';
-    }
+    h += App.card('\u23f1\ufe0f Koreksi Waktu (\u0394T) \u2014 Rujukan', refs);
+    var files = '<h4 class="dt-h">Berkas data dan penggunaannya</h4><div class="tbl-wrap"><table class="data"><tr><th>Berkas</th><th>Isi</th><th>Penggunaan</th></tr>';
+    SRC.files.forEach(function(f) { files += '<tr><td>' + E(f[0]) + '</td><td>' + E(f[1]) + '</td><td>' + E(f[2]) + '</td></tr>'; });
+    files += '</table></div>';
+    var meth = '<h4 class="dt-h">Metode</h4><ol>' + SRC.methods.map(function(m) { return '<li>' + E(m) + '</li>'; }).join('') + '</ol>';
+    var val = '<h4 class="dt-h">Hasil validasi</h4><div class="tbl-wrap"><table class="data"><tr><th>Uji</th><th>Hasil</th></tr>';
+    SRC.validation.forEach(function(v) { val += '<tr><td>' + E(v[0]) + '</td><td>' + E(v[1]) + '</td></tr>'; });
+    val += '</table></div>';
+    var lim = '<h4 class="dt-h">Keterbatasan dan catatan</h4><ul>' + SRC.limitations.map(function(m) { return '<li>' + E(m) + '</li>'; }).join('') + '</ul>';
+    h += App.card('\u23f1\ufe0f \u0394T \u2014 Metode, Validasi, dan Keterbatasan', files + meth + val + lim);
     var cmp = '';
     try {
       var ts = App.engines && App.engines.ts;
       if (ts && ts.delta_t_compare) {
         var f0 = function(v) { return v == null ? '\u2013' : (Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(1)); };
-        cmp += '<h4>Perbandingan model \u0394T (detik, pertengahan tahun)</h4><div class="tbl-wrap"><table class="data"><tr><th>Tahun</th><th>MSH2020</th><th>NASA E&amp;M</th><th>Legacy v8</th><th>MSH\u2212NASA</th><th>\u03c3 MS2004</th></tr>';
+        cmp += '<h4 class="dt-h">Perbandingan model \u0394T (detik, pertengahan tahun)</h4><div class="tbl-wrap"><table class="data"><tr><th>Tahun</th><th>MSH2020</th><th>NASA E&amp;M</th><th>Legacy v8</th><th>MSH\u2212NASA</th><th>\u03c3 MS2004</th></tr>';
         [-500, 0, 500, 700, 800, 977, 1000, 1200, 1300, 1500, 1600].forEach(function(y) {
           var c = ts.delta_t_compare(ts.date_to_jd_utc(y, 7, 1, 0, 0, 0, 0));
           cmp += '<tr><td>' + y + '</td><td>' + f0(c.msh2020) + '</td><td>' + f0(c.nasa_em2006) + '</td><td>' + f0(c.legacy_v8) + '</td><td>' + (c.msh2020 == null ? '\u2013' : (c.msh2020 - c.nasa_em2006 >= 0 ? '+' : '') + f0(c.msh2020 - c.nasa_em2006)) + '</td><td>' + (c.sigma_ms2004 == null ? '\u2013' : '\u00b1' + f0(c.sigma_ms2004)) + '</td></tr>';
@@ -39103,10 +39215,10 @@ App.render_referensi = function(main) {
         svg += '<text x="' + (L + 4) + '" y="' + (T + 10) + '" fill="#8899bb">\u03b4\u0394T = \u0394T \u2212 parabola (5.1), detik</text>';
         svg += '</svg>';
         var leg = '<p class="caption"><span style="color:#e8c887">\u2501</span> spline MSH2020 \u00b7 <span style="color:#9fb4ff">\u2504</span> NASA E&amp;M 2006 \u00b7 <span style="color:#b29cff">\u2503</span> batas gerhana tak-berwaktu (S10, 2020) \u00b7 titik: pengamatan berwaktu (bobot &gt; 0) <span style="color:#e8a468">Babilonia</span> <span style="color:#ff7b72">Cina</span> <span style="color:#7ee787">Yunani</span> <span style="color:#4fd1c5">Arab</span>. Sumber data: ' + App.esc(OBS.src) + '.</p>';
-        cmp += '<h4>\u0394T terhadap pengamatan</h4>' + svg + leg;
+        cmp += '<h4 class="dt-h">\u0394T terhadap pengamatan</h4>' + svg + leg;
       }
     } catch (err) { cmp = '<p class="err">Perbandingan \u0394T tidak dapat dimuat: ' + App.esc(err.message) + '</p>'; }
-    h += App.card('\u23f1\ufe0f Koreksi Waktu (\u0394T)', refs + meth + cmp);
+    h += App.card('\u23f1\ufe0f \u0394T \u2014 Perbandingan Model dan Pengamatan', cmp);
   })();
 
   main.innerHTML = h;
