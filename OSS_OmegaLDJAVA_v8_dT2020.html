@@ -5,7 +5,6 @@
 <style>
 :root{--bg:#0e1117;--panel:#1a1e2a;--panel2:#252b3d;--border:#2a3040;--border2:#3a4050;--text:#c0c8d8;--dim:#8899bb;--accent:#d4b896;--fg:#f0e6d0;--ok:#7ee787;--err:#ff7b72;--link:#79c0ff}
 *{box-sizing:border-box;margin:0;padding:0}
-ol, ul { padding-left: 1.5rem !important; margin-left: 0.5rem !important; }
 html,body{height:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;overflow:hidden}
 .layout{display:flex;height:100vh;height:100dvh}
@@ -422,7 +421,10 @@ path.cak-active-night{stroke:#7eefff;stroke-width:1.8;opacity:1}
 /* === Referensi / Bibliografi === */
 .refs{list-style:none;padding:0;margin:0;font-size:0.8rem;line-height:1.7}
 .refs li{padding:10px 0;border-bottom:1px solid rgba(42,48,64,0.5);color:var(--text)}
+.doff{font-size:0.62em;color:var(--dim);margin-left:3px;font-weight:600;cursor:help}
 .dt-h{margin:18px 0 6px;color:var(--accent);font-size:0.85rem;font-weight:600}
+.dt-list{margin:6px 0 12px;padding-left:2.2em;padding-right:6px;list-style-position:outside}
+.dt-list li{margin:0 0 7px;padding-left:4px;line-height:1.6}
 .refs li:last-child{border-bottom:none;padding-bottom:0}
 .refs b{color:var(--fg)}
 .refs i{color:#b8c0d0}
@@ -1195,7 +1197,9 @@ TimeSystem.DELTA_T_SOURCES = Object.freeze({
             { cite: 'Morrison, L.V. & Stephenson, F.R. (2004). Historical values of the Earth\u2019s clock error \u0394T and the calculation of eclipses. Journal for the History of Astronomy, 35(3), 327\u2013336.', doi: null, role: 'Dasar model NASA dan galat baku \u03c3 = 0,8 t\u00b2; model legacy OSS v8.' }
         ] },
         { title: 'D. Konsistensi efemeris Bulan dan fisika rotasi', items: [
-            { cite: 'Chapront-Touz\u00e9, M. & Chapront, J. (1983). The lunar ephemeris ELP 2000. Astronomy & Astrophysics, 124(1), 50\u201362.', doi: null, role: 'Teori Bulan ELP2000-82 yang dipakai OSS (berkas ELP2000-82B).' },
+            { cite: 'Chapront-Touz\u00e9, M. & Chapront, J. (1983). The lunar ephemeris ELP 2000. Astronomy & Astrophysics, 124(1), 50\u201362.', doi: null, role: 'Tabel 7: kontribusi pasang-surut pada suku t\u00b2 bujur rata-rata = \u221211,9473\u2033/abad\u00b2 (Dickey dkk. 1982: \u221211,9 \u00b1 0,75); dasar nilai \u1e45 = 2 \u00d7 (\u221211,9473).' },
+            { cite: 'Chapront-Touz\u00e9, M., Chapront, J. & Francou, G. (1985; cetak ulang 2001). Lunar solution ELP, version ELP 2000-82B. Observatoire de Paris \u2013 SYRTE, dokumentasi 36 berkas data dan program FORTRAN.', doi: null, role: 'Tabel C: tidal W1\u00b7t\u00b2 = \u221211,9473\u2033, total W1\u00b7t\u00b2 = \u22125,8883\u2033/abad\u00b2 (nilai yang dipakai OSS).' },
+            { cite: 'Chapront-Touz\u00e9, M. & Chapront, J. (1987). ELP2000-85 : une solution du mouvement de la Lune couvrant la p\u00e9riode historique. Notes Scientifiques et Techniques du Bureau des Longitudes, S021 (Desember 1987).', doi: null, role: 'Menegaskan percepatan sekuler pasang-surut \u221223,895\u2033/abad\u00b2 dan presisi internal \u224813\u2033 (bujur) pada \u22121500.' },
             { cite: 'Chapront, J., Chapront-Touz\u00e9, M. & Francou, G. (2002). A new determination of lunar orbital parameters, precession constant and tidal acceleration from LLR measurements. Astronomy & Astrophysics, 387, 700\u2013709.', doi: null, role: 'Percepatan sekuler Bulan \u221225,858\u2033/abad\u00b2 (dasar koreksi percepatan sekuler di mesin Bulan).' },
             { cite: 'Williams, J.G. & Boggs, D.H. (2016). Secular tidal changes in lunar orbit and Earth rotation. Celestial Mechanics and Dynamical Astronomy, 126, 89\u2013129.', doi: '10.1007/s10569-016-9702-3', role: 'Percepatan pasang-surut (+2,40 ms/abad pada lod) sebagai pembanding hasil observasi (+1,72 ms/abad).' }
         ] },
@@ -1212,13 +1216,14 @@ TimeSystem.DELTA_T_SOURCES = Object.freeze({
         ['extract-lunarocc.dat', 'Ekstrak okultasi bulan Herald & Gault (120.908 rekaman)', 'Tidak dipakai (sudah terwakili di spline)']
     ],
     methods: [
-        '\u0394T = TT \u2212 UT (detik), dievaluasi pada tahun desimal Y dari JD (kalender Julian/Gregorian, penomoran astronomis: 1 SM = 0). Basis data spline dan parabola ΔT divalidasi berdasarkan kompilasi Stephenson et al. (2016, Proc. R. Soc. A 472) beserta Addendum Morrison et al. (2021, Proc. R. Soc. A 477).',
+        '\u0394T = TT \u2212 UT (detik), dievaluasi pada tahun desimal Y dari JD (kalender Julian/Gregorian, penomoran astronomis: 1 SM = 0).',
         '\u2212720 \u2264 Y < 2019,0: spline kubik piecewise Tabel S15 (2020). Untuk baris i dengan K_i \u2264 Y \u2264 K_{i+1}: t = (Y\u2212K_i)/(K_{i+1}\u2212K_i); \u0394T = a0 + a1\u00b7t + a2\u00b7t\u00b2 + a3\u00b7t\u00b3.',
         'Y < \u2212720: parabola pers. (5.1), \u0394T = \u221210 + 31,4\u00b7((Y\u22121825)/100)\u00b2, digeser +44 s agar kontinu di \u2212720 (keputusan implementasi OSS).',
         'Y \u2265 2019,0: tabel IERS/EOP (interpolasi linear, sudah dibersihkan dan terurut); di luar cakupan: polinomial Espenak & Meeus dan ekstrapolasi linear (perilaku lama).',
         'Pembanding NASA: pers. (9)\u2013(26) Espenak & Meeus dengan y = tahun + (bulan \u2212 0,5)/12 dan koreksi c = \u22120,000012932\u00b7(y\u22121955)\u00b2 (di luar 1955\u20132005).',
         '\u03c3 yang ditampilkan adalah \u03c3 MS2004 (pers. 27 dan \u00a72.8 Espenak & Meeus), bukan galat spline MSH2020.',
-        'Koreksi opsional mesin Bulan: Koreksi percepatan sekuler Bulan, AKTIF secara default (pasangan konsisten dengan \u0394T MSH2020): \u0394W1 = \u22120,9817\u2033\u00b7T\u00b2 (T abad Julian dari J2000) = \u00bd(\u221225,858 \u2212 (\u221223,8946)). Nonaktifkan dengan ELP82B.set_tidal_correction(false).',
+        'Mesin Bulan: koreksi percepatan sekuler, AKTIF secara default (pasangan konsisten dengan \u0394T MSH2020): \u0394W1 = \u22120,9817\u2033\u00b7T\u00b2 (T abad Julian dari J2000) = \u00bd(\u221225,858 \u2212 (\u221223,8946)). Nonaktifkan dengan ELP82B.set_tidal_correction(false).',
+        'Terbit/terbenam/transit Bulan: pemindaian 30 menit lalu akar diperhalus dengan metode Brent. Transit = sudut jam toposentris 0; terbit/terbenam = ketinggian geometri toposentris pusat Bulan mencapai \u2212(34\u2032 + semidiameter Bulan), setara batas atas piringan Bulan pada horizon dengan refraksi standar. Hasil berupa jam ternormalisasi 00:00\u201324:00 plus penanda hari (H\u22121/H+1) bila kejadian jatuh di hari sebelumnya/berikutnya.',
         'Model legacy v8 tersedia lewat TimeSystem.set_delta_t_model(\'legacy\') untuk pembandingan.'
     ],
     validation: [
@@ -1229,7 +1234,9 @@ TimeSystem.DELTA_T_SOURCES = Object.freeze({
         ['Jangkar legacy vs katalog', '34 jangkar bertanggal cocok dengan DT katalog (selisih \u2264 5 s): bukan data independen'],
         ['MSH2020 \u2212 NASA (rata-rata)', '\u2212139 s (\u2212720..\u2212400), +13 s (\u2212400..0), \u2212153 s (0..400), \u221264 s (400..800), +45 s (800..1000), +142 s (1000..1200), +188 s (1200..1400), +89 s (1400..1600)'],
         ['Konsistensi efemeris Bulan', 'Residu konjungsi OSS vs TD gerhana NASA (geometri dihilangkan): 1248 s (\u2212720..\u2212400), 917 s (\u2212400..0), 616 s (0..400), 369 s (400..800), 186 s (800..1200), 67 s (1200..1600), 16 s (1600..1800), 0 s (1800..2100); fit 1,89 s/abad\u00b2 \u2248 0,96\u2033/abad\u00b2'],
+        ['Nilai \u1e45 ELP2000-82B', 'Diverifikasi dari berkas: tidal W1\u00b7t\u00b2 = \u221211,9473\u2033/abad\u00b2 (Tabel C ELP82B; Tabel 7 makalah 1983) \u21d2 \u1e45 = \u221223,8946\u2033/abad\u00b2; ELP2000-85: \u221223,895\u2033/abad\u00b2; total W1\u00b7t\u00b2 OSS \u22125,8883\u2033 cocok dengan Tabel C'],
         ['Setelah koreksi Bulan (kini default)', '|rata-rata residu| \u2264 9 s pada semua era (contoh 800..1200: \u22127,5 s)'],
+        ['Terbit/transit/terbenam Bulan', '169 hari uji (Okt 2026\u2013Jan 2027, Mar 843, Des 977): seluruh kejadian terdefinisi tiap hari; sudut jam di transit \u2264 1,3\u00d710\u207b\u2075\u00b0; selisih ketinggian di terbit/terbenam terhadap ambang \u2264 2\u00d710\u207b\u2075\u00b0'],
         ['Integrasi panchanga (v8 vs \u0394T baru + koreksi Bulan)', '400 tanggal acak 1\u20131300 M, tengah hari: 1 pergantian tithi (222-02-09: tithi 11 \u2192 10); elongasi bergeser rata-rata \u22120,033\u00b0, maks. 0,128\u00b0; era modern (2026) tidak berubah']
     ],
     limitations: [
@@ -1237,7 +1244,8 @@ TimeSystem.DELTA_T_SOURCES = Object.freeze({
         '\u03c3 MS2004 bukan galat statistik spline MSH2020; selisih MSH2020\u2212NASA pada 1000\u20131600 jauh melampaui \u03c3 tersebut.',
         'Dua batas kritis (454, 1239) dilampaui \u2264 14 s oleh spline; penyebab (pembulatan/tanggal) belum ditelusuri.',
         'Uji konsistensi efemeris memakai TD gerhana terbesar NASA dan kalibrasi geometri pada 1800\u20132100; bukan pembandingan langsung dengan JPL DE.',
-        'Nilai \u221223,8946\u2033/abad\u00b2 (ELP2000-82) diverifikasi secara eksplisit dari Chapront-Touzé & Chapront (1983, A&A 124, Tabel 7) dan Chapront-Touzé & Chapront (1988, A&A 190, hlm. 16). Kesesuaian model pasang surut (tidal) ini terhadap standar modern didukung oleh fit empiris sebesar 0,96\u2033/abad\u00b2.',
+        'Ketidakpastian percepatan pasang-surut sendiri \u00b11,5\u2033/abad\u00b2 (Dickey dkk. 1982, \u00b10,75 pada suku t\u00b2); selisih ELP82 vs NASA (1,96\u2033/abad\u00b2) berada dalam kisaran ini, sehingga koreksi memilih nilai Chapront dkk. (2002) yang cocok dengan LLR.',
+        'Terbit/terbenam Bulan belum divalidasi terhadap almanak independen (tidak tersedia secara luring); definisi ambang (34\u2032 + semidiameter, tanpa dip ketinggian pengamat) mengikuti konvensi standar. Definisi lama OSS terkunci pada lompatan refraksi sehingga bergeser sekitar 1 menit.',
         'Setelah akhir tabel IERS (\u2248 2033) terdapat loncatan \u2248 1,9 s ke ekstrapolasi lama (bawaan v8).',
         'Naskah MSH2021 menyebut volume 477; berkas S15 menyebut 478 \u2014 dipakai 477.'
     ]
@@ -2832,96 +2840,99 @@ if (typeof module !== 'undefined' && module.exports) {
         jd_local_midnight_utc, observer_lat_deg, observer_lon_deg,
         observer_elevation_m, lunar_engine) {
 
+        // Pencarian: pemindaian kasar tiap 30 menit (-12 s.d. +36 jam dari tengah malam lokal),
+        // lalu setiap akar diperhalus dengan metode Brent (interpolasi kuadrat invers + bisection;
+        // konvergen superlinear, toleransi 1e-8 jam = 0,04 ms). Transit = sudut jam toposentrik
+        // Bulan melintasi 0; terbit/terbenam = ketinggian tampak melintasi ambang horizon.
         const N = 97;
         const hours = new Array(N);
         const alts = new Array(N);
+        const gs = new Array(N);
         const has = new Array(N);
+        const norm180 = (x) => (((x + 180) % 360) + 360) % 360 - 180;
+        const sample = (h) => {
+            const d = lunar_engine.calculate_position(
+                jd_local_midnight_utc + h / 24.0, 'horizontal',
+                observer_lat_deg, observer_lon_deg, observer_elevation_m);
+            // Ketinggian tampak (dengan refraksi) tidak kontinu di mesin ini: refraksi baru berlaku
+            // mulai ketinggian geometri sekitar -0,575 derajat. Karena itu terbit/terbenam dicari pada
+            // besaran kontinu: ketinggian geometri toposentris pusat Bulan dikurangi ambang standar
+            // h0 = -(34' refraksi horizon + semidiameter Bulan), semidiameter = asin(1737,4 km / jarak).
+            const sd = Math.asin(1737.4 / d.distance_km) * 180 / Math.PI;
+            return {
+                alt: d.horizontal.altitude_apparent_deg,
+                ha: norm180(d.horizontal.hour_angle_deg),
+                g: d.horizontal.altitude_geometric_deg + (34.0 / 60.0) + sd
+            };
+        };
+        const brent = (f, a, b, fa, fb) => {
+            const TOL = 1e-8, ITMAX = 60, EPS = 3e-16;
+            let c = b, fc = fb, d = 0, e = 0;
+            for (let it = 0; it < ITMAX; it++) {
+                if ((fb > 0 && fc > 0) || (fb < 0 && fc < 0)) { c = a; fc = fa; d = b - a; e = d; }
+                if (Math.abs(fc) < Math.abs(fb)) { a = b; b = c; c = a; fa = fb; fb = fc; fc = fa; }
+                const tol1 = 2 * EPS * Math.abs(b) + 0.5 * TOL;
+                const xm = 0.5 * (c - b);
+                if (Math.abs(xm) <= tol1 || fb === 0) return b;
+                if (Math.abs(e) >= tol1 && Math.abs(fa) > Math.abs(fb)) {
+                    let p, q, r; const sr = fb / fa;
+                    if (a === c) { p = 2 * xm * sr; q = 1 - sr; }
+                    else { q = fa / fc; r = fb / fc; p = sr * (2 * xm * q * (q - r) - (b - a) * (r - 1)); q = (q - 1) * (r - 1) * (sr - 1); }
+                    if (p > 0) q = -q;
+                    p = Math.abs(p);
+                    const min1 = 3 * xm * q - Math.abs(tol1 * q), min2 = Math.abs(e * q);
+                    if (2 * p < (min1 < min2 ? min1 : min2)) { e = d; d = p / q; } else { d = xm; e = d; }
+                } else { d = xm; e = d; }
+                a = b; fa = fb;
+                b += Math.abs(d) > tol1 ? d : (xm > 0 ? tol1 : -tol1);
+                fb = f(b);
+            }
+            return b;
+        };
 
         for (let i = 0; i < N; i++) {
             const h = -12.0 + (i * (36.0 - (-12.0)) / (N - 1));
             hours[i] = h;
-            const jd = jd_local_midnight_utc + h / 24.0;
-            const moon_data = lunar_engine.calculate_position(
-                jd, 'horizontal',
-                observer_lat_deg, observer_lon_deg, observer_elevation_m);
-            alts[i] = moon_data.horizontal.altitude_apparent_deg;
-            has[i] = moon_data.horizontal.hour_angle_deg;
+            const sm = sample(h);
+            alts[i] = sm.alt;
+            gs[i] = sm.g;
+            has[i] = sm.ha;
         }
 
-        const horizon = -0.25;
-        let transit_time = null, transit_alt = null;
-            
-            for (let i = 0; i < N - 1; i++) {
-                const h1 = has[i], h2 = has[i+1];
-                if ((h1 <= 0 && h2 >= 0) || (h1 >= 0 && h2 <= 0)) {
-                    if (h1 !== h2) {
-                        // Jika memungkinkan, gunakan 3 titik (i-1, i, i+1) untuk kurva parabola
-                        if (i > 0 && i < N - 2) {
-                            const y1 = has[i-1], y2 = has[i], y3 = has[i+1];
-                            const a1 = alts[i-1], a2 = alts[i], a3 = alts[i+1];
-                            const dx = hours[i] - hours[i-1];
-                            
-                            // Persamaan Parabola: A*u^2 + B*u + C = 0
-                            const A = y1 - 2*y2 + y3;
-                            const B = (y3 - y1) * dx;
-                            const C = 2 * y2 * dx * dx;
-                            
-                            let u = 0;
-                            if (Math.abs(A) > 1e-10) {
-                                const disc = B*B - 4*A*C;
-                                if (disc >= 0) {
-                                    const sqrtDisc = Math.sqrt(disc);
-                                    const u1 = (-B + sqrtDisc) / (2*A);
-                                    const u2 = (-B - sqrtDisc) / (2*A);
-                                    // Pilih akar yang paling dekat dengan titik pusat (u=0)
-                                    u = Math.abs(u1) < Math.abs(u2) ? u1 : u2;
-                                } else {
-                                    u = -y2 * dx / (y3 - y1); // Fallback linear
-                                }
-                            } else {
-                                u = -y2 * dx / (y3 - y1); // Fallback linear
-                            }
-                            
-                            let raw_t = hours[i] + u;
-                            let t = ((raw_t % 24) + 24) % 24;
-                            
-                            // Hitung altitude menggunakan rumus parabola
-                            let alt = a2 + (a3 - a1) / (2*dx) * u + A / (2*dx*dx) * u*u;
-                            
-                            if (alt > -1.0 || transit_time === null) {
-                                transit_time = t;
-                                transit_alt = alt;
-                                if (alt > 0) break;
-                            }
-                        } else {
-                            // Fallback ke linear jika terjadi di ujung array (sangat jarang)
-                            const frac = -h1 / (h2 - h1);
-                            let t = hours[i] + frac * (hours[i+1] - hours[i]);
-                            t = ((t % 24) + 24) % 24;
-                            const alt = alts[i] + frac * (alts[i+1] - alts[i]);
-                            if (alt > -1.0 || transit_time === null) {
-                                transit_time = t;
-                                transit_alt = alt;
-                                if (alt > 0) break;
-                            }
-                        }
-                    }
-                }
-            }
-        let rise_time = null, set_time = null;
+
+        // Kumpulkan SEMUA kejadian dalam jendela pemindaian (-12..+36 jam), masing-masing diperhalus
+        // dengan Brent. Bulan terbit/transit/terbenam tiap ~24j50m, jadi sebagian hari kalender
+        // tidak memuat salah satu kejadian itu. Agar selalu tersedia nilai yang terdefinisi, dipilih
+        // kejadian pada hari tersebut [0,24); bila tidak ada, kejadian terdekat dengan batas hari,
+        // dan selisih harinya (day_offset = -1 / +1) dilaporkan terpisah dari jam yang dinormalisasi.
+        const fh = (h) => sample(h).g;
+        const transits = [], rises = [], sets = [];
         for (let i = 0; i < N - 1; i++) {
-            const h1 = hours[i], h2 = hours[i+1];
-            if (h2 < 0 || h1 > 24) continue;
-            if (alts[i] < horizon && alts[i+1] >= horizon) {
-                const frac = (horizon - alts[i]) / (alts[i+1] - alts[i]);
-                const t = h1 + frac * (h2 - h1);
-                if (t >= 0 && t <= 24.0001 && rise_time === null) rise_time = t;
-            } else if (alts[i] >= horizon && alts[i+1] < horizon) {
-                const frac = (alts[i] - horizon) / (alts[i] - alts[i+1]);
-                const t = h1 + frac * (h2 - h1);
-                if (t >= 0 && t <= 24.0001 && set_time === null) set_time = t;
+            if (has[i] < 0 && has[i+1] >= 0 && Math.abs(has[i]) < 90 && Math.abs(has[i+1]) < 90) {
+                const t = brent((h) => sample(h).ha, hours[i], hours[i+1], has[i], has[i+1]);
+                transits.push({ t: t, alt: sample(t).alt });
+            }
+            if (gs[i] < 0 && gs[i+1] >= 0) {
+                rises.push({ t: brent(fh, hours[i], hours[i+1], gs[i], gs[i+1]) });
+            } else if (gs[i] >= 0 && gs[i+1] < 0) {
+                sets.push({ t: brent(fh, hours[i], hours[i+1], gs[i], gs[i+1]) });
             }
         }
+        const pick = (list) => {
+            if (!list.length) return null;
+            const inDay = list.find((x) => x.t >= 0 && x.t < 24);
+            if (inDay) return { ev: inDay, offset: 0 };
+            let best = null, bd = Infinity;
+            for (const x of list) {
+                const dist = x.t < 0 ? -x.t : x.t - 24;
+                if (dist < bd) { bd = dist; best = x; }
+            }
+            return { ev: best, offset: best.t < 0 ? -1 : 1 };
+        };
+        const pT = pick(transits), pR = pick(rises), pS = pick(sets);
+        const transit_time = pT ? pT.ev.t : null, transit_alt = pT ? pT.ev.alt : null, transit_offset = pT ? pT.offset : 0;
+        const rise_time = pR ? pR.ev.t : null, rise_offset = pR ? pR.offset : 0;
+        const set_time = pS ? pS.ev.t : null, set_offset = pS ? pS.offset : 0;
 
         const fmt_time = (h) => {
             if (h === null) return '--:--:--';
@@ -2936,15 +2947,17 @@ if (typeof module !== 'undefined' && module.exports) {
         return {
             moonrise: {
                 utc: rise_time !== null ? fmt_time(rise_time - wib_offset) : '--:--:--',
-                wib: fmt_time(rise_time), local_time: rise_time
+                wib: fmt_time(rise_time), local_time: rise_time, day_offset: rise_offset
             },
             moonset: {
                 utc: set_time !== null ? fmt_time(set_time - wib_offset) : '--:--:--',
-                wib: fmt_time(set_time), local_time: set_time
+                wib: fmt_time(set_time), local_time: set_time, day_offset: set_offset
             },
             transit: {
                 utc: transit_time !== null ? fmt_time(transit_time - wib_offset) : '--:--:--',
-                wib: fmt_time(transit_time), local_time: transit_time,
+                wib: fmt_time(transit_time),
+                local_time: transit_time,
+                day_offset: transit_offset,
                 altitude_deg: transit_alt
             }
         };
@@ -3362,7 +3375,7 @@ class ELP82B {
     // Espenak & Meeus (2006) memakai -25,858"/abad^2 (Chapront dkk. 2002, cocok dengan LLR).
     // Koreksi dikenakan pada bujur rata-rata W1 sebagai suku T^2 (T = abad Julian dari J2000):
     //   dW1 = 0,5 * (ndot_baru - ndot_ELP82) * T^2  =  -0,9817" * T^2 untuk -25,858.
-    // Diverifikasi empiris terhadap kolom TD katalog gerhana NASA (lihat Referensi).
+    // Diverifikasi: nilai -23,8946 = 2 x (-11,9473) dari Tabel C dokumentasi ELP82B; dan empiris terhadap kolom TD katalog NASA (lihat Referensi).
     set_tidal_correction(on, ndot_new) {
         const nd_new = (ndot_new === undefined) ? -25.858 : ndot_new;
         this.tidal_corr = on ? (0.5 * (nd_new - (-23.8946)) / RAD_) : 0;
@@ -10607,7 +10620,7 @@ class GrahacaraAsthaEngine {
         }
         if (name === "Candra") {
             const m = a.topo_corr.calculate_moon_rise_set_transit(jd_local_mid_utc, a.lat, a.lon, a.elev, a.moon_calc);
-            return { rise: m.moonrise, transit: { wib: m.transit.wib, local_time: m.transit.local_time, altitude: m.transit.altitude_deg }, set: m.moonset, method: 'JRC calculate_moon_rise_set_transit' };
+            return { rise: m.moonrise, transit: { wib: m.transit.wib, local_time: m.transit.local_time, altitude: m.transit.altitude_deg, day_offset: m.transit.day_offset }, set: m.moonset, method: 'JRC calculate_moon_rise_set_transit' };
         }
         const K = 17, step = 3, ra = [], dc = [];
         for (let k = 0; k < K; k++) {
@@ -10622,11 +10635,11 @@ class GrahacaraAsthaEngine {
             hours.push(h); alts.push(aa.altitude_apparent); has.push(aa.hour_angle);
         }
         let tt = null, ta = null, rise = null, set = null; const hz = 0.0;
-        for (let i = 0; i < N - 1; i++) if (has[i] < 0 && has[i + 1] >= 0) { const fr = -has[i] / (has[i + 1] - has[i]), t = hours[i] + fr * 0.5; if (t >= 0 && t <= 24.0001) { tt = t; ta = alts[i] + fr * (alts[i + 1] - alts[i]); break; } }
+        for (let i = 0; i < N - 1; i++) if (has[i] < 0 && has[i + 1] >= 0) { const fr = -has[i] / (has[i + 1] - has[i]), t = hours[i] + fr * 0.5; if (t >= 0 && t <= 24) { tt = t; ta = alts[i] + fr * (alts[i + 1] - alts[i]); break; } }
         for (let i = 0; i < N - 1; i++) {
             const h1 = hours[i], h2 = hours[i + 1]; if (h2 < 0 || h1 > 24) continue;
-            if (alts[i] < hz && alts[i + 1] >= hz) { const t = h1 + (hz - alts[i]) / (alts[i + 1] - alts[i]) * 0.5; if (t >= 0 && t <= 24.0001 && rise === null) rise = t; }
-            else if (alts[i] >= hz && alts[i + 1] < hz) { const t = h1 + (alts[i] - hz) / (alts[i] - alts[i + 1]) * 0.5; if (t >= 0 && t <= 24.0001 && set === null) set = t; }
+            if (alts[i] < hz && alts[i + 1] >= hz) { const t = h1 + (hz - alts[i]) / (alts[i + 1] - alts[i]) * 0.5; if (t >= 0 && t <= 24 && rise === null) rise = t; }
+            else if (alts[i] >= hz && alts[i + 1] < hz) { const t = h1 + (alts[i] - hz) / (alts[i] - alts[i + 1]) * 0.5; if (t >= 0 && t <= 24 && set === null) set = t; }
         }
         return { rise: mk(rise), transit: mk(tt, ta), set: mk(set), method: 'scan 97 titik (gaya moon rise/set JRC)' };
     }
@@ -37053,6 +37066,15 @@ App.parseHour = function(txt) {
   return parseFloat(txt);
 };
 App.card = function(title, content) { return '<div class="card"><h3>' + title + '</h3>' + content + '</div>'; };
+App.evt = function(e) {
+  if (!e || e.wib == null) return '\u2014';
+  var o = e.day_offset | 0;
+  return e.wib + (o ? '<sup class="doff" title="' + (o > 0 ? 'Kejadian terdekat pada hari berikutnya' : 'Kejadian terdekat pada hari sebelumnya') + '">H' + (o > 0 ? '+1' : '\u22121') + '</sup>' : '');
+};
+App.evtNote = function(m) {
+  var any = m && [m.moonrise, m.transit, m.moonset].some(function(e) { return e && e.day_offset; });
+  return any ? '<p class="caption">H+1 / H\u22121: kejadian terdekat pada hari berikutnya / sebelumnya. Bulan terbit, transit, dan terbenam setiap \u00b124 j 50 m, sehingga tidak selalu jatuh pada hari kalender yang sama.</p>' : '';
+};
 App.kv = function(pairs) { var h = '<div class="kv">'; for (var i = 0; i < pairs.length; i++) h += '<div class="k">' + pairs[i][0] + '</div><div class="v">' + pairs[i][1] + '</div>'; return h + '</div>'; };
 App.metric = function(label, value) { return '<div class="metric"><div class="metric-label">' + label + '</div><div class="metric-value">' + value + '</div></div>'; };
 App.getTodayPanchanga = function() {
@@ -37290,10 +37312,10 @@ App.render_realtime = function(main) {
     var mr = p.moon.times;
     if (mr && !mr.error) {
       h += '<h2>🌙 Waktu Bulan</h2>' + App.card('', App.kv([
-        ['Terbit', mr.moonrise ? mr.moonrise.wib : '--:--:--'],
-        ['Transit', mr.transit ? mr.transit.wib : '--:--:--'],
-        ['Terbenam', mr.moonset ? mr.moonset.wib : '--:--:--']
-      ]));
+        ['Terbit', App.evt(mr.moonrise)],
+        ['Transit', App.evt(mr.transit)],
+        ['Terbenam', App.evt(mr.moonset)]
+      ]) + App.evtNote(mr));
     }
 
     var ep = e.wukuEng.get_detailed_wuku_epoch_info(p.ka);
@@ -37458,10 +37480,10 @@ App.render_tanggal = function(main) {
       var mrstT = App.getMoonTimes(y, m, d);
       if (mrstT && !mrstT.error) {
         out += App.card('🌙 Waktu Bulan', App.kv([
-          ['Terbit', mrstT.moonrise ? mrstT.moonrise.wib : '--:--:--'],
-          ['Transit', mrstT.transit ? mrstT.transit.wib : '--:--:--'],
-          ['Terbenam', mrstT.moonset ? mrstT.moonset.wib : '--:--:--']
-        ]));
+          ['Terbit', App.evt(mrstT.moonrise)],
+          ['Transit', App.evt(mrstT.transit)],
+          ['Terbenam', App.evt(mrstT.moonset)]
+        ]) + App.evtNote(mrstT));
       }
 
       document.getElementById('tgl-out').innerHTML = out;
@@ -39183,11 +39205,11 @@ App.render_referensi = function(main) {
     var files = '<h4 class="dt-h">Berkas data dan penggunaannya</h4><div class="tbl-wrap"><table class="data"><tr><th>Berkas</th><th>Isi</th><th>Penggunaan</th></tr>';
     SRC.files.forEach(function(f) { files += '<tr><td>' + E(f[0]) + '</td><td>' + E(f[1]) + '</td><td>' + E(f[2]) + '</td></tr>'; });
     files += '</table></div>';
-    var meth = '<h4 class="dt-h">Metode</h4><ol>' + SRC.methods.map(function(m) { return '<li>' + E(m) + '</li>'; }).join('') + '</ol>';
+    var meth = '<h4 class="dt-h">Metode</h4><ol class="dt-list">' + SRC.methods.map(function(m) { return '<li>' + E(m) + '</li>'; }).join('') + '</ol>';
     var val = '<h4 class="dt-h">Hasil validasi</h4><div class="tbl-wrap"><table class="data"><tr><th>Uji</th><th>Hasil</th></tr>';
     SRC.validation.forEach(function(v) { val += '<tr><td>' + E(v[0]) + '</td><td>' + E(v[1]) + '</td></tr>'; });
     val += '</table></div>';
-    var lim = '<h4 class="dt-h">Keterbatasan dan catatan</h4><ul>' + SRC.limitations.map(function(m) { return '<li>' + E(m) + '</li>'; }).join('') + '</ul>';
+    var lim = '<h4 class="dt-h">Keterbatasan dan catatan</h4><ul class="dt-list">' + SRC.limitations.map(function(m) { return '<li>' + E(m) + '</li>'; }).join('') + '</ul>';
     h += App.card('\u23f1\ufe0f \u0394T \u2014 Metode, Validasi, dan Keterbatasan', files + meth + val + lim);
     var cmp = '';
     try {
@@ -39393,7 +39415,7 @@ App.render_grahacara = function(main) {
       var a = r.astronomical_data, T = tr[n];
       if (a.in_validity === false) warn.push(n);
       r1 += '<tr><td style="color:' + COL[n] + '">' + GL[n] + ' ' + n + '</td><td>' + a.longitude_nirayana.toFixed(4) + '\u00b0</td><td>' + a.rasi_sanskrit + ' ' + a.rasi_degrees.toFixed(2) + '\u00b0</td><td>' + a.longitude_tropical.toFixed(4) + '\u00b0</td><td>' + a.latitude.toFixed(5) + '\u00b0</td><td>' + r.lha.toFixed(2) + '\u00b0</td><td>' + App.esc(r.zona_astha) + '</td></tr>';
-      r2 += '<tr><td style="color:' + COL[n] + '">' + GL[n] + ' ' + n + '</td><td>' + a.right_ascension.toFixed(3) + '\u00b0</td><td>' + a.declination.toFixed(3) + '\u00b0</td><td>' + a.altitude.toFixed(2) + '\u00b0</td><td>' + a.azimuth.toFixed(2) + '\u00b0</td><td>' + (a.distance_au ? (a.distance_au < 0.1 ? a.distance_au.toFixed(7) : a.distance_au.toFixed(5)) : '\u2014') + '</td><td>' + (T ? T.rise.wib : '\u2014') + '</td><td>' + (T ? T.transit.wib + (T.transit.altitude != null ? ' (' + T.transit.altitude.toFixed(1) + '\u00b0)' : '') : '\u2014') + '</td><td>' + (T ? T.set.wib : '\u2014') + '</td></tr>';
+      r2 += '<tr><td style="color:' + COL[n] + '">' + GL[n] + ' ' + n + '</td><td>' + a.right_ascension.toFixed(3) + '\u00b0</td><td>' + a.declination.toFixed(3) + '\u00b0</td><td>' + a.altitude.toFixed(2) + '\u00b0</td><td>' + a.azimuth.toFixed(2) + '\u00b0</td><td>' + (a.distance_au ? (a.distance_au < 0.1 ? a.distance_au.toFixed(7) : a.distance_au.toFixed(5)) : '\u2014') + '</td><td>' + (T ? App.evt(T.rise) : '\u2014') + '</td><td>' + (T ? App.evt(T.transit) + (T.transit.altitude != null ? ' <span class="alt">(' + T.transit.altitude.toFixed(1) + '\u00b0)</span>' : '') : '\u2014') + '</td><td>' + (T ? App.evt(T.set) : '\u2014') + '</td></tr>';
     });
     setHTML($('gh-t1'), '<tr><th>Graha</th><th>\u03bb Nirayana</th><th>R\u0101\u015bi</th><th>\u03bb Sayana</th><th>\u03b2</th><th>LHA</th><th>Zona Astha</th></tr>' + r1);
     setHTML($('gh-t2'), '<tr><th>Graha</th><th>RA</th><th>Dec</th><th>Alt</th><th>Az</th><th>Jarak (AU)</th><th>Terbit</th><th>Transit (alt)</th><th>Terbenam</th></tr>' + r2);
